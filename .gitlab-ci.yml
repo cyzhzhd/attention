@@ -1,0 +1,18 @@
+image: node
+
+cache:
+  paths:
+    - ./WebRTC/node_modules
+    - ./Electron/node_modules
+
+build-webrtc: 
+  script: npm install --prefix ./WebRTC ./WebRTC
+  only:
+    changes:
+      - ./WebRTC/*
+
+build-electron:
+  script: npm install --prefix ./Electron ./Electron
+  only:
+    changes:
+      - ./Electron/*
