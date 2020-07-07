@@ -10,7 +10,6 @@
     "@typescript-eslint/eslint-plugin": "^3.5.0",
     "@typescript-eslint/parser": "^3.5.0",
     "eslint": "^7.4.0",
-    "eslint-plugin-react": "^7.20.3",
     "husky": "^4.2.5",
     "lint-staged": "^10.2.11",
     "prettier": "2.0.5"
@@ -19,6 +18,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "JaeGwonChoi",
+  "repository": {
+    "type": "gitlab",
+    "url": "https://13.125.91.162/swmaestro/183"
+  },
   "license": "ISC",
   "husky": {
     "hooks": {
@@ -28,8 +31,10 @@
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx,html,css,md}": [
-      "prettier --write"],
+      "prettier --write"
+    ],
     "**/*.{js,jsx,ts,tsx}": [
-      "eslint"]
+      "eslint"
+    ]
   }
 }

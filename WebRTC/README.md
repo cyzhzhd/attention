@@ -2,7 +2,9 @@
 
 ### How To
 
-TODO
+```
+yarn
+```
 
 ### Formatting & linting
 
