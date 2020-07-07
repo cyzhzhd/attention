@@ -3,7 +3,7 @@
 ### How To
 
 ```
-npm i
+yarn
 ```
 
 ### Formatting & linting
