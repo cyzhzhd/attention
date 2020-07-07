@@ -14,14 +14,12 @@ TODO
 
 ### 버전
 
-node v14.5.0
-npm v6.14.5
-yarn v1.22.4
+- node v14.5.0
+- npm v6.14.5
+- yarn v1.22.4
 
-- recommended use: yarn
+* recommended use: yarn
 
 ### 외부 링크
 
 [electron-react-boilerplate](https://github.com/electron-react-boilerplate/electron-react-boilerplate)
-
-TODO
