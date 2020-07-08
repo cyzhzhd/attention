@@ -16,7 +16,7 @@ build-webrtc:
   script: yarn --cwd ./"$RTC"
   only:
     changes:
-      - ./"RTC"/*
+      - ./"$RTC"/*
 
 build-electron: 
   script: yarn --cwd ./"$ELECTRON"
