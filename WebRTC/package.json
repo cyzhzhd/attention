@@ -5,14 +5,14 @@
   "main": "index.js",
   "dependencies": {},
   "devDependencies": {
-    "typescript": "^3.9.6",
     "@commitlint/config-conventional": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^3.5.0",
     "@typescript-eslint/parser": "^3.5.0",
     "eslint": "^7.4.0",
     "husky": "^4.2.5",
     "lint-staged": "^10.2.11",
-    "prettier": "2.0.5"
+    "prettier": "2.0.5",
+    "typescript": "^3.9.6"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
