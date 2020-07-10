@@ -12,8 +12,21 @@
   </head>
   <body>
     <div id="videos">
-      <video id="local"></video>
-      <video id="remote"></video>
+      <video
+        id="local"
+        width="480"
+        height="360"
+        playsinline
+        autoplay
+        muted
+      ></video>
+      <video id="remote" width="480" height="360" playsinline autoplay></video>
+      <div>
+        <button id="startButton">start</button>
+        <button id="callButton">call</button>
+        <button id="hangupButton">hangup</button>
+      </div>
     </div>
   </body>
+  <script src="main.js" async></script>
 </html>

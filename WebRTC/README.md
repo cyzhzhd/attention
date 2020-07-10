@@ -6,6 +6,12 @@
 yarn
 ```
 
+compile typescript:
+
+```
+tsc main.ts --lib DOM,ES6,DOM.Iterable,ScriptHost
+```
+
 ### Formatting & linting
 
 - [lint-staged](https://github.com/okonet/lint-staged)
