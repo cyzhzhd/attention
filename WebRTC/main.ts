@@ -1,3 +1,5 @@
+const socket = io("http://172.30.1.13:3000", { autoConnect: false });
+
 const localVideo = document.getElementById("local") as HTMLVideoElement;
 const remoteVideo = document.getElementById("remote") as HTMLVideoElement;
 
@@ -6,32 +8,40 @@ const callButton = document.getElementById("callButton") as HTMLInputElement;
 const hangupButton = document.getElementById(
   "hangupButton"
 ) as HTMLInputElement;
+const joinButton = document.getElementById("joinButton") as HTMLInputElement;
+const sessionID = document.getElementById("sessionID") as HTMLTextAreaElement;
+const sessionInput = document.getElementById(
+  "sessionInput"
+) as HTMLInputElement;
 
 let localStream: MediaStream;
-let pc1: RTCPeerConnection;
-let pc2: RTCPeerConnection;
+let pc: RTCPeerConnection;
 
 callButton.disabled = true;
 hangupButton.disabled = true;
+joinButton.disabled = true;
+
+(function sessionTextSockets() {
+  socket.on("sessionID", (id: string) => {
+    sessionID.textContent = id;
+  });
+
+  socket.on("disconnect", () => {
+    sessionID.textContent = "call first";
+  });
+})();
 
 const configuration: RTCConfiguration = {
   iceServers: [
     {
-      urls: [
-        "stun:stun1.l.google.com:19302",
-        "stun:stun2.l.google.com:19302",
-        "stun:stun3.l.google.com:19302",
-        "stun:stun4.l.google.com:19302",
-        "stun:stun.stunprotocol.org:3478",
-      ],
+      urls: ["stun:stun.l.google.com:19302"],
     },
   ],
   iceCandidatePoolSize: 10,
 };
 
 const offerOptions: RTCOfferOptions = {
-  offerToReceiveAudio: true,
-  offerToReceiveVideo: true,
+  iceRestart: true,
 };
 
 async function onStart() {
@@ -50,6 +60,7 @@ async function onStart() {
     localVideo.srcObject = stream;
     localStream = stream;
     callButton.disabled = false;
+    joinButton.disabled = false;
   } catch (e) {
     alert(`getUserMedia() error: ${e.name}`);
   }
@@ -57,95 +68,143 @@ async function onStart() {
 
 async function onCall() {
   callButton.disabled = true;
+  joinButton.disabled = true;
   hangupButton.disabled = false;
-  pc1 = new RTCPeerConnection(configuration);
-  pc2 = new RTCPeerConnection(configuration);
-  pc1.addEventListener("icecandidate", (e) => onIceCandidate(pc1, e));
-  pc2.addEventListener("icecandidate", (e) => onIceCandidate(pc2, e));
-  pc1.addEventListener("iceconnectionstatechange", (e) => {
-    console.log("ICE state change event: ", e);
+  socket.connect();
+
+  pc = new RTCPeerConnection(configuration);
+  pc.addEventListener("iceconnectionstatechange", () => {
+    if (pc.iceConnectionState == "disconnected") resendOffer();
   });
-  pc2.addEventListener("iceconnectionstatechange", (e) => {
-    console.log("ICE state change event: ", e);
-  });
-  pc2.addEventListener("track", gotRemoteStream);
-  localStream.getTracks().forEach((track) => pc1.addTrack(track, localStream));
+  setPcListner(pc);
+
+  localStream
+    .getTracks()
+    .forEach(async (track) => pc.addTrack(track, localStream));
 
   try {
-    const offer = await pc1.createOffer(offerOptions);
-    await onCreateOfferSuccess(offer);
-    console.log("SDP offer success");
+    const offer = await pc.createOffer(offerOptions);
+    await pc.setLocalDescription(offer);
+    console.log("SDP offer created");
+    socketOnCall(offer);
   } catch (e) {
-    console.error("Failed to create pc1 session description", e);
+    console.error("Failed to create pc session description", e);
   }
+}
+
+async function resendOffer() {
+  console.log("resending SDP offer");
+  const offer = await pc.createOffer(offerOptions);
+  await pc.setLocalDescription(offer);
+  socket.emit("sendOffer", offer);
+}
+
+function socketOnCall(offer: RTCSessionDescriptionInit) {
+  socket.on("gotCandidate", async (candidate: RTCIceCandidate) => {
+    console.log("got ice candidate from peer");
+    try {
+      await pc.addIceCandidate(candidate);
+    } catch (e) {
+      console.error("error while adding icecandidate");
+    }
+  });
+  socket.on("newParticipant", () => {
+    console.log("new participant detected. sending SDP offer");
+    socket.emit("sendOffer", offer);
+  });
+  socket.on("gotAnswer", (answer: RTCSessionDescriptionInit) => {
+    if (answer) {
+      console.log("got an SDP answer");
+      pc.setRemoteDescription(answer);
+      console.log("can trickle: ", pc.canTrickleIceCandidates);
+    }
+  });
+}
+
+async function onJoin() {
+  callButton.disabled = true;
+  joinButton.disabled = true;
+  hangupButton.disabled = false;
+  socket.connect();
+
+  pc = new RTCPeerConnection(configuration);
+  setPcListner(pc);
+  localStream
+    .getTracks()
+    .forEach(async (track) => pc.addTrack(track, localStream));
+
+  socketOnJoin();
+  socket.emit("joinSession", sessionInput.value);
+}
+
+function socketOnJoin() {
+  socket.on("gotCandidate", async (candidate: RTCIceCandidate) => {
+    console.log("got ice candidate from peer");
+    try {
+      await pc.addIceCandidate(candidate);
+    } catch (e) {
+      console.error("error while adding icecandidate");
+    }
+  });
+  socket.on("gotOffer", async (offer: RTCSessionDescriptionInit) => {
+    console.log("got an SDP offer");
+    if (offer) {
+      pc.setRemoteDescription(offer);
+    }
+    try {
+      const answer = await pc.createAnswer(offerOptions);
+      await pc.setLocalDescription(answer);
+      console.log("sending SDP answer");
+      socket.emit("sendAnswer", answer);
+      console.log("can trickle: ", pc.canTrickleIceCandidates);
+    } catch (e) {
+      console.error("Failed SDP answer", e);
+    }
+  });
+}
+
+function setPcListner(pc: RTCPeerConnection) {
+  pc.addEventListener("icecandidate", (e) => {
+    console.log("new icecandidate", e.candidate);
+    if (e.candidate) {
+      socket.emit("sendCandidate", e.candidate);
+    }
+  });
+  pc.addEventListener("iceconnectionstatechange", () => {
+    printState();
+  });
+  pc.addEventListener("track", gotRemoteStream);
 }
 
 const onHangup = function onHangup() {
-  pc1.close();
-  pc2.close();
-  pc1 = null;
-  pc2 = null;
+  pc.close();
+  socket.disconnect();
+  // pc = null;
+
+  ["newParticipant", "gotOffer", "gotAnswer", "gotCandidate"].forEach((str) => {
+    socket.removeEventListener(str);
+  });
+
   hangupButton.disabled = true;
   callButton.disabled = false;
+  joinButton.disabled = false;
 };
 
-async function onIceCandidate(pc, event) {
-  if (event.candidate === null) {
-    console.log(`Icecandidate null`);
-    return;
-  }
-  try {
-    console.log(`adding icecandidate`, event.candidate);
-    await getOtherPc(pc).addIceCandidate(event.candidate);
-  } catch (e) {
-    console.error("Error while adding icecandidate", e);
-  }
-}
-
-function getOtherPc(pc) {
-  return pc === pc1 ? pc2 : pc1;
-}
-
-function gotRemoteStream(e) {
+function gotRemoteStream(e: RTCTrackEvent) {
+  console.log("got remote stream");
   if (remoteVideo.srcObject !== e.streams[0]) {
     remoteVideo.srcObject = e.streams[0];
   }
 }
 
-async function onCreateOfferSuccess(desc) {
-  try {
-    await pc1.setLocalDescription(desc);
-  } catch (e) {
-    console.error(`Failed to set pc1 local description.`, e);
-  }
-
-  try {
-    await pc2.setRemoteDescription(desc);
-  } catch (e) {
-    console.error(`Failed to set pc2 remote description.`, e);
-  }
-
-  try {
-    const answer = await pc2.createAnswer();
-    await onCreateAnswerSuccess(answer);
-  } catch (e) {
-    console.error(`Failed to create pc2 session description.`, e);
-  }
-}
-
-async function onCreateAnswerSuccess(desc) {
-  try {
-    await pc2.setLocalDescription(desc);
-  } catch (e) {
-    console.error(`Failed to set pc2 local description.`, e);
-  }
-  try {
-    await pc1.setRemoteDescription(desc);
-  } catch (e) {
-    console.error(`Failed to set pc1 remote description.`, e);
-  }
+function printState() {
+  console.log("ice gathering state:", pc.iceGatheringState);
+  console.log("ice connection state", pc.iceConnectionState);
+  console.log("connection state", pc.connectionState);
+  console.log("signalingState", pc.signalingState);
 }
 
 startButton.addEventListener("click", onStart);
 callButton.addEventListener("click", onCall);
 hangupButton.addEventListener("click", onHangup);
+joinButton.addEventListener("click", onJoin);
