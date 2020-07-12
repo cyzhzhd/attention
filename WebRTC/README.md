@@ -9,7 +9,15 @@ yarn
 compile typescript:
 
 ```
-tsc main.ts --lib DOM,ES6,DOM.Iterable,ScriptHost
+tsc
+(options in tsconfig.json)
+(please check ip address of socket.io server in main.ts before compilation)
+```
+
+use:
+
+```
+open index.html
 ```
 
 ### Formatting & linting
