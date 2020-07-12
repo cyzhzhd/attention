@@ -48,10 +48,13 @@ async function onStart() {
   startButton.disabled = true;
   const constraints = {
     audio: {
+      autoGainControl: false,
+      echoCancellation: false,
+      noiseSuppression: false,
+      volume: 1.0,
+      latency: 0,
       sampleRate: 48000,
-      volume: 2.0,
-      autoGainControl: true,
-      echoCancellation: true,
+      sampleSize: 16,
     },
     video: { width: 480, height: 360 },
   };
@@ -84,6 +87,10 @@ async function onCall() {
 
   try {
     const offer = await pc.createOffer(offerOptions);
+    offer.sdp = offer.sdp?.replace(
+      "useinbandfec=1",
+      "useinbandfec=1; maxaveragebitrate=510000"
+    );
     await pc.setLocalDescription(offer);
     console.log("SDP offer created");
     socketOnCall(offer);
@@ -153,6 +160,10 @@ function socketOnJoin() {
     }
     try {
       const answer = await pc.createAnswer(offerOptions);
+      answer.sdp = answer.sdp?.replace(
+        "useinbandfec=1",
+        "useinbandfec=1; maxaveragebitrate=510000"
+      );
       await pc.setLocalDescription(answer);
       console.log("sending SDP answer");
       socket.emit("sendAnswer", answer);
@@ -172,6 +183,7 @@ function setPcListner(pc: RTCPeerConnection) {
   });
   pc.addEventListener("iceconnectionstatechange", () => {
     printState();
+    console.log(pc.localDescription, pc.remoteDescription);
   });
   pc.addEventListener("track", gotRemoteStream);
 }
