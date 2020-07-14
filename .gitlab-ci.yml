@@ -14,12 +14,12 @@ before_script:
 
 yarn-webrtc: 
   script: yarn --cwd ./$RTC
-  only:
-    changes:
-      - ./$RTC/*
+  #  only:
+  #    changes:
+  #      - ./$RTC/*
 
 yarn-electron: 
   script: yarn --cwd ./$ELECTRON
-  only:
-    changes:
-      - ./$ELECTRON/*
+  #  only:
+  #    changes:
+  #      - ./$ELECTRON/*
