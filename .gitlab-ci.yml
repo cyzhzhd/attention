@@ -6,20 +6,20 @@ variables:
 
 cache:
   paths:
-    - ./"$RTC"/node_modules
-    - ./"$ELECTRON"/node_modules
+    - ./$RTC/node_modules
+    - ./$ELECTRON/node_modules
 
 before_script:  
   - apt-get update -qq && apt-get install
 
-build-webrtc: 
-  script: yarn --cwd ./"$RTC"
+yarn-webrtc: 
+  script: yarn --cwd ./$RTC
   only:
     changes:
-      - ./"$RTC"/*
+      - ./$RTC/*
 
-build-electron: 
-  script: yarn --cwd ./"$ELECTRON"
+yarn-electron: 
+  script: yarn --cwd ./$ELECTRON
   only:
     changes:
-      - ./"$ELECTRON"/*
+      - ./$ELECTRON/*

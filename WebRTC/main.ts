@@ -1,4 +1,4 @@
-const socket = io("http://172.30.1.13:3000", { autoConnect: false });
+const socket = io("http://13.125.214.253:3000", { autoConnect: false });
 
 const localVideo = document.getElementById("local") as HTMLVideoElement;
 const remoteVideo = document.getElementById("remote") as HTMLVideoElement;
