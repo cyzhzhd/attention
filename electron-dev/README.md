@@ -45,14 +45,15 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 ## Using Tools
 
-node v14.5.0
-yarn v1.22.4
-tsc  v3.9.6
- -> target : ES2015(javascript ES6)
- -> conpile : tsc "경로/파일명.tsx"
+node v14.5.0<br />
+yarn v1.22.4<br />
+tsc  v3.9.6<br />
+ -> target : ES2015(javascript ES6)<br />
+ -> conpile : tsc "경로/파일명.tsx"<br />
 
-<package>
-electron-is-dev : electron이 개발환경에서 실행 중인지 확인 가능
-concurrently : 여러 명령어 병렬실행 가능
-wait-on : 크로스 플랫폼 명령어
+## Installed Package
+
+electron-is-dev : electron이 개발환경에서 실행 중인지 확인 가능<br />
+concurrently : 여러 명령어 병렬실행 가능<br />
+wait-on : 크로스 플랫폼 명령어<br />
 cross-env : OS에 관계없이 환경변수 설정 가능한 명령어
