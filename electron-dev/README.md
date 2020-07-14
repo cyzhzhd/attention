@@ -42,3 +42,17 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+## Using Tools
+
+node v14.5.0
+yarn v1.22.4
+tsc  v3.9.6
+ -> target : ES2015(javascript ES6)
+ -> conpile : tsc "경로/파일명.tsx"
+
+<package>
+electron-is-dev : electron이 개발환경에서 실행 중인지 확인 가능
+concurrently : 여러 명령어 병렬실행 가능
+wait-on : 크로스 플랫폼 명령어
+cross-env : OS에 관계없이 환경변수 설정 가능한 명령어
