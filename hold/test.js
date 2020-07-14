@@ -1,5 +1,5 @@
 "use strict";
-const socket = io("http://localhost:3000", {
+const socket = ioServer("http://localhost:3000", {
   autoConnect: false,
 }).connect();
 

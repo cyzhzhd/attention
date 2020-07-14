@@ -11,7 +11,13 @@
       <video id="localVideo" autoplay muted playsinline></video>
       <video id="remoteVideo" autoplay playsinline></video>
     </div>
-    <text id="sessionID"> call first </text>
+    <div>
+      <button id="startButton">start</button>
+      <button id="callButton">call</button>
+      <button id="hangupButton">hangup</button>
+      <b> Your session ID = </b>
+      <text id="sessionID"> call first </text>
+    </div>
   </body>
   <script src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script src="main.js"></script>

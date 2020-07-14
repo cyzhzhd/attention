@@ -12,11 +12,16 @@ const socket = io("http://localhost:3000", {
 const localVideo = document.getElementById("localVideo") as HTMLVideoElement;
 const remoteVideo = document.getElementById("remoteVideo") as HTMLVideoElement;
 
+const startButton = document.getElementById("startButton") as HTMLInputElement;
+const callButton = document.getElementById("callButton") as HTMLInputElement;
+// const hangupButton = document.getElementById(
+//   "hangupButton"
+// ) as HTMLInputElement;
 const sessionID = document.getElementById("sessionID") as HTMLTextAreaElement;
 
 const mediaStreamConstraints: MediaStreamConstraints = {
   video: true,
-  audio: false,
+  audio: true,
 };
 
 const rtcIceServerConfiguration: RTCConfiguration = {
@@ -31,9 +36,14 @@ const rtcIceServerConfiguration: RTCConfiguration = {
 let localStream: MediaStream;
 let remoteStream: MediaStream;
 
-////////
+/////////////////////////////////////////////////////////////////////
 
-socket.on("created", function (room: string, socketId: string) {
+function sendMessage(message: any) {
+  console.log("Client sending message: ", message);
+  socket.emit("message", message);
+}
+
+socket.on("created", function (room: string) {
   console.log(`created ${room}`);
   isInitiator = true;
 });
@@ -41,37 +51,19 @@ socket.on("created", function (room: string, socketId: string) {
 socket.on("joined", function (room: string, socketId: string) {
   console.log(`${socketId} joined ${room}`);
   isChannelReady = true;
-  startConnecting();
 });
 
-// socket.on("log", function (array) {
-//   console.log.apply(console, array);
-// });
+socket.on("sessionID", (id: string) => {
+  sessionID.textContent = id;
+});
 
-// const room = prompt("room name");
-const room = "my Room";
+socket.on("disconnect", () => {
+  sessionID.textContent = "call first";
+});
 
-if (room) {
-  socket.emit("create or join", room);
-  console.log(`${room}을 생성 또는 ${room}에 참가`);
-}
-
-(function sessionTextSockets() {
-  socket.on("sessionID", (id: string) => {
-    sessionID.textContent = id;
-  });
-
-  socket.on("disconnect", () => {
-    sessionID.textContent = "call first";
-  });
-})();
-
-///////////////////////
-
-function sendMessage(message: any) {
-  console.log("Client sending message: ", message);
-  socket.emit("message", message);
-}
+socket.on("log", function (array: any) {
+  console.log(array);
+});
 
 socket.on("message", function (message: any) {
   if (message.type === "offer") {
@@ -92,9 +84,16 @@ socket.on("message", function (message: any) {
     pc.addIceCandidate(candidate);
   }
 });
-/////////////////
+/////////////////////////////////////////////////////////////////////
 
-(async function onStart() {
+const room = prompt("room name");
+
+if (room !== "") {
+  socket.emit("create or join", room);
+  console.log(`${room}을 생성 또는 ${room}에 참가`);
+}
+
+const onStart = async function onStart() {
   try {
     const mediaStream = await navigator.mediaDevices.getUserMedia(
       mediaStreamConstraints
@@ -104,11 +103,7 @@ socket.on("message", function (message: any) {
   } catch (error) {
     console.log("navigator.getUserMedia error: ", error);
   }
-
-  if (isInitiator) {
-    startConnecting();
-  }
-})();
+};
 
 function startConnecting() {
   console.log(
@@ -136,6 +131,7 @@ function createPeerConnection() {
   // setLocalDescription()에 의해 호출 됌.
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/icecandidate_event
   pc.onicecandidate = handleIceCandidate;
+  // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/track_event
   pc.addEventListener("track", gotRemoteStream);
 
   if (isInitiator) {
@@ -168,14 +164,6 @@ function handleIceCandidate(event: RTCPeerConnectionIceEvent) {
 }
 
 async function createSDPOffer() {
-  console.log("offerStarted");
-  // if (localStream !== undefined) {
-  //   localStream
-  //     .getTracks()
-  //     .forEach(async (track) => pc.addTrack(track, localStream));
-  //   console.log("localStream added on the RTCPeerConnection in createSDPOffer");
-  // }
-
   try {
     console.log("offering sdp");
     const offer = await pc.createOffer();
@@ -185,7 +173,8 @@ async function createSDPOffer() {
       sdp: pc.localDescription,
       room: room,
     });
-    console.log("created offer");
+
+    console.log("offer created");
   } catch (e) {
     console.error("Failed to create pc session description", e);
   }
@@ -213,4 +202,5 @@ function gotRemoteStream(event: RTCTrackEvent) {
   console.log(remoteStream);
 }
 
-console.log("EOF");
+startButton.addEventListener("click", onStart);
+callButton.addEventListener("click", startConnecting);
