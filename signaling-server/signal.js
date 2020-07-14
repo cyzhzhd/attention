@@ -8,6 +8,7 @@ io.on("connection", (socket) => {
   socket.on("joinSession", (sessionID) => {
     socket.join(sessionID, () => {
       let rooms = socket.rooms;
+      // 방에 있는 유저에게 전달
       Object.values(rooms).forEach((room) => {
         console.log("a user joined session", room);
         socket.to(room).emit("newParticipant");

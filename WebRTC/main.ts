@@ -1,25 +1,60 @@
-const socket = io("http://172.30.1.13:3000", { autoConnect: false });
+"use strict";
 
-const localVideo = document.getElementById("local") as HTMLVideoElement;
-const remoteVideo = document.getElementById("remote") as HTMLVideoElement;
-
-const startButton = document.getElementById("startButton") as HTMLInputElement;
-const callButton = document.getElementById("callButton") as HTMLInputElement;
-const hangupButton = document.getElementById(
-  "hangupButton"
-) as HTMLInputElement;
-const joinButton = document.getElementById("joinButton") as HTMLInputElement;
-const sessionID = document.getElementById("sessionID") as HTMLTextAreaElement;
-const sessionInput = document.getElementById(
-  "sessionInput"
-) as HTMLInputElement;
-
-let localStream: MediaStream;
+let isInitiator = false;
+let isStarted = false;
+let isChannelReady = false;
 let pc: RTCPeerConnection;
 
-callButton.disabled = true;
-hangupButton.disabled = true;
-joinButton.disabled = true;
+const socket = io("http://localhost:3000", {
+  autoConnect: false,
+}).connect();
+
+const localVideo = document.getElementById("localVideo") as HTMLVideoElement;
+const remoteVideo = document.getElementById("remoteVideo") as HTMLVideoElement;
+
+const sessionID = document.getElementById("sessionID") as HTMLTextAreaElement;
+
+const mediaStreamConstraints: MediaStreamConstraints = {
+  video: true,
+  audio: false,
+};
+
+const rtcIceServerConfiguration: RTCConfiguration = {
+  iceServers: [
+    {
+      urls: ["stun:stun.l.google.com:19302"],
+    },
+  ],
+  iceCandidatePoolSize: 10,
+};
+
+let localStream: MediaStream;
+let remoteStream: MediaStream;
+
+////////
+
+socket.on("created", function (room: string, socketId: string) {
+  console.log(`created ${room}`);
+  isInitiator = true;
+});
+
+socket.on("joined", function (room: string, socketId: string) {
+  console.log(`${socketId} joined ${room}`);
+  isChannelReady = true;
+  startConnecting();
+});
+
+// socket.on("log", function (array) {
+//   console.log.apply(console, array);
+// });
+
+// const room = prompt("room name");
+const room = "my Room";
+
+if (room) {
+  socket.emit("create or join", room);
+  console.log(`${room}을 생성 또는 ${room}에 참가`);
+}
 
 (function sessionTextSockets() {
   socket.on("sessionID", (id: string) => {
@@ -31,180 +66,151 @@ joinButton.disabled = true;
   });
 })();
 
-const configuration: RTCConfiguration = {
-  iceServers: [
-    {
-      urls: ["stun:stun.l.google.com:19302"],
-    },
-  ],
-  iceCandidatePoolSize: 10,
-};
+///////////////////////
 
-const offerOptions: RTCOfferOptions = {
-  iceRestart: true,
-};
+function sendMessage(message: any) {
+  console.log("Client sending message: ", message);
+  socket.emit("message", message);
+}
 
-async function onStart() {
-  startButton.disabled = true;
-  const constraints = {
-    audio: {
-      sampleRate: 48000,
-      volume: 2.0,
-      autoGainControl: true,
-      echoCancellation: true,
-    },
-    video: { width: 480, height: 360 },
-  };
+socket.on("message", function (message: any) {
+  if (message.type === "offer") {
+    if (!isInitiator && !isStarted) {
+      startConnecting();
+    }
+    console.log("got offer ", message.sdp);
+    pc.setRemoteDescription(new RTCSessionDescription(message.sdp));
+    makeAnswer();
+  } else if (message.type === "answer" && isStarted) {
+    console.log("got answer ", message.sdp);
+    pc.setRemoteDescription(new RTCSessionDescription(message.sdp));
+  } else if (message.type === "candidate" && isStarted) {
+    const candidate = new RTCIceCandidate({
+      sdpMLineIndex: message.label,
+      candidate: message.candidate,
+    });
+    pc.addIceCandidate(candidate);
+  }
+});
+/////////////////
+
+(async function onStart() {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia(constraints);
-    localVideo.srcObject = stream;
-    localStream = stream;
-    callButton.disabled = false;
-    joinButton.disabled = false;
-  } catch (e) {
-    alert(`getUserMedia() error: ${e.name}`);
+    const mediaStream = await navigator.mediaDevices.getUserMedia(
+      mediaStreamConstraints
+    );
+    localStream = mediaStream;
+    localVideo.srcObject = mediaStream;
+  } catch (error) {
+    console.log("navigator.getUserMedia error: ", error);
+  }
+
+  if (isInitiator) {
+    startConnecting();
+  }
+})();
+
+function startConnecting() {
+  console.log(
+    "start status: ",
+    isStarted,
+    " localStream :",
+    localStream,
+    " Channel Ready: ",
+    isChannelReady
+  );
+
+  if (!isChannelReady && !isStarted) {
+    return;
+  }
+  console.log("creating peer connection");
+
+  createPeerConnection();
+
+  isStarted = true;
+}
+
+function createPeerConnection() {
+  pc = new RTCPeerConnection(rtcIceServerConfiguration);
+
+  // setLocalDescription()에 의해 호출 됌.
+  // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/icecandidate_event
+  pc.onicecandidate = handleIceCandidate;
+  pc.addEventListener("track", gotRemoteStream);
+
+  if (isInitiator) {
+    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
+    pc.addEventListener("negotiationneeded", createSDPOffer);
+  }
+  console.log("Created RTCPeerConnection");
+
+  if (localStream !== undefined) {
+    localStream
+      .getTracks()
+      .forEach(async (track) => pc.addTrack(track, localStream));
+    console.log("localStream added on the RTCPeerConnection");
   }
 }
 
-async function onCall() {
-  callButton.disabled = true;
-  joinButton.disabled = true;
-  hangupButton.disabled = false;
-  socket.connect();
+function handleIceCandidate(event: RTCPeerConnectionIceEvent) {
+  console.log("icecandidate event: ", event);
+  if (event.candidate) {
+    sendMessage({
+      type: "candidate",
+      label: event.candidate.sdpMLineIndex,
+      id: event.candidate.sdpMid,
+      candidate: event.candidate.candidate,
+      room: room,
+    });
+  } else {
+    console.log("End of candidates.");
+  }
+}
 
-  pc = new RTCPeerConnection(configuration);
-  pc.addEventListener("iceconnectionstatechange", () => {
-    if (pc.iceConnectionState == "disconnected") resendOffer();
-  });
-  setPcListner(pc);
-
-  localStream
-    .getTracks()
-    .forEach(async (track) => pc.addTrack(track, localStream));
+async function createSDPOffer() {
+  console.log("offerStarted");
+  // if (localStream !== undefined) {
+  //   localStream
+  //     .getTracks()
+  //     .forEach(async (track) => pc.addTrack(track, localStream));
+  //   console.log("localStream added on the RTCPeerConnection in createSDPOffer");
+  // }
 
   try {
-    const offer = await pc.createOffer(offerOptions);
-    await pc.setLocalDescription(offer);
-    console.log("SDP offer created");
-    socketOnCall(offer);
+    console.log("offering sdp");
+    const offer = await pc.createOffer();
+    pc.setLocalDescription(offer);
+    sendMessage({
+      type: "offer",
+      sdp: pc.localDescription,
+      room: room,
+    });
+    console.log("created offer");
   } catch (e) {
     console.error("Failed to create pc session description", e);
   }
 }
 
-async function resendOffer() {
-  console.log("resending SDP offer");
-  const offer = await pc.createOffer(offerOptions);
-  await pc.setLocalDescription(offer);
-  socket.emit("sendOffer", offer);
-}
-
-function socketOnCall(offer: RTCSessionDescriptionInit) {
-  socket.on("gotCandidate", async (candidate: RTCIceCandidate) => {
-    console.log("got ice candidate from peer");
-    try {
-      await pc.addIceCandidate(candidate);
-    } catch (e) {
-      console.error("error while adding icecandidate");
-    }
-  });
-  socket.on("newParticipant", () => {
-    console.log("new participant detected. sending SDP offer");
-    socket.emit("sendOffer", offer);
-  });
-  socket.on("gotAnswer", (answer: RTCSessionDescriptionInit) => {
-    if (answer) {
-      console.log("got an SDP answer");
-      pc.setRemoteDescription(answer);
-      console.log("can trickle: ", pc.canTrickleIceCandidates);
-    }
-  });
-}
-
-async function onJoin() {
-  callButton.disabled = true;
-  joinButton.disabled = true;
-  hangupButton.disabled = false;
-  socket.connect();
-
-  pc = new RTCPeerConnection(configuration);
-  setPcListner(pc);
-  localStream
-    .getTracks()
-    .forEach(async (track) => pc.addTrack(track, localStream));
-
-  socketOnJoin();
-  socket.emit("joinSession", sessionInput.value);
-}
-
-function socketOnJoin() {
-  socket.on("gotCandidate", async (candidate: RTCIceCandidate) => {
-    console.log("got ice candidate from peer");
-    try {
-      await pc.addIceCandidate(candidate);
-    } catch (e) {
-      console.error("error while adding icecandidate");
-    }
-  });
-  socket.on("gotOffer", async (offer: RTCSessionDescriptionInit) => {
-    console.log("got an SDP offer");
-    if (offer) {
-      pc.setRemoteDescription(offer);
-    }
-    try {
-      const answer = await pc.createAnswer(offerOptions);
-      await pc.setLocalDescription(answer);
-      console.log("sending SDP answer");
-      socket.emit("sendAnswer", answer);
-      console.log("can trickle: ", pc.canTrickleIceCandidates);
-    } catch (e) {
-      console.error("Failed SDP answer", e);
-    }
-  });
-}
-
-function setPcListner(pc: RTCPeerConnection) {
-  pc.addEventListener("icecandidate", (e) => {
-    console.log("new icecandidate", e.candidate);
-    if (e.candidate) {
-      socket.emit("sendCandidate", e.candidate);
-    }
-  });
-  pc.addEventListener("iceconnectionstatechange", () => {
-    printState();
-  });
-  pc.addEventListener("track", gotRemoteStream);
-}
-
-const onHangup = function onHangup() {
-  pc.close();
-  socket.disconnect();
-  // pc = null;
-
-  ["newParticipant", "gotOffer", "gotAnswer", "gotCandidate"].forEach((str) => {
-    socket.removeEventListener(str);
-  });
-
-  hangupButton.disabled = true;
-  callButton.disabled = false;
-  joinButton.disabled = false;
-};
-
-function gotRemoteStream(e: RTCTrackEvent) {
-  console.log("got remote stream");
-  if (remoteVideo.srcObject !== e.streams[0]) {
-    remoteVideo.srcObject = e.streams[0];
+async function makeAnswer() {
+  try {
+    const sessionDescription = await pc.createAnswer();
+    pc.setLocalDescription(sessionDescription);
+    console.log("makeAnswer ", sessionDescription);
+    sendMessage({
+      type: "answer",
+      sdp: pc.localDescription,
+      room: room,
+    });
+  } catch (error) {
+    console.trace("Failed to create session description: " + error.toString());
   }
 }
 
-function printState() {
-  console.log("ice gathering state:", pc.iceGatheringState);
-  console.log("ice connection state", pc.iceConnectionState);
-  console.log("connection state", pc.connectionState);
-  console.log("signalingState", pc.signalingState);
+function gotRemoteStream(event: RTCTrackEvent) {
+  console.log("Remote stream added.");
+  remoteStream = event.streams[0];
+  remoteVideo.srcObject = remoteStream;
+  console.log(remoteStream);
 }
 
-startButton.addEventListener("click", onStart);
-callButton.addEventListener("click", onCall);
-hangupButton.addEventListener("click", onHangup);
-joinButton.addEventListener("click", onJoin);
+console.log("EOF");

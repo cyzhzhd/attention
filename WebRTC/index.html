@@ -1,39 +1,18 @@
 <!DOCTYPE html>
-<!-- HTML5 -->
-<html>
+<html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
-    <title>webRTC</title>
-    <meta name="description" content="Simple WebRTC test" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="#" />
+    <title>WebRTC</title>
   </head>
   <body>
     <div id="videos">
-      <video
-        id="local"
-        width="480"
-        height="360"
-        playsinline
-        autoplay
-        muted
-      ></video>
-      <video id="remote" width="480" height="360" playsinline autoplay></video>
-      <div>
-        <button id="startButton">start</button>
-        <button id="callButton">call</button>
-        <button id="hangupButton">hangup</button>
-        <b> Your session ID = </b>
-        <text id="sessionID"> call first </text>
-      </div>
-      <div>
-        <input type="text" id="sessionInput" />
-        <button id="joinButton">join</button>
-      </div>
+      <video id="localVideo" autoplay muted playsinline></video>
+      <video id="remoteVideo" autoplay playsinline></video>
     </div>
+    <text id="sessionID"> call first </text>
   </body>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js"></script>
-  <script src="main.js" async></script>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script src="main.js"></script>
 </html>
