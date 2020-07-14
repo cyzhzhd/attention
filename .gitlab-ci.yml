@@ -21,7 +21,7 @@ webrtc:
 electron:
   script:
     - yarn --cwd ./$ELECTRON 
-    - yarn react-test --watchAll=false
+    - yarn --cwd ./$ELECTRON react-test --watchAll=false
   #  only:
   #    changes:
   #      - ./$ELECTRON/*
