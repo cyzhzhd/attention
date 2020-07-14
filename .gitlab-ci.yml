@@ -2,7 +2,7 @@ image: node:14.5.0
 
 variables:
   RTC: "WebRTC"
-  ELECTRON: "electron-react"
+  ELECTRON: "electron-dev"
 
   #cache:
   #  paths:
@@ -12,14 +12,16 @@ variables:
 before_script:  
   - apt-get update -qq && apt-get install
 
-yarn-webrtc: 
+webrtc:
   script: yarn --cwd ./$RTC
   #  only:
   #    changes:
   #      - ./$RTC/*
 
-yarn-electron: 
-  script: yarn --cwd ./$ELECTRON
+electron:
+  script:
+    - yarn --cwd ./$ELECTRON 
+    - yarn react-test --watchAll=false
   #  only:
   #    changes:
   #      - ./$ELECTRON/*
