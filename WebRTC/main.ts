@@ -5,7 +5,7 @@ let isStarted = false;
 let isChannelReady = false;
 let pc: RTCPeerConnection;
 
-const socket = io("http://localhost:3000", {
+const socket = io("15.164.225.104:3000", {
   autoConnect: false,
 }).connect();
 
