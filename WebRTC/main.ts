@@ -5,7 +5,11 @@ let isStarted = false;
 let isChannelReady = false;
 let pc: RTCPeerConnection;
 
-const socket = io("15.164.225.104:3000", {
+// const socket = io("15.164.225.104:3000", {
+//   autoConnect: false,
+// }).connect();
+
+const socket = io("localhost:3000", {
   autoConnect: false,
 }).connect();
 
@@ -14,14 +18,20 @@ const remoteVideo = document.getElementById("remoteVideo") as HTMLVideoElement;
 
 const startButton = document.getElementById("startButton") as HTMLInputElement;
 const callButton = document.getElementById("callButton") as HTMLInputElement;
-// const hangupButton = document.getElementById(
-//   "hangupButton"
-// ) as HTMLInputElement;
+const hangupButton = document.getElementById(
+  "hangupButton"
+) as HTMLInputElement;
+const muteVideoButton = document.getElementById(
+  "muteVideoButton"
+) as HTMLInputElement;
 const sessionID = document.getElementById("sessionID") as HTMLTextAreaElement;
+
+callButton.disabled = true;
+hangupButton.disabled = true;
 
 const mediaStreamConstraints: MediaStreamConstraints = {
   video: true,
-  audio: true,
+  audio: false,
 };
 
 const rtcIceServerConfiguration: RTCConfiguration = {
@@ -82,6 +92,10 @@ socket.on("message", function (message: any) {
       candidate: message.candidate,
     });
     pc.addIceCandidate(candidate);
+  } else if (message.type === "bye" && isStarted) {
+    handleRemoteHangup();
+  } else if (message.type === "muted") {
+    muteRemoteVideo();
   }
 });
 /////////////////////////////////////////////////////////////////////
@@ -93,13 +107,14 @@ if (room !== "") {
   console.log(`${room}을 생성 또는 ${room}에 참가`);
 }
 
-const onStart = async function onStart() {
+const getLocalStream = async function getLocalStream() {
   try {
     const mediaStream = await navigator.mediaDevices.getUserMedia(
       mediaStreamConstraints
     );
     localStream = mediaStream;
     localVideo.srcObject = mediaStream;
+    callButton.disabled = false;
   } catch (error) {
     console.log("navigator.getUserMedia error: ", error);
   }
@@ -114,6 +129,8 @@ function startConnecting() {
     " Channel Ready: ",
     isChannelReady
   );
+  callButton.disabled = true;
+  hangupButton.disabled = false;
 
   if (!isChannelReady && !isStarted) {
     return;
@@ -202,5 +219,59 @@ function gotRemoteStream(event: RTCTrackEvent) {
   console.log(remoteStream);
 }
 
-startButton.addEventListener("click", onStart);
+function hangUp() {
+  console.log("hanging up.");
+  sendMessage({
+    type: "bye",
+    target: sessionID,
+    room: room,
+  });
+  localVideo.srcObject = null;
+  stop();
+}
+
+function stop() {
+  pc.close();
+  socket.disconnect();
+  isStarted = false;
+
+  // ["newParticipant", "gotOffer", "gotAnswer", "gotCandidate"].forEach((str) => {
+  //   socket.removeEventListener(str);
+  // });
+
+  hangupButton.disabled = true;
+  callButton.disabled = false;
+}
+
+function handleRemoteHangup() {
+  console.log("Session terminated.");
+  stop();
+  remoteVideo.srcObject = null;
+}
+
+function muteVideo() {
+  if (localVideo.srcObject === null) {
+    localVideo.srcObject = localStream;
+  } else {
+    localVideo.srcObject = null;
+  }
+  sendMessage({
+    type: "muted",
+    target: sessionID,
+    room: room,
+  });
+}
+
+function muteRemoteVideo() {
+  if (remoteVideo.srcObject === null) {
+    remoteVideo.srcObject = remoteStream;
+  } else {
+    console.log("remoteVideoMuted");
+    remoteVideo.srcObject = null;
+  }
+}
+
+startButton.addEventListener("click", getLocalStream);
 callButton.addEventListener("click", startConnecting);
+hangupButton.addEventListener("click", hangUp);
+muteVideoButton.addEventListener("click", muteVideo);
