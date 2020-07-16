@@ -19,7 +19,11 @@ ioServer.sockets.on("connection", function (socket) {
 
   socket.on("message", function (message) {
     log("Client said: ", message);
-    socket.to(message.room).emit("message", message);
+    if (message.sendTo === undefined) {
+      socket.to(message.room).emit("message", message);
+    } else {
+      ioServer.to(message.sendTo).emit("message", message);
+    }
   });
 
   socket.on("create or join", function (room: string) {
@@ -38,7 +42,9 @@ ioServer.sockets.on("connection", function (socket) {
     } else {
       socket.join(room);
       log(`${socket.id} joined ${room}`);
-      ioServer.sockets.in(room).emit("joined", room, socket.id);
+      ioServer.sockets
+        .in(room)
+        .emit("joined", room, socket.id, ioServer.sockets.adapter.rooms[room]);
     }
   });
 });

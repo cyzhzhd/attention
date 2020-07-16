@@ -3,7 +3,7 @@
 let isInitiator = false;
 let isStarted = false;
 let isChannelReady = false;
-let pc: RTCPeerConnection;
+let isTrackAdded = false;
 
 // const socket = io("15.164.225.104:3000", {
 //   autoConnect: false,
@@ -15,6 +15,9 @@ const socket = io("localhost:3000", {
 
 const localVideo = document.getElementById("localVideo") as HTMLVideoElement;
 const remoteVideo = document.getElementById("remoteVideo") as HTMLVideoElement;
+
+let connectedUsers: Record<string, RTCPeerConnection>;
+// let connectedVideos: Record<string, MediaStream>;
 
 const startButton = document.getElementById("startButton") as HTMLInputElement;
 const callButton = document.getElementById("callButton") as HTMLInputElement;
@@ -58,9 +61,19 @@ socket.on("created", function (room: string) {
   isInitiator = true;
 });
 
-socket.on("joined", function (room: string, socketId: string) {
+let test;
+socket.on("joined", function (
+  room: string,
+  socketId: string,
+  clientsInRoom: any
+) {
   console.log(`${socketId} joined ${room}`);
-  isChannelReady = true;
+  if (!isChannelReady) {
+    connectedUsers = clientsInRoom.sockets;
+    // connectedVideos = clientsInRoom.sockets;
+  } else {
+    connectedUsers.socketId = new RTCPeerConnection(rtcIceServerConfiguration);
+  }
 });
 
 socket.on("sessionID", (id: string) => {
@@ -76,22 +89,38 @@ socket.on("log", function (array: any) {
 });
 
 socket.on("message", function (message: any) {
-  if (message.type === "offer") {
-    if (!isInitiator && !isStarted) {
-      startConnecting();
-    }
-    console.log("got offer ", message.sdp);
-    pc.setRemoteDescription(new RTCSessionDescription(message.sdp));
-    makeAnswer();
+  if (message.type === "connectRequest") {
+    console.log("got connectedRequest");
+    startConnecting();
+  } else if (message.type === "offer") {
+    console.log(
+      "누구에게? ",
+      message.sendFrom,
+      " 무엇을? : ",
+      message.sdp,
+      "나인가? ",
+      message.sendFrom === sessionID.textContent
+    );
+    console.log(
+      "이게 tostring으로 안하면 안되나? ",
+      connectedUsers[message.sendFrom]
+    );
+    connectedUsers[message.sendFrom].setRemoteDescription(
+      new RTCSessionDescription(message.sdp)
+    );
+    makeAnswer(message.sendFrom);
   } else if (message.type === "answer" && isStarted) {
+    // 방에 들어와만 있고 시작을 안했을 때 오퍼를 받는다?
     console.log("got answer ", message.sdp);
-    pc.setRemoteDescription(new RTCSessionDescription(message.sdp));
+    connectedUsers[message.sendFrom].setRemoteDescription(
+      new RTCSessionDescription(message.sdp)
+    );
   } else if (message.type === "candidate" && isStarted) {
     const candidate = new RTCIceCandidate({
       sdpMLineIndex: message.label,
       candidate: message.candidate,
     });
-    pc.addIceCandidate(candidate);
+    connectedUsers[message.sendFrom].addIceCandidate(candidate);
   } else if (message.type === "bye" && isStarted) {
     handleRemoteHangup();
   } else if (message.type === "muted") {
@@ -107,7 +136,7 @@ if (room !== "") {
   console.log(`${room}을 생성 또는 ${room}에 참가`);
 }
 
-const getLocalStream = async function getLocalStream() {
+const onStart = async function onStart() {
   try {
     const mediaStream = await navigator.mediaDevices.getUserMedia(
       mediaStreamConstraints
@@ -118,6 +147,16 @@ const getLocalStream = async function getLocalStream() {
   } catch (error) {
     console.log("navigator.getUserMedia error: ", error);
   }
+
+  sendMessage({
+    type: "connectRequest",
+    target: sessionID.textContent,
+    room: room,
+  });
+
+  // if (!isStarted) {
+  //   startConnecting();
+  // }
 };
 
 function startConnecting() {
@@ -132,79 +171,121 @@ function startConnecting() {
   callButton.disabled = true;
   hangupButton.disabled = false;
 
-  if (!isChannelReady && !isStarted) {
+  if (isChannelReady) {
     return;
   }
-  console.log("creating peer connection");
 
+  console.log("creating peer connection");
   createPeerConnection();
 
   isStarted = true;
+  isChannelReady = true;
 }
 
 function createPeerConnection() {
-  pc = new RTCPeerConnection(rtcIceServerConfiguration);
+  for (const user in connectedUsers) {
+    if (user === sessionID.textContent || user === undefined) {
+      continue;
+    }
+    connectedUsers[user] = new RTCPeerConnection(rtcIceServerConfiguration);
 
-  // setLocalDescription()에 의해 호출 됌.
-  // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/icecandidate_event
-  pc.onicecandidate = handleIceCandidate;
-  // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/track_event
-  pc.addEventListener("track", gotRemoteStream);
-
-  if (isInitiator) {
-    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
-    pc.addEventListener("negotiationneeded", createSDPOffer);
-  }
-  console.log("Created RTCPeerConnection");
-
-  if (localStream !== undefined) {
-    localStream
-      .getTracks()
-      .forEach(async (track) => pc.addTrack(track, localStream));
-    console.log("localStream added on the RTCPeerConnection");
-  }
-}
-
-function handleIceCandidate(event: RTCPeerConnectionIceEvent) {
-  console.log("icecandidate event: ", event);
-  if (event.candidate) {
-    sendMessage({
-      type: "candidate",
-      label: event.candidate.sdpMLineIndex,
-      id: event.candidate.sdpMid,
-      candidate: event.candidate.candidate,
-      room: room,
+    // setLocalDescription()에 의해 호출 됌.
+    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/icecandidate_event
+    connectedUsers[user].addEventListener("icecandidate", (event) => {
+      console.log("icecandidate event: ", event);
+      if (event.candidate) {
+        sendMessage({
+          type: "candidate",
+          label: event.candidate.sdpMLineIndex,
+          id: event.candidate.sdpMid,
+          candidate: event.candidate.candidate,
+          sendTo: user,
+          sendFrom: sessionID.textContent,
+          room: room,
+        });
+      } else {
+        console.log("End of candidates.");
+      }
     });
-  } else {
-    console.log("End of candidates.");
+
+    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/track_event
+    connectedUsers[user].ontrack = (event) => {
+      console.log("Remote stream added.");
+      // connectedVideos[user] = event.streams[0];
+      // const video = document.createElement("video");
+      // video.srcObject = connectedVideos[user];
+      // remoteVideos.appendChild(video);
+
+      remoteStream = event.streams[0];
+      remoteVideo.srcObject = remoteStream;
+      console.log(remoteStream);
+    };
+
+    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
+    connectedUsers[user].addEventListener("negotiationneeded", createSDPOffer);
+
+    console.log("Created RTCPeerConnection");
+    if (!(localStream === undefined || isTrackAdded)) {
+      localStream
+        .getTracks()
+        .forEach(async (track) =>
+          connectedUsers[user].addTrack(track, localStream)
+        );
+      console.log("localStream added on the RTCPeerConnection");
+      isTrackAdded = true;
+    }
   }
 }
 
 async function createSDPOffer() {
   try {
-    console.log("offering sdp");
-    const offer = await pc.createOffer();
-    pc.setLocalDescription(offer);
-    sendMessage({
-      type: "offer",
-      sdp: pc.localDescription,
-      room: room,
-    });
+    for (const user in connectedUsers) {
+      if (user === sessionID.textContent || user === undefined) {
+        continue;
+      }
+      console.log("offering sdp");
+      const offer = await connectedUsers[user].createOffer();
+      connectedUsers[user].setLocalDescription(offer);
+      sendMessage({
+        type: "offer",
+        sendTo: user,
+        sendFrom: sessionID.textContent,
+        sdp: connectedUsers[user].localDescription,
+        room: room,
+      });
 
-    console.log("offer created");
+      console.log("offer created for a user: ", connectedUsers[user]);
+    }
   } catch (e) {
     console.error("Failed to create pc session description", e);
   }
 }
 
-async function makeAnswer() {
+async function makeAnswer(sendFrom: string) {
   try {
-    const sessionDescription = await pc.createAnswer();
-    pc.setLocalDescription(sessionDescription);
+    console.log(" connectedUser[sendFrom]: ", connectedUsers[sendFrom]);
+    const sessionDescription = await connectedUsers[sendFrom].createAnswer();
+    console.log("sessionDescription in makeAnswer ", sessionDescription);
+    console.log(" connectedUser[sendFrom]: ", connectedUsers[sendFrom]);
+
+    connectedUsers[sendFrom].setLocalDescription(sessionDescription);
+
+    if (!(localStream === undefined || isTrackAdded)) {
+      localStream
+        .getTracks()
+        .forEach(async (track) =>
+          connectedUsers[sendFrom].addTrack(track, localStream)
+        );
+      console.log("localStream added on the RTCPeerConnection");
+      isTrackAdded = true;
+    }
+
     console.log("makeAnswer ", sessionDescription);
     sendMessage({
       type: "answer",
-      sdp: pc.localDescription,
+      sendTo: sendFrom,
+      sendFrom: sessionID.textContent,
+      sdp: connectedUsers[sendFrom].localDescription,
       room: room,
     });
   } catch (error) {
@@ -212,18 +293,11 @@ async function makeAnswer() {
   }
 }
 
-function gotRemoteStream(event: RTCTrackEvent) {
-  console.log("Remote stream added.");
-  remoteStream = event.streams[0];
-  remoteVideo.srcObject = remoteStream;
-  console.log(remoteStream);
-}
-
 function hangUp() {
   console.log("hanging up.");
   sendMessage({
     type: "bye",
-    target: sessionID,
+    sendFrom: sessionID.textContent,
     room: room,
   });
   localVideo.srcObject = null;
@@ -257,7 +331,7 @@ function muteVideo() {
   }
   sendMessage({
     type: "muted",
-    target: sessionID,
+    sendFrom: sessionID.textContent,
     room: room,
   });
 }
@@ -271,7 +345,7 @@ function muteRemoteVideo() {
   }
 }
 
-startButton.addEventListener("click", getLocalStream);
+startButton.addEventListener("click", onStart);
 callButton.addEventListener("click", startConnecting);
 hangupButton.addEventListener("click", hangUp);
 muteVideoButton.addEventListener("click", muteVideo);
