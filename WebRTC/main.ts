@@ -3,7 +3,6 @@
 let isInitiator = false;
 let isStarted = false;
 let isChannelReady = false;
-let isTrackAdded = false;
 
 // const socket = io("15.164.225.104:3000", {
 //   autoConnect: false,
@@ -14,10 +13,11 @@ const socket = io("localhost:3000", {
 }).connect();
 
 const localVideo = document.getElementById("localVideo") as HTMLVideoElement;
-const remoteVideo = document.getElementById("remoteVideo") as HTMLVideoElement;
+const remoteVideos = document.getElementById("videos") as HTMLVideoElement;
 
-let connectedUsers: Record<string, RTCPeerConnection>;
-// let connectedVideos: Record<string, MediaStream>;
+let connectedUsers: Record<string, RTCPeerConnection> = {};
+let remoteStreams: Record<string, MediaStream>;
+let isTrackAdded: Record<string, boolean>;
 
 const startButton = document.getElementById("startButton") as HTMLInputElement;
 const callButton = document.getElementById("callButton") as HTMLInputElement;
@@ -27,7 +27,10 @@ const hangupButton = document.getElementById(
 const muteVideoButton = document.getElementById(
   "muteVideoButton"
 ) as HTMLInputElement;
-const sessionID = document.getElementById("sessionID") as HTMLTextAreaElement;
+const HTMLSessionID = document.getElementById(
+  "sessionID"
+) as HTMLTextAreaElement;
+let sessionId: string;
 
 callButton.disabled = true;
 hangupButton.disabled = true;
@@ -47,7 +50,7 @@ const rtcIceServerConfiguration: RTCConfiguration = {
 };
 
 let localStream: MediaStream;
-let remoteStream: MediaStream;
+// let remoteStream: MediaStream;
 
 /////////////////////////////////////////////////////////////////////
 
@@ -69,19 +72,35 @@ socket.on("joined", function (
 ) {
   console.log(`${socketId} joined ${room}`);
   if (!isChannelReady) {
-    connectedUsers = clientsInRoom.sockets;
-    // connectedVideos = clientsInRoom.sockets;
+    console.log(typeof connectedUsers);
+    connectedUsers = Object.assign({}, clientsInRoom.sockets);
+    delete connectedUsers[sessionId];
+    remoteStreams = Object.assign({}, clientsInRoom.sockets);
+    delete remoteStreams[sessionId];
+    isTrackAdded = Object.assign({}, clientsInRoom.sockets);
+    for (const bool in isTrackAdded) {
+      isTrackAdded[bool] = false;
+    }
   } else {
-    connectedUsers.socketId = new RTCPeerConnection(rtcIceServerConfiguration);
+    connectedUsers[socketId] = new RTCPeerConnection(rtcIceServerConfiguration);
+    if (remoteStreams === undefined) {
+      remoteStreams = {};
+      isTrackAdded = {};
+    } else {
+      remoteStreams[socketId] = new MediaStream();
+      isTrackAdded[socketId] = false;
+    }
+    addingListenerOnPC(socketId);
   }
 });
 
 socket.on("sessionID", (id: string) => {
-  sessionID.textContent = id;
+  sessionId = id;
+  HTMLSessionID.textContent = sessionId;
 });
 
 socket.on("disconnect", () => {
-  sessionID.textContent = "call first";
+  HTMLSessionID.textContent = "call first";
 });
 
 socket.on("log", function (array: any) {
@@ -89,33 +108,26 @@ socket.on("log", function (array: any) {
 });
 
 socket.on("message", function (message: any) {
-  if (message.type === "connectRequest") {
-    console.log("got connectedRequest");
-    startConnecting();
-  } else if (message.type === "offer") {
-    console.log(
-      "누구에게? ",
-      message.sendFrom,
-      " 무엇을? : ",
-      message.sdp,
-      "나인가? ",
-      message.sendFrom === sessionID.textContent
-    );
-    console.log(
-      "이게 tostring으로 안하면 안되나? ",
-      connectedUsers[message.sendFrom]
-    );
-    connectedUsers[message.sendFrom].setRemoteDescription(
-      new RTCSessionDescription(message.sdp)
-    );
-    makeAnswer(message.sendFrom);
+  // if (message.type === "connectRequest") {
+  //   console.log("got connectedRequest");
+  //   startConnecting();
+  // } else
+  if (message.type === "offer") {
+    console.log("got offer from: ", message.sendFrom);
+    if (connectedUsers[message.sendFrom] !== true) {
+      connectedUsers[message.sendFrom].setRemoteDescription(
+        new RTCSessionDescription(message.sdp)
+      );
+      makeAnswer(message.sendFrom);
+    }
   } else if (message.type === "answer" && isStarted) {
     // 방에 들어와만 있고 시작을 안했을 때 오퍼를 받는다?
-    console.log("got answer ", message.sdp);
+    console.log("got answer from: ", message.sendFrom);
     connectedUsers[message.sendFrom].setRemoteDescription(
       new RTCSessionDescription(message.sdp)
     );
   } else if (message.type === "candidate" && isStarted) {
+    console.log("got candidate from: ", message.sendFrom);
     const candidate = new RTCIceCandidate({
       sdpMLineIndex: message.label,
       candidate: message.candidate,
@@ -124,7 +136,7 @@ socket.on("message", function (message: any) {
   } else if (message.type === "bye" && isStarted) {
     handleRemoteHangup();
   } else if (message.type === "muted") {
-    muteRemoteVideo();
+    // muteRemoteVideo();
   }
 });
 /////////////////////////////////////////////////////////////////////
@@ -143,20 +155,17 @@ const onStart = async function onStart() {
     );
     localStream = mediaStream;
     localVideo.srcObject = mediaStream;
+    startButton.disabled = true;
     callButton.disabled = false;
   } catch (error) {
     console.log("navigator.getUserMedia error: ", error);
   }
 
-  sendMessage({
-    type: "connectRequest",
-    target: sessionID.textContent,
-    room: room,
-  });
-
-  // if (!isStarted) {
-  //   startConnecting();
-  // }
+  // sendMessage({
+  //   type: "connectRequest",
+  //   target: sessionId,
+  //   room: room,
+  // });
 };
 
 function startConnecting() {
@@ -171,9 +180,9 @@ function startConnecting() {
   callButton.disabled = true;
   hangupButton.disabled = false;
 
-  if (isChannelReady) {
-    return;
-  }
+  // if (isChannelReady) {
+  //   return;
+  // }
 
   console.log("creating peer connection");
   createPeerConnection();
@@ -184,63 +193,62 @@ function startConnecting() {
 
 function createPeerConnection() {
   for (const user in connectedUsers) {
-    if (user === sessionID.textContent || user === undefined) {
-      continue;
-    }
     connectedUsers[user] = new RTCPeerConnection(rtcIceServerConfiguration);
 
-    // setLocalDescription()에 의해 호출 됌.
-    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/icecandidate_event
-    connectedUsers[user].addEventListener("icecandidate", (event) => {
-      console.log("icecandidate event: ", event);
-      if (event.candidate) {
-        sendMessage({
-          type: "candidate",
-          label: event.candidate.sdpMLineIndex,
-          id: event.candidate.sdpMid,
-          candidate: event.candidate.candidate,
-          sendTo: user,
-          sendFrom: sessionID.textContent,
-          room: room,
-        });
-      } else {
-        console.log("End of candidates.");
-      }
-    });
-
-    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/track_event
-    connectedUsers[user].ontrack = (event) => {
-      console.log("Remote stream added.");
-      // connectedVideos[user] = event.streams[0];
-      // const video = document.createElement("video");
-      // video.srcObject = connectedVideos[user];
-      // remoteVideos.appendChild(video);
-
-      remoteStream = event.streams[0];
-      remoteVideo.srcObject = remoteStream;
-      console.log(remoteStream);
-    };
-
-    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
-    connectedUsers[user].addEventListener("negotiationneeded", createSDPOffer);
-
+    addingListenerOnPC(user);
     console.log("Created RTCPeerConnection");
-    if (!(localStream === undefined || isTrackAdded)) {
-      localStream
-        .getTracks()
-        .forEach(async (track) =>
-          connectedUsers[user].addTrack(track, localStream)
-        );
-      console.log("localStream added on the RTCPeerConnection");
-      isTrackAdded = true;
+  }
+}
+
+function addingListenerOnPC(user: string) {
+  // setLocalDescription()에 의해 호출 됌.
+  // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/icecandidate_event
+  connectedUsers[user].addEventListener("icecandidate", (event) => {
+    console.log("icecandidate event: ", event);
+    if (event.candidate) {
+      sendMessage({
+        type: "candidate",
+        label: event.candidate.sdpMLineIndex,
+        id: event.candidate.sdpMid,
+        candidate: event.candidate.candidate,
+        sendTo: user,
+        sendFrom: sessionId,
+        room: room,
+      });
+    } else {
+      console.log("End of candidates.");
     }
+  });
+
+  // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/track_event
+  connectedUsers[user].ontrack = (event) => {
+    console.log("Remote stream added.");
+    remoteStreams[user] = event.streams[0];
+    const video = document.createElement("video");
+    video.srcObject = remoteStreams[user];
+    video.autoplay = true;
+    video.playsinline = true;
+    remoteVideos.appendChild(video);
+  };
+
+  // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
+  connectedUsers[user].addEventListener("negotiationneeded", createSDPOffer);
+
+  if (!(localStream === undefined || isTrackAdded[user])) {
+    localStream
+      .getTracks()
+      .forEach(async (track) =>
+        connectedUsers[user].addTrack(track, localStream)
+      );
+    console.log("localStream added on the RTCPeerConnection");
+    isTrackAdded[user] = true;
   }
 }
 
 async function createSDPOffer() {
   try {
     for (const user in connectedUsers) {
-      if (user === sessionID.textContent || user === undefined) {
+      if (connectedUsers[user].localDescription !== null) {
         continue;
       }
       console.log("offering sdp");
@@ -249,7 +257,7 @@ async function createSDPOffer() {
       sendMessage({
         type: "offer",
         sendTo: user,
-        sendFrom: sessionID.textContent,
+        sendFrom: sessionId,
         sdp: connectedUsers[user].localDescription,
         room: room,
       });
@@ -263,28 +271,28 @@ async function createSDPOffer() {
 
 async function makeAnswer(sendFrom: string) {
   try {
-    console.log(" connectedUser[sendFrom]: ", connectedUsers[sendFrom]);
+    console.log("make answer to: ", sendFrom);
     const sessionDescription = await connectedUsers[sendFrom].createAnswer();
-    console.log("sessionDescription in makeAnswer ", sessionDescription);
-    console.log(" connectedUser[sendFrom]: ", connectedUsers[sendFrom]);
 
     connectedUsers[sendFrom].setLocalDescription(sessionDescription);
 
-    if (!(localStream === undefined || isTrackAdded)) {
+    // if (!(localStream === undefined || isTrackAdded[sendFrom])) {
+    if (!isTrackAdded[sendFrom]) {
+      console.log(localStream.getTracks());
       localStream
         .getTracks()
         .forEach(async (track) =>
           connectedUsers[sendFrom].addTrack(track, localStream)
         );
       console.log("localStream added on the RTCPeerConnection");
-      isTrackAdded = true;
+      isTrackAdded[sendFrom] = true;
     }
 
     console.log("makeAnswer ", sessionDescription);
     sendMessage({
       type: "answer",
       sendTo: sendFrom,
-      sendFrom: sessionID.textContent,
+      sendFrom: sessionId,
       sdp: connectedUsers[sendFrom].localDescription,
       room: room,
     });
@@ -297,7 +305,7 @@ function hangUp() {
   console.log("hanging up.");
   sendMessage({
     type: "bye",
-    sendFrom: sessionID.textContent,
+    sendFrom: sessionId,
     room: room,
   });
   localVideo.srcObject = null;
@@ -331,19 +339,19 @@ function muteVideo() {
   }
   sendMessage({
     type: "muted",
-    sendFrom: sessionID.textContent,
+    sendFrom: sessionId,
     room: room,
   });
 }
 
-function muteRemoteVideo() {
-  if (remoteVideo.srcObject === null) {
-    remoteVideo.srcObject = remoteStream;
-  } else {
-    console.log("remoteVideoMuted");
-    remoteVideo.srcObject = null;
-  }
-}
+// function muteRemoteVideo() {
+//   if (remoteVideo.srcObject === null) {
+//     remoteVideo.srcObject = remoteStream;
+//   } else {
+//     console.log("remoteVideoMuted");
+//     remoteVideo.srcObject = null;
+//   }
+// }
 
 startButton.addEventListener("click", onStart);
 callButton.addEventListener("click", startConnecting);
