@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>electron-vue</title>
+    <% if (htmlWebpackPlugin.options.nodeModules) { %>
+    <!-- Add `node_modules/` to global paths so `require` works properly in development -->
+    <script>
+      require('module').globalPaths.push('<%= htmlWebpackPlugin.options.nodeModules.replace(/\\/g, '\\\\') %>')
+    </script>
+    <% } %>
+  </head>
+  <body>
+    <div id="app"></div>
+    <!-- Set `__static` path to static files in production -->
+    <% if (!process.browser) { %>
+    <script>
+      if (process.env.NODE_ENV !== 'development')
+        window.__static = require('path')
+          .join(__dirname, '/static')
+          .replace(/\\/g, '\\\\');
+    </script>
+    <% } %>
+
+    <!-- <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-firestore.js"></script>
+
+    <script>
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: 'AIzaSyDsFO7xQhO1hP1UBaqigZiqkepDSilx1d4',
+        authDomain: 'soma-team-183.firebaseapp.com',
+        databaseURL: 'https://soma-team-183.firebaseio.com',
+        projectId: 'soma-team-183',
+        storageBucket: 'soma-team-183.appspot.com',
+        messagingSenderId: '957154725007',
+        appId: '1:957154725007:web:19194eea75ae450223f4fa',
+        measurementId: 'G-4CTH4Q25JE',
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      firebase.analytics();
+      firebase.auth();
+      console.log(firebase.auth());
+      firebase.firestore();
+      console.log('firbase loaded');
+      console.log(Vue);
+    </script> -->
+
+    <!-- webpack builds are automatically injected -->
+  </body>
+</html>
