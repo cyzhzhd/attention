@@ -5,7 +5,7 @@
       <div class="inbox_msg">
         <div class="mesgs">
           <div class="msg_history">
-            <div v-for="message in messages" v-bind:key="message.message" class="incoming_msg">
+            <div v-for="message in messages" v-bind:key="message" class="incoming_msg">
               <div class="incoming_msg_img">
                 <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil" />
               </div>
