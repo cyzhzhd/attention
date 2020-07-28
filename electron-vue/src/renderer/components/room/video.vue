@@ -6,7 +6,14 @@
 </template>
 
 <script>
-export default {};
+export default {
+  mounted() {
+    const faceScript = document.createElement('script');
+    faceScript.setAttribute('src', '../../../../face-recognition/dist/main.js');
+    faceScript.async = true;
+    document.head.appendChild(faceScript);
+  },
+};
 </script>
 
 <style scoped>
