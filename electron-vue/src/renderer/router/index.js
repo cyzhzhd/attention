@@ -1,18 +1,15 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Login from '../components/login.vue';
-import Room from '../components/room.vue';
-import Chat from '../components/chat.vue';
+import RoomList from '../components/roomList.vue';
+import Chat from '../components/room.vue';
 import AddRoom from '../components/addRoom.vue';
+import VideoMain from '../components/videoPopup/videoMain.vue';
+
 Vue.use(Router);
 
 export default new Router({
   routes: [
-    // {
-    //   path: '/',
-    //   name: 'room',
-    //   component: require('@/components/room.vue').default,
-    // },
     {
       path: '/',
       name: 'login',
@@ -21,7 +18,7 @@ export default new Router({
     {
       path: '/room/:nickname',
       name: 'RoomList',
-      component: Room,
+      component: RoomList,
     },
     {
       path: '/add-room',
@@ -32,6 +29,11 @@ export default new Router({
       path: '/chat/:nickname/:roomid/:roomname',
       name: 'Chat',
       component: Chat,
+    },
+    {
+      path: '/videoPopup',
+      name: 'VideoPopup',
+      component: VideoMain,
     },
     {
       path: '*',

@@ -55,11 +55,12 @@ app.on('activate', () => {
 
 // try to fix with parent and child windows
 // https://github.com/electron/electron/blob/master/docs/api/browser-window.md#webcontentssendchannel-args
-ipcMain.on('createRoom', () => {
+
+ipcMain.on('popUpVideo', () => {
   const modalPath =
     process.env.NODE_ENV === 'development'
-      ? 'http://localhost:9080/#/createRoom'
-      : `file://${__dirname}/index.html#createRoom`;
+      ? 'http://localhost:9080/#/videoPopup'
+      : `file://${__dirname}/index.html/#/videoPopup`;
 
   let win = new BrowserWindow({
     width: 400,
@@ -78,6 +79,6 @@ ipcMain.on('createRoom', () => {
   win.loadURL(modalPath);
 });
 
-ipcMain.on('newRoom', (event, data) => {
-  mainWindow.webContents.send('newRoom', data);
-});
+// ipcMain.on('newRoom', (event, data) => {
+//   mainWindow.webContents.send('newRoom', data);
+// });

@@ -9,13 +9,8 @@
 </template>
 
 <script>
-import room from './components/room';
-
 export default {
   name: 'electron-vue',
-  components: {
-    room,
-  },
   methods: {
     googleLogin() {
       console.log(this.$firebase);
