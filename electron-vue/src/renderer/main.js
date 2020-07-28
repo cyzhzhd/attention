@@ -19,6 +19,7 @@ if (!process.env.IS_WEB) Vue.use(require('vue-electron'));
 Vue.http = Vue.prototype.$http = axios;
 Vue.config.productionTip = false;
 
+// config 어떻게 숨길 것인가?
 const firebaseConfig = {
   apiKey: 'AIzaSyDsFO7xQhO1hP1UBaqigZiqkepDSilx1d4',
   authDomain: 'soma-team-183.firebaseapp.com',
@@ -34,10 +35,7 @@ firebase.initializeApp(firebaseConfig);
 Vue.prototype.$firebase = firebase;
 
 Vue.config.productionTip = false;
-// Vue.prototype.$firestorage = FbApp.storage();
-// Vue.prototype.$fireauth = FbApp.auth();
 
-/* eslint-disable no-new */
 new Vue({
   components: { App },
   router,

@@ -19,21 +19,12 @@ export default {
   name: 'AddBoard',
   data() {
     return {
-      //   ref: firebase.database().ref('chatrooms/'),
       db: this.$firebase.firestore(),
       room: { roomName: '' },
     };
   },
   methods: {
     onSubmit() {
-      //   const newData = this.ref.push();
-      //   newData.set({
-      //     roomName: this.room.roomName,
-      //   });
-      //   router.go(-1).catch((error) => {
-      //     alert('Error adding document: ', error);
-      //   });
-
       this.db
         .collection('rooms')
         .add({
@@ -44,9 +35,6 @@ export default {
           console.error('Error writing new message to database', error);
         });
       this.$router.go(-1);
-      // this.$router.go(-1).catch((error) => {
-      //   alert('Error adding document: ', error);
-      // });
     },
   },
 };

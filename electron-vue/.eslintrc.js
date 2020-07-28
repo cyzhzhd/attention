@@ -14,6 +14,7 @@ module.exports = {
   },
   plugins: ['html'],
   rules: {
+    'function-paren-newline': ['error', 'multiline-arguments'],
     'linebreak-style': 0,
     'global-require': 0,
     'import/no-unresolved': 0,

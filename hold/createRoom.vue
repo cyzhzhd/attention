@@ -14,11 +14,10 @@
 </template>
 
 <script>
-// import axios from 'axios';
 export default {
   data() {
     return {
-      roomName: '',
+      roomName: "",
     };
   },
   methods: {
@@ -26,17 +25,17 @@ export default {
       // this.$emit('passRoomName', this.roomName);
       // this.$electron.ipcRenderer.send('newRoom', this.roomName);
 
-      if (this.roomName !== '') {
-        console.log('send data');
+      if (this.roomName !== "") {
+        console.log("send data");
         this.$firebase
           .firestore()
-          .collection('rooms')
+          .collection("rooms")
           .add({
             roomName: this.roomName,
             // timestamp: this.$firebase.firestore.FieldValue.serverTimestamp(),
           })
           .catch((error) => {
-            console.error('Error writing new message to database', error);
+            console.error("Error writing new message to database", error);
           });
       }
     },

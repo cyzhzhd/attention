@@ -34,11 +34,6 @@ export default new Router({
       component: Chat,
     },
     {
-      path: '/createRoom',
-      name: 'createRoom',
-      component: require('@/components/createRoom').default,
-    },
-    {
       path: '*',
       redirect: '/',
     },

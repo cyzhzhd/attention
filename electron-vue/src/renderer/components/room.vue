@@ -34,18 +34,6 @@ export default {
     };
   },
   created() {
-    // console.log('in the room', this.$firebase.database());
-
-    // const db = this.$firebase.firestore();
-    // const roomLists = db.collection('rooms');
-    // roomLists.onSnapshot((snap) => {
-    //   const testCollection = [];
-    //   snap.forEach((doc) => {
-    //     testCollection.push({ [doc.id]: doc.data() });
-    //   });
-    //   this.testCollection = testCollection;
-    // });
-
     const roomLists = this.db.collection('rooms');
     roomLists.onSnapshot((snap) => {
       const tempRooms = [];
@@ -53,20 +41,9 @@ export default {
         const item = doc.data();
         item.roomKey = doc.id;
         tempRooms.push(item);
-        console.log('doc id');
-        console.log(item);
       });
       this.rooms = tempRooms;
     });
-
-    // this.db.on('value', (snapshot) => {
-    //   this.rooms = [];
-    //   snapshot.forEach((doc) => {
-    //     const item = doc.val();
-    //     item.key = doc.key;
-    //     this.rooms.push(item);
-    //   });
-    // });
   },
 };
 </script>

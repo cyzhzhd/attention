@@ -1,11 +1,14 @@
 <template>
   <div class="container">
-    <h3 class="text-center">Messaging</h3>
+    <h3 class="text-center">
+      Messaging
+      <a @click="leaveRoom">(back)</a>
+    </h3>
     <div class="messaging">
       <div class="inbox_msg">
         <div class="mesgs">
           <div class="msg_history">
-            <div v-for="message in messages" v-bind:key="message" class="incoming_msg">
+            <div v-for="message in messages" v-bind:key="message.key" class="incoming_msg">
               <div class="incoming_msg_img">
                 <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil" />
               </div>
@@ -28,6 +31,10 @@
             </div>
           </div>
         </div>
+        <div class>
+          online
+          <div v-for="user in userList" v-bind:key="user.email">{{user.nickname}}</div>
+        </div>
       </div>
     </div>
   </div>
@@ -40,53 +47,78 @@ export default {
     return {
       roomid: this.$route.params.roomid,
       roomname: this.$route.params.roomname,
-      nickname: this.$route.params.nickname,
+      user: {
+        email: 'email address',
+        nickname: this.$route.params.nickname,
+      },
       data: { type: '', nickname: '', message: '' },
       message: null,
       messages: [],
+      userList: [],
+      db: this.$firebase
+        .firestore()
+        .collection('rooms')
+        .doc(this.$route.params.roomid),
     };
   },
   methods: {
     saveMessage() {
-      // save to firestore
-      //   console.log('이 방의 이름은?', this.roomid);
-      this.$firebase
-        .firestore()
-        .collection('rooms')
-        .doc(this.roomid)
-        .collection('messages')
-        .add({
-          user: this.nickname,
-          message: this.message,
-          createdAt: new Date(),
-        });
+      this.db.collection('messages').add({
+        sender: this.user.nickname,
+        message: this.message,
+        createdAt: new Date(),
+      });
 
       this.message = null;
     },
 
     fetchMessages() {
-      //   console.log('이 방의 이름은?', this.roomname);
-      //   console.log('이 방의 id는?', this.roomid);
-      //   console.log(this.roomid);
-      //   console.log('이 방의 닉네임은?', this.nickname);
-      this.$firebase
-        .firestore()
-        .collection('rooms')
-        .doc(this.roomid)
+      this.db
         .collection('messages')
         .orderBy('createdAt')
         .onSnapshot((querySnapshot) => {
           const allMessages = [];
           querySnapshot.forEach((doc) => {
-            allMessages.push(doc.data());
+            const message = doc.data();
+            message.key = doc.id;
+            allMessages.push(message);
           });
           this.messages = allMessages;
         });
+    },
+
+    fetchUserList() {
+      this.db.onSnapshot((querySnapshot) => {
+        this.userList = querySnapshot.data().userOnline;
+        console.log(querySnapshot.data().userOnline);
+      });
+    },
+    enterRoom() {
+      this.db.update({
+        userOnline: this.$firebase.firestore.FieldValue.arrayUnion(this.user),
+      });
+    },
+
+    leaveRoom() {
+      this.$router.go(-1);
+      this.db.update({
+        userOnline: this.$firebase.firestore.FieldValue.arrayRemove(this.user),
+      });
+    },
+
+    // 함수형 프로그래밍으로 중복을 제거할 방법?
+    updateLogIn() {
+      this.$router.go(-1);
+      this.db.update({
+        userOnline: this.$firebase.firestore.FieldValue.arrayRemove(this.user),
+      });
     },
   },
 
   created() {
     this.fetchMessages();
+    this.fetchUserList();
+    this.enterRoom();
   },
 };
 </script>
