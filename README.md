@@ -1,4 +1,31 @@
-# ICT 기술을 활용한 UNTACT 강의 시스템
+# WebRTC
+### getting started
+```
+signaling server 시작  
+cd signaling
+node signaling
+
+from typescript to javascript
+tsc filename 
+or tsc 
+tsc = converts all file
+```
+
+### problems
+
+### problems (solved)
+#### issue with the Vuex' map Actions 
+```
+store/index.js file
+delete a createSharedMutations on both import and plugins
+
+src/renderer/main.js file
+add import store from './store';
+
+https://github.com/vue-electron/vuex-electron
+```
+
+# Firebase
 ### getting started  
 ``` 
 cd electron-vue
@@ -13,8 +40,6 @@ src/renderer/router = vue router
 src/renderer/store = vuex  
 src/renderer/components = vue rendering page  
 ## prototype v 0.0.1
-
-
 ### user scenario
 로그인 --> 방 목록에서 방 선택 --> 방 입장 --> 대화 진행
 
@@ -27,13 +52,22 @@ firestore 구조: root - collection('rooms') - documents('room') - collection('m
 ----------------------------------------------- 방 이름-------------------------------------- 발송자  
 --------------------------------------------- 방 생성 시기----------------------------------발송 시기
 
+
+## prototype v 0.0.2
+### implements
+방에 참가 중인 유저 목록 표시  
+방 안에서 chat mode, video mode 전환  
+### 문제
+face-recognition과 합칠 시 gitlab push error
+face-recognition과 합치면, face.api module error 발생
+
+## 기타
 ### 버전
 
 - node v12.18.2
 - npm v6.14.5
 - yarn v1.22.4
 
-* recommended use: yarn
 
 ### references  
 electron-vue boilerplate: https://github.com/SimulatedGREG/electron-vue  
