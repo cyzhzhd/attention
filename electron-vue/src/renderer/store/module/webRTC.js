@@ -1,6 +1,10 @@
 /* eslint-disable no-console */
 /* eslint-disable no-use-before-define */
 // eslint-disable-next-line no-undef
+// const socket = io('localhost:3000', {
+//   autoConnect: false,
+// }).connect();
+// eslint-disable-next-line no-undef
 const socket = io('13.125.214.253:3000', {
   autoConnect: false,
 }).connect();
@@ -30,18 +34,44 @@ let isTrackAdded;
 
 let localStream;
 let sessionId;
-const room = 'myRoom';
-socket.emit('create or join', room);
-console.log(`${room}을 생성 또는 ${room}에 참가`);
+let roomContainer;
 
 const state = {
+  room: '',
   localVideo: '',
   videos: [],
+  userList: ['none', 'of'],
 };
 
-const getters = {};
+const getters = {
+  storedRoom(state) {
+    return state.room;
+  },
+  storedUserList(state) {
+    console.log('in the getters, state.userList = ', state.userList);
+    return state.userList;
+  },
+};
 
 const mutations = {
+  enterRoom(state, roomName) {
+    state.room = roomName;
+    roomContainer = roomName;
+    socket.emit('create or join', roomName);
+    console.log(`${roomName}을 생성 또는 ${roomName}에 참가`);
+  },
+  leaveRoom(state, roomName) {
+    state.room = '';
+    roomContainer = '';
+    socket.emit('leave room', roomName);
+    console.log(`${roomName}을 떠남`);
+  },
+  setUserList(state, userList) {
+    console.log('setUserList가 호출됌', userList);
+    console.log('setUserList가 호출됌 state', state);
+    state.userList = Object.keys(state);
+    console.log('state.userList = ', state.userList);
+  },
   onStart(state, mediaStream) {
     localStream = mediaStream;
     state.localVideo.srcObject = mediaStream;
@@ -78,6 +108,12 @@ const mutations = {
 };
 
 const actions = {
+  EnterRoom({ commit }, roomName) {
+    commit('enterRoom', roomName);
+  },
+  LeaveRoom({ commit }, roomName) {
+    commit('leaveRoom', roomName);
+  },
   async OnStart({ commit }) {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia(
@@ -109,13 +145,20 @@ function sendMessage(message) {
   socket.emit('message', message);
 }
 
-socket.on('created', room => {
+socket.on('created', (room, clientsInRoom) => {
+  const userList = Object.assign({}, clientsInRoom.sockets);
+  console.log('방 생성 시 상태', userList);
+  // mutations.setUserList(userList);
+  state.userList = userList;
+  console.log('방 생성 시, state.userList의 상태', state.userList);
+
   console.log(`created ${room}`);
   isInitiator = true;
 });
 
 socket.on('joined', (room, socketId, clientsInRoom) => {
   console.log(`${socketId} joined ${room}`);
+  mutations.setUserList(clientsInRoom.sockets);
 
   if (!isChannelReady) {
     // new users
@@ -125,8 +168,10 @@ socket.on('joined', (room, socketId, clientsInRoom) => {
     remoteStreams = Object.assign({}, clientsInRoom.sockets);
     delete remoteStreams[sessionId];
     isTrackAdded = Object.assign({}, clientsInRoom.sockets);
-    isTrackAdded.forEach(bool => {
-      isTrackAdded[bool] = false;
+    const key = Object.keys(isTrackAdded);
+    key.map(user => {
+      isTrackAdded[user] = false;
+      return isTrackAdded;
     });
   } else {
     // existing users
@@ -150,6 +195,10 @@ socket.on('sessionID', id => {
 socket.on('disconnect', () => {
   //   HTMLSessionID.textContent = 'call first';
   sessionId = 'call first';
+});
+
+socket.on('left', clientsInRoom => {
+  mutations.setUserList(clientsInRoom.sockets);
 });
 
 socket.on('log', array => {
@@ -193,12 +242,15 @@ socket.on('message', message => {
 // }
 
 function createPeerConnection() {
+  console.log('roomContainer=', roomContainer);
   console.log(connectedUsers);
-  connectedUsers.forEach(user => {
+  const keys = Object.keys(connectedUsers);
+  keys.map(user => {
     connectedUsers[user] = new RTCPeerConnection(rtcIceServerConfiguration);
 
     addingListenerOnPC(user);
     console.log('Created RTCPeerConnection');
+    return connectedUsers[user];
   });
 }
 
@@ -215,7 +267,7 @@ function addingListenerOnPC(user) {
         candidate: event.candidate.candidate,
         sendTo: user,
         sendFrom: sessionId,
-        room: this.room,
+        room: roomContainer,
       });
     } else {
       console.log('End of candidates.');
@@ -237,6 +289,7 @@ function addingListenerOnPC(user) {
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
   connectedUsers[user].addEventListener('negotiationneeded', createSDPOffer);
 
+  console.log('문제 부분', connectedUsers[user]);
   if (!(localStream === undefined || isTrackAdded[user])) {
     localStream
       .getTracks()
@@ -265,7 +318,7 @@ async function createSDPOffer() {
         sendTo: user,
         sendFrom: sessionId,
         sdp: connectedUsers[user].localDescription,
-        room: this.room,
+        room: roomContainer,
       });
 
       console.log('offer created for a user: ', connectedUsers[user]);
@@ -300,7 +353,7 @@ async function makeAnswer(sendFrom) {
       sendTo: sendFrom,
       sendFrom: sessionId,
       sdp: connectedUsers[sendFrom].localDescription,
-      room: this.room,
+      room: roomContainer,
     });
   } catch (error) {
     console.trace(`Failed to create session description: ${error.toString()}`);

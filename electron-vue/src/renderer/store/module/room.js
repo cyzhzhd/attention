@@ -4,7 +4,11 @@ const state = {
   nickname: '',
 };
 
-const getters = {};
+const getters = {
+  storedNickName(state) {
+    return state.nickname;
+  },
+};
 
 const mutations = {
   setNickName(state, nickname) {

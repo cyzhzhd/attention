@@ -17,7 +17,7 @@
         </div>
         <div class>
           online
-          <div v-for="user in userList" v-bind:key="user.email">{{user.nickname}}</div>
+          <div v-for="user in userList" v-bind:key="user">{{user}}</div>
         </div>
       </div>
 
@@ -36,6 +36,7 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex';
 import chat from './room/chat.vue';
 import videoElements from './room/webRTC.vue';
 
@@ -55,7 +56,7 @@ export default {
       },
       useVideo: false,
       data: { type: '', nickname: '', message: '' },
-      userList: [],
+      // userList: [],
       db: this.$firebase
         .firestore()
         .collection('rooms')
@@ -72,17 +73,18 @@ export default {
       console.log('video popup');
     },
 
-    fetchUserList() {
-      this.db.onSnapshot((querySnapshot) => {
-        this.userList = querySnapshot.data().userOnline;
-        console.log(querySnapshot.data().userOnline);
-      });
-    },
+    // fetchUserList() {
+    //   this.db.onSnapshot((querySnapshot) => {
+    //     this.userList = querySnapshot.data().userOnline;
+    //     console.log(querySnapshot.data().userOnline);
+    //   });
+    // },
 
     enterRoom() {
       this.db.update({
         userOnline: this.$firebase.firestore.FieldValue.arrayUnion(this.user),
       });
+      this.EnterRoom(this.roomname);
     },
 
     leaveRoom() {
@@ -90,20 +92,18 @@ export default {
       this.db.update({
         userOnline: this.$firebase.firestore.FieldValue.arrayRemove(this.user),
       });
+      this.LeaveRoom(this.roomname);
     },
 
-    // 함수형 프로그래밍으로 중복을 제거할 방법?
-    updateLogIn() {
-      this.$router.go(-1);
-      this.db.update({
-        userOnline: this.$firebase.firestore.FieldValue.arrayRemove(this.user),
-      });
-    },
+    ...mapActions('webRTC', ['EnterRoom', 'LeaveRoom']),
   },
 
   created() {
-    this.fetchUserList();
+    // this.fetchUserList();
     this.enterRoom();
+  },
+  computed: {
+    ...mapState('webRTC', ['userList']),
   },
 };
 </script>
