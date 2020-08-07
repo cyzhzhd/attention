@@ -8,7 +8,6 @@ const getters = {};
 
 const mutations = {
   setNickName(state, nickname) {
-    console.log('logged in');
     state.nickname = nickname;
     router.push({
       name: 'RoomList',
@@ -18,8 +17,8 @@ const mutations = {
 };
 
 const actions = {
-  setNickName(context, nickname) {
-    context.commit('setNickName', nickname);
+  SetNickName({ commit }, nickname) {
+    commit('setNickName', nickname);
   },
 };
 

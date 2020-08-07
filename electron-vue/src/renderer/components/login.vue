@@ -1,19 +1,8 @@
 <template>
   <div>
     <h2>Login</h2>
-    <form @submit.prevent="onSubmit(login.nickname)">
-      <!-- <form> -->
+    <form @submit.prevent="SetNickName(login.nickname)">
       <input id="nickname" v-model.trim="login.nickname" placeholder="Enter your nickname" />
-      <!-- <span class>
-        Login
-        <i
-          class="fa fa-sign-in"
-          aria-hidden="true"
-          variant="primary"
-          :disabled="!login.nickname"
-          @click.prevent="setNickName(login.nickname)"
-        ></i>
-      </span>-->
       <button type="submit" variant="primary" :disabled="!login.nickname">Login</button>
     </form>
   </div>
@@ -21,7 +10,6 @@
 
 <script>
 import { mapActions } from 'vuex';
-import router from '../router';
 
 export default {
   name: 'loginPage',
@@ -31,14 +19,7 @@ export default {
     };
   },
   methods: {
-    onSubmit() {
-      router.push({
-        name: 'RoomList',
-        params: { nickname: this.login.nickname },
-      });
-    },
-
-    ...mapActions('room', ['setNickName']),
+    ...mapActions('room', ['SetNickName']),
   },
 };
 </script>

@@ -37,7 +37,7 @@
 
 <script>
 import chat from './room/chat.vue';
-import videoElements from './room/video.vue';
+import videoElements from './room/webRTC.vue';
 
 export default {
   name: 'room',
