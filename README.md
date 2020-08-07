@@ -10,6 +10,21 @@ tsc filename
 or tsc 
 tsc = converts all file
 ```
+
+### problems
+
+### problems (solved)
+#### issue with the Vuex' map Actions 
+```
+store/index.js file
+delete a createSharedMutations on both import and plugins
+
+src/renderer/main.js file
+add import store from './store';
+
+https://github.com/vue-electron/vuex-electron
+```
+
 # Firebase
 ### getting started  
 ``` 
