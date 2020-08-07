@@ -1,4 +1,16 @@
-# ICT 기술을 활용한 UNTACT 강의 시스템
+# WebRTC
+### getting started
+```
+signaling server 시작  
+cd signaling
+node signaling
+
+from typescript to javascript
+tsc filename 
+or tsc 
+tsc = converts all file
+```
+# Firebase
 ### getting started  
 ``` 
 cd electron-vue
