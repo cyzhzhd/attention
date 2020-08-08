@@ -154,16 +154,17 @@ socket.on('created', (room, clientsInRoom) => {
 
 socket.on('joined', (room, socketId, clientsInRoom) => {
   console.log(`${socketId} joined ${room}`);
-  mutations.setUserList(clientsInRoom.sockets);
+  // mutations.setUserList(clientsInRoom.sockets);
+  console.log('userList', clientsInRoom.sockets);
 
   if (!isChannelReady) {
     // new users
-    console.log(typeof connectedUsers);
-    connectedUsers = Object.assign({}, ...clientsInRoom.sockets);
+    connectedUsers = Object.assign({}, clientsInRoom.sockets);
     delete connectedUsers[sessionId];
-    remoteStreams = Object.assign({}, ...clientsInRoom.sockets);
+    console.log('방에 들어온 유저의 connectedUsers = ', connectedUsers);
+    remoteStreams = Object.assign({}, clientsInRoom.sockets);
     delete remoteStreams[sessionId];
-    isTrackAdded = Object.assign({}, ...clientsInRoom.sockets);
+    isTrackAdded = Object.assign({}, clientsInRoom.sockets);
     const key = Object.keys(isTrackAdded);
     key.map(user => {
       isTrackAdded[user] = false;
@@ -179,6 +180,7 @@ socket.on('joined', (room, socketId, clientsInRoom) => {
       remoteStreams[socketId] = new MediaStream();
       isTrackAdded[socketId] = false;
     }
+    console.log('방에 있던 유저의 connectedUsers = ', connectedUsers);
     addingListenerOnPC(socketId);
   }
 });
@@ -239,7 +241,7 @@ socket.on('message', message => {
 
 function createPeerConnection() {
   console.log('roomContainer=', roomContainer);
-  console.log(connectedUsers);
+  console.log('connected Users =', connectedUsers);
   const keys = Object.keys(connectedUsers);
   keys.map(user => {
     connectedUsers[user] = new RTCPeerConnection(rtcIceServerConfiguration);
@@ -279,7 +281,7 @@ function addingListenerOnPC(user) {
     video.srcObject = remoteStreams[user];
     video.autoplay = true;
     video.playsinline = true;
-    this.videos.appendChild(video);
+    state.videos.appendChild(video);
   };
 
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
@@ -289,9 +291,6 @@ function addingListenerOnPC(user) {
   if (!(localStream === undefined || isTrackAdded[user])) {
     localStream.getTracks().forEach(track => {
       console.log('뭐가 문제일까?', connectedUsers[user]);
-      console.log('뭐가 문제일까?', connectedUsers);
-      console.log('뭐가 문제일까?', user);
-      console.log('뭐가 문제일까? addtrack', connectedUsers[user].addTrack);
       connectedUsers[user].addTrack(track, localStream);
     });
     // connectedUsers[user].addStream(localStream);

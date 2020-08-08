@@ -3,7 +3,16 @@
     <h3 class="text-center">
       {{ roomname }}
       <a @click="leaveRoom">(back)</a>
-
+      <div>
+        <span class>
+          see videos with pop up
+          <i
+            class="fa fa-video-camera"
+            aria-hidden="true"
+            @click.prevent="startClass"
+          ></i>
+        </span>
+      </div>
       <span class>
         <br />see videos
         <i
@@ -23,17 +32,6 @@
           online
           <div v-for="user in userList" v-bind:key="user">{{ user }}</div>
         </div>
-      </div>
-
-      <div>
-        <span class>
-          see videos with pop up
-          <i
-            class="fa fa-video-camera"
-            aria-hidden="true"
-            @click.prevent="popUpVideo"
-          ></i>
-        </span>
       </div>
     </div>
   </div>
@@ -71,11 +69,6 @@ export default {
     showVideo() {
       this.useVideo = !this.useVideo;
     },
-    popUpVideo() {
-      // this.$emit('popUpVideo', this.$route.fullPath);
-      this.$electron.ipcRenderer.send('popUpVideo', this.$route.fullPath);
-      console.log('video popup');
-    },
 
     // fetchUserList() {
     //   this.db.onSnapshot((querySnapshot) => {
@@ -97,6 +90,11 @@ export default {
         userOnline: this.$firebase.firestore.FieldValue.arrayRemove(this.user),
       });
       this.LeaveRoom(this.roomname);
+    },
+
+    startClass() {
+      window.ipcRenderer.send('startClass', this.$route.fullPath);
+      console.log('video popup');
     },
 
     ...mapActions('webRTC', ['EnterRoom', 'LeaveRoom']),

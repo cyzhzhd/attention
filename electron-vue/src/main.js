@@ -1,5 +1,4 @@
 import Vue from 'vue';
-
 // firebase
 // Firebase App (the core Firebase SDK) is always required and must be listed first
 import * as firebase from 'firebase/app';
@@ -15,7 +14,6 @@ import router from './router';
 import store from './store';
 
 Vue.config.productionTip = false;
-
 const firebaseConfig = {
   apiKey: 'AIzaSyDsFO7xQhO1hP1UBaqigZiqkepDSilx1d4',
   authDomain: 'soma-team-183.firebaseapp.com',
