@@ -31,7 +31,8 @@
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1",
-    "vuex-electron": "^1.0.0"
+    "vuex-electron": "^1.0.0",
+    "wrtc": "^0.4.6"
   },
   "devDependencies": {
     "@babel/polyfill": "^7.7.0",

@@ -27,7 +27,7 @@ ioServer.sockets.on('connection', function (socket) {
     if (numClients === 0) {
       socket.join(room);
       log(`${socket.id} created ${room}`);
-      socket.emit('created', room, ioServer.sockets.adapter.rooms[room]);
+      socket.emit('created', room, socket.id);
     } else {
       socket.join(room);
       log(`${socket.id} joined ${room}`);
@@ -35,13 +35,6 @@ ioServer.sockets.on('connection', function (socket) {
         .in(room)
         .emit('joined', room, socket.id, ioServer.sockets.adapter.rooms[room]);
     }
-  });
-
-  socket.on('leave room', function (room) {
-    log('Received request to leave the room' + room);
-    socket.leave(room, () => {
-      io.to(room).emit('left', ioServer.sockets.adapter.rooms[room]);
-    });
   });
 });
 console.log('start listening');

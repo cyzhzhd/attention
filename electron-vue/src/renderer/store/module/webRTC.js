@@ -63,14 +63,14 @@ const mutations = {
   leaveRoom(state, roomName) {
     state.room = '';
     roomContainer = '';
-    socket.emit('leave room', roomName);
+    // socket.emit('leave room', roomName);
     console.log(`${roomName}을 떠남`);
   },
   setUserList(state, userList) {
     console.log('setUserList가 호출됌', userList);
     console.log('setUserList가 호출됌 state', state);
-    state.userList = Object.keys(state);
-    console.log('state.userList = ', state.userList);
+    // state.userList = Object.keys(state);
+    // console.log('state.userList = ', state.userList);
   },
   onStart(state, mediaStream) {
     localStream = mediaStream;
@@ -146,11 +146,7 @@ function sendMessage(message) {
 }
 
 socket.on('created', (room, clientsInRoom) => {
-  const userList = Object.assign({}, clientsInRoom.sockets);
-  console.log('방 생성 시 상태', userList);
-  // mutations.setUserList(userList);
-  state.userList = userList;
-  console.log('방 생성 시, state.userList의 상태', state.userList);
+  console.log('방 생성 시, state.userList의 상태', clientsInRoom);
 
   console.log(`created ${room}`);
   isInitiator = true;
@@ -291,11 +287,14 @@ function addingListenerOnPC(user) {
 
   console.log('문제 부분', connectedUsers[user]);
   if (!(localStream === undefined || isTrackAdded[user])) {
-    localStream
-      .getTracks()
-      .forEach(async track =>
-        connectedUsers[user].addTrack(track, localStream),
-      );
+    localStream.getTracks().forEach(track => {
+      console.log('뭐가 문제일까?', connectedUsers[user]);
+      console.log('뭐가 문제일까?', connectedUsers);
+      console.log('뭐가 문제일까?', user);
+      console.log('뭐가 문제일까? addtrack', connectedUsers[user].addTrack);
+      connectedUsers[user].addTrack(track, localStream);
+    });
+    // connectedUsers[user].addStream(localStream);
     console.log('localStream added on the RTCPeerConnection');
     isTrackAdded[user] = true;
   }

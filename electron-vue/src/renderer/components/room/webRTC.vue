@@ -35,8 +35,12 @@ export default {
     this.LocalVideoSetter(this.$refs.localVideo);
     this.VideoSetter(this.$refs.videos);
   },
+  created() {
+    const p = new RTCPeerConnection();
+    console.log('그렇다면 p는?', p);
+    console.log('type of 피어커넥션', p.addTrack);
+  },
 };
 </script>
 
-<style>
-</style>
+<style></style>

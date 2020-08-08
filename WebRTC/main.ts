@@ -235,11 +235,10 @@ function addingListenerOnPC(user: string) {
   connectedUsers[user].addEventListener("negotiationneeded", createSDPOffer);
 
   if (!(localStream === undefined || isTrackAdded[user])) {
-    localStream
-      .getTracks()
-      .forEach(async (track) =>
-        connectedUsers[user].addTrack(track, localStream)
-      );
+    localStream.getTracks().forEach(async (track) => {
+      console.log("뭐가 문제일까?", connectedUsers[user]);
+      connectedUsers[user].addTrack(track, localStream);
+    });
     console.log("localStream added on the RTCPeerConnection");
     isTrackAdded[user] = true;
   }
