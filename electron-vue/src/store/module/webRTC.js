@@ -4,6 +4,7 @@
 // const socket = io('localhost:3000', {
 //   autoConnect: false,
 // }).connect();
+
 // eslint-disable-next-line no-undef
 const socket = io('13.125.214.253:3000', {
   autoConnect: false,
@@ -66,6 +67,8 @@ const mutations = {
     roomContainer = '';
     socket.emit('leave room', roomName);
     console.log(`${roomName}을 떠남`);
+
+    disconnectWebRTC();
   },
   setUserList(state, userList) {
     console.log('setUserList가 호출됌', userList);
@@ -102,8 +105,11 @@ const mutations = {
 
   hangUp(state) {
     localStream = '';
-    state.localVideo.srcObject = '';
+    state.localVideo.srcObject = null;
     isStreaming = false;
+
+    // send message to server in order to delete my video on others screen
+    disconnectWebRTC();
   },
 
   localVideoSetter(state, localVideo) {
@@ -173,13 +179,12 @@ socket.on('joined', (room, socketId, clientsInRoom) => {
 
   if (!isChannelReady) {
     // new users
-    connectedUsers = Object.assign({}, clientsInRoom.sockets);
-    // connectedUsers = {...clientsInRoom.sockets};
+    connectedUsers = { ...clientsInRoom.sockets };
     delete connectedUsers[sessionId];
     console.log('방에 들어온 유저의 connectedUsers = ', connectedUsers);
-    remoteStreams = Object.assign({}, clientsInRoom.sockets);
+    remoteStreams = { ...clientsInRoom.sockets };
     delete remoteStreams[sessionId];
-    isTrackAdded = Object.assign({}, clientsInRoom.sockets);
+    isTrackAdded = { ...clientsInRoom.sockets };
     const key = Object.keys(isTrackAdded);
     key.map(user => {
       isTrackAdded[user] = false;
@@ -210,11 +215,14 @@ socket.on('disconnect', () => {
   sessionId = 'call first';
 });
 
-socket.on('left', clientsInRoom => {
+socket.on('userLeft', (clientsInRoom, userId) => {
   console.log(
     '서버로 부터 left 받음. 방에 남아 있는 유저 목록 = ',
     clientsInRoom.sockets,
   );
+  const deletingVideo = videos.filter(video => video.userId === userId);
+  videos.removeChild(deletingVideo);
+  videos = videos.filter(video => video.userId !== userId);
   // mutations.setUserList(clientsInRoom.sockets);
 });
 
@@ -252,12 +260,6 @@ socket.on('message', message => {
 });
 
 // RTC part
-
-// if (this.room !== '') {
-//   socket.emit('create or join', this.room);
-//   console.log(`${this.room}을 생성 또는 ${this.room}에 참가`);
-// }
-
 function createPeerConnection() {
   console.log('roomContainer=', roomContainer);
   console.log('connected Users =', connectedUsers);
@@ -300,6 +302,7 @@ function addingListenerOnPC(user) {
     video.srcObject = remoteStreams[user];
     video.autoplay = true;
     video.playsinline = true;
+    video.userId = user;
     state.videos.appendChild(video);
   };
 
@@ -375,6 +378,32 @@ async function makeAnswer(sendFrom) {
   } catch (error) {
     console.trace(`Failed to create session description: ${error.toString()}`);
   }
+}
+
+function disconnectWebRTC() {
+  socket.emit('disconnectRequest', roomContainer);
+
+  resetVariables();
+}
+
+function resetVariables() {
+  isInitiator = false;
+  isStarted = false;
+  isChannelReady = false;
+  isStreaming = false;
+
+  connectedUsers = {};
+  remoteStreams = null;
+  isTrackAdded = null;
+
+  localStream = null;
+  sessionId = null;
+  roomContainer = null;
+
+  state.room = null;
+  state.localVideo = null;
+  state.videos = null;
+  state.userList = ['none', 'of'];
 }
 
 export default {
