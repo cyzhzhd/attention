@@ -27,6 +27,7 @@ const rtcIceServerConfiguration = {
 let isInitiator = false;
 let isStarted = false;
 let isChannelReady = false;
+let isStreaming = false;
 
 let connectedUsers = {};
 let remoteStreams;
@@ -63,7 +64,7 @@ const mutations = {
   leaveRoom(state, roomName) {
     state.room = '';
     roomContainer = '';
-    // socket.emit('leave room', roomName);
+    socket.emit('leave room', roomName);
     console.log(`${roomName}을 떠남`);
   },
   setUserList(state, userList) {
@@ -75,6 +76,7 @@ const mutations = {
   onStart(state, mediaStream) {
     localStream = mediaStream;
     state.localVideo.srcObject = mediaStream;
+    isStreaming = true;
     // startButton.disabled = true;
     // callButton.disabled = false;
   },
@@ -98,6 +100,12 @@ const mutations = {
     isChannelReady = true;
   },
 
+  hangUp(state) {
+    localStream = '';
+    state.localVideo.srcObject = '';
+    isStreaming = false;
+  },
+
   localVideoSetter(state, localVideo) {
     state.localVideo = localVideo;
   },
@@ -115,18 +123,24 @@ const actions = {
     commit('leaveRoom', roomName);
   },
   async OnStart({ commit }) {
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia(
-        mediaStreamConstraints,
-      );
-      commit('onStart', mediaStream);
-    } catch (error) {
-      console.log('navigator.getUserMedia error: ', error);
+    if (!isStreaming) {
+      try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia(
+          mediaStreamConstraints,
+        );
+        commit('onStart', mediaStream);
+      } catch (error) {
+        console.log('navigator.getUserMedia error: ', error);
+      }
     }
   },
 
   StartConnecting({ commit }) {
     commit('startConnecting');
+  },
+
+  HangUp({ commit }) {
+    commit('hangUp');
   },
 
   LocalVideoSetter({ commit }, localVideo) {
@@ -160,6 +174,7 @@ socket.on('joined', (room, socketId, clientsInRoom) => {
   if (!isChannelReady) {
     // new users
     connectedUsers = Object.assign({}, clientsInRoom.sockets);
+    // connectedUsers = {...clientsInRoom.sockets};
     delete connectedUsers[sessionId];
     console.log('방에 들어온 유저의 connectedUsers = ', connectedUsers);
     remoteStreams = Object.assign({}, clientsInRoom.sockets);
@@ -196,7 +211,11 @@ socket.on('disconnect', () => {
 });
 
 socket.on('left', clientsInRoom => {
-  mutations.setUserList(clientsInRoom.sockets);
+  console.log(
+    '서버로 부터 left 받음. 방에 남아 있는 유저 목록 = ',
+    clientsInRoom.sockets,
+  );
+  // mutations.setUserList(clientsInRoom.sockets);
 });
 
 socket.on('log', array => {

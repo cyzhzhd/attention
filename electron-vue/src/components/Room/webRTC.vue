@@ -6,7 +6,7 @@
     <div>
       <button id="startButton" @click="OnStart">start</button>
       <button id="callButton" @click="StartConnecting">call</button>
-      <button id="hangupButton">hangup</button>
+      <button id="hangupButton" @click="HangUp">hangup</button>
       <button id="muteVideoButton">Mute</button>
       <b>Your session ID =</b>
       <text id="sessionID">call first</text>
@@ -27,6 +27,7 @@ export default {
     ...mapActions('webRTC', [
       'OnStart',
       'StartConnecting',
+      'HangUp',
       'LocalVideoSetter',
       'VideoSetter',
     ]),

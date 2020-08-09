@@ -5,7 +5,6 @@ import Login from '../views/Login.vue';
 import RoomList from '../views/RoomList.vue';
 import Room from '../views/Room.vue';
 import AddRoom from '../views/AddRoom.vue';
-import Class from '../views/Class.vue';
 
 Vue.use(VueRouter);
 
@@ -29,11 +28,6 @@ const routes = [
     path: '/add-room',
     name: 'AddRoom',
     component: AddRoom,
-  },
-  {
-    path: '/room/:nickname/:roomid/:roomname/class',
-    name: 'Class',
-    component: Class,
   },
   {
     path: '/home',
