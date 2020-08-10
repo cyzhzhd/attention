@@ -41,7 +41,7 @@ let roomContainer;
 const state = {
   room: '',
   localVideo: '',
-  videos: [],
+  videos: '',
   userList: ['none', 'of'],
 };
 
@@ -220,10 +220,18 @@ socket.on('userLeft', (clientsInRoom, userId) => {
     '서버로 부터 left 받음. 방에 남아 있는 유저 목록 = ',
     clientsInRoom.sockets,
   );
-  const deletingVideo = videos.filter(video => video.userId === userId);
-  videos.removeChild(deletingVideo);
-  videos = videos.filter(video => video.userId !== userId);
-  // mutations.setUserList(clientsInRoom.sockets);
+
+  const childVideosNodeList = state.videos.childNodes;
+  console.log(childVideosNodeList);
+  // eslint-disable-next-line no-restricted-syntax
+  for (const node in childVideosNodeList) {
+    if (childVideosNodeList[node].userId === userId) {
+      console.log('지워질 node의 이름은 = ', childVideosNodeList[node]);
+      state.videos.removeChild(childVideosNodeList[node]);
+      break;
+    }
+  }
+  console.log('지워지고 난 후 videos = ', childVideosNodeList);
 });
 
 socket.on('log', array => {

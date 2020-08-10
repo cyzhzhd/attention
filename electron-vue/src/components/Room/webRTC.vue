@@ -1,8 +1,7 @@
 <template>
   <div id="webRTC">
-    <div ref="videos">
-      <video ref="localVideo" autoplay muted playsinline></video>
-    </div>
+    <video ref="localVideo" autoplay muted playsinline></video>
+    <div ref="videos"></div>
     <div>
       <button id="startButton" @click="OnStart">start</button>
       <button id="callButton" @click="StartConnecting">call</button>
