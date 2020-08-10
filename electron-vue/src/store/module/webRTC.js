@@ -63,8 +63,6 @@ const mutations = {
     console.log(`${roomName}을 생성 또는 ${roomName}에 참가`);
   },
   leaveRoom(state, roomName) {
-    state.room = '';
-    roomContainer = '';
     socket.emit('leave room', roomName);
     console.log(`${roomName}을 떠남`);
 
@@ -103,15 +101,6 @@ const mutations = {
     isChannelReady = true;
   },
 
-  hangUp(state) {
-    localStream = '';
-    state.localVideo.srcObject = null;
-    isStreaming = false;
-
-    // send message to server in order to delete my video on others screen
-    disconnectWebRTC();
-  },
-
   localVideoSetter(state, localVideo) {
     state.localVideo = localVideo;
   },
@@ -145,10 +134,6 @@ const actions = {
     commit('startConnecting');
   },
 
-  HangUp({ commit }) {
-    commit('hangUp');
-  },
-
   LocalVideoSetter({ commit }, localVideo) {
     commit('localVideoSetter', localVideo);
   },
@@ -166,7 +151,11 @@ function sendMessage(message) {
 }
 
 socket.on('created', (room, clientsInRoom) => {
-  console.log('방 생성 시, state.userList의 상태', clientsInRoom);
+  console.log(
+    '방 생성 시, state.userList의 상태',
+    clientsInRoom,
+    state.userList,
+  );
 
   console.log(`created ${room}`);
   isInitiator = true;
@@ -176,12 +165,20 @@ socket.on('joined', (room, socketId, clientsInRoom) => {
   console.log(`${socketId} joined ${room}`);
   // mutations.setUserList(clientsInRoom.sockets);
   console.log('userList', clientsInRoom.sockets);
+  console.log('socketId === sessionId', socketId === sessionId);
 
   if (!isChannelReady) {
     // new users
     connectedUsers = { ...clientsInRoom.sockets };
+    console.log(
+      '방에 들어온 유저의 connectedUsers before delete = ',
+      connectedUsers,
+    );
     delete connectedUsers[sessionId];
-    console.log('방에 들어온 유저의 connectedUsers = ', connectedUsers);
+    console.log(
+      '방에 들어온 유저의 connectedUsers after delete = ',
+      connectedUsers,
+    );
     remoteStreams = { ...clientsInRoom.sockets };
     delete remoteStreams[sessionId];
     isTrackAdded = { ...clientsInRoom.sockets };
@@ -242,6 +239,11 @@ socket.on('message', message => {
   if (message.type === 'offer') {
     console.log('got offer from: ', message.sendFrom);
     if (connectedUsers[message.sendFrom] !== true) {
+      console.log('got offer from =', message.sendFrom);
+      console.log(
+        'got offer connectedUsers[message.sendFrom] =',
+        connectedUsers[message.sendFrom],
+      );
       connectedUsers[message.sendFrom].setRemoteDescription(
         new RTCSessionDescription(message.sdp),
       );
@@ -389,8 +391,6 @@ async function makeAnswer(sendFrom) {
 }
 
 function disconnectWebRTC() {
-  socket.emit('disconnectRequest', roomContainer);
-
   resetVariables();
 }
 
@@ -405,7 +405,6 @@ function resetVariables() {
   isTrackAdded = null;
 
   localStream = null;
-  sessionId = null;
   roomContainer = null;
 
   state.room = null;
