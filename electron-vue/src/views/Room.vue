@@ -2,7 +2,7 @@
   <div class="container">
     <h3 class="text-center">
       {{ roomname }}
-      <a @click="$router.go(-1)">(back)</a>
+      <a @click="leaveRoom">(back)</a>
       <span class>
         <br />see videos
         <i
@@ -54,6 +54,7 @@ export default {
     },
 
     leaveRoom() {
+      this.$router.go(-1);
       this.LeaveRoom(this.roomname);
     },
 
