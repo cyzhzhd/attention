@@ -58,7 +58,6 @@ router.get('/message', function (req, res, next) {
 
 router.post('/message', async function (req, res, next) {
   const { roomId, nickname, message } = req.body;
-  console.log('roomId, nickname, message', roomId, nickname, message);
 
   db.ref('/messageHub/' + roomId + '/messages').push({
     sender: nickname,
