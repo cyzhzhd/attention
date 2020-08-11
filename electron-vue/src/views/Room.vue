@@ -3,16 +3,6 @@
     <h3 class="text-center">
       {{ roomname }}
       <a @click="$router.go(-1)">(back)</a>
-      <div>
-        <span class>
-          see videos with pop up
-          <i
-            class="fa fa-video-camera"
-            aria-hidden="true"
-            @click.prevent="startClass"
-          ></i>
-        </span>
-      </div>
       <span class>
         <br />see videos
         <i
@@ -28,10 +18,6 @@
           <chat v-if="!useVideo"></chat>
           <WebRTC v-if="useVideo"></WebRTC>
         </div>
-        <!-- <div class>
-          online
-          <div v-for="user in userList" v-bind:key="user">{{ user }}</div>
-        </div> -->
       </div>
     </div>
   </div>
@@ -56,7 +42,6 @@ export default {
         nickname: this.$route.params.nickname,
       },
       useVideo: false,
-      data: { type: '', nickname: '', message: '' },
     };
   },
   methods: {

@@ -2,14 +2,7 @@
   <div>
     <h2>
       Room List
-      <router-link
-        :to="{
-          name: 'AddRoom',
-          params: {
-            nickname,
-          },
-        }"
-        action
+      <router-link :to="{ name: 'AddRoom', params: { nickname } }" action
         >Add room</router-link
       >
     </h2>
@@ -43,7 +36,6 @@ export default {
   },
   created() {
     this.$http.get('/api/firebase/roomList').then(response => {
-      // this.rooms = response.data;
       const objectToArray = Object.entries(response.data);
       objectToArray.forEach(([key, value]) => {
         const newObject = {

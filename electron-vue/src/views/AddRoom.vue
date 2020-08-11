@@ -19,14 +19,11 @@
 </template>
 
 <script>
-// import router from '../router';
-
 export default {
   name: 'AddBoard',
   data() {
     return {
       nickname: this.$route.params.nickname,
-      db: this.$firebase.firestore(),
       room: { roomName: '' },
     };
   },
