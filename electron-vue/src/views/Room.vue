@@ -24,6 +24,7 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
 import chat from '../components/Room/chat.vue';
 import WebRTC from '../components/Room/webRTC.vue';
 
@@ -48,6 +49,19 @@ export default {
     showVideo() {
       this.useVideo = !this.useVideo;
     },
+    enterRoom() {
+      this.EnterRoom(this.roomname);
+    },
+
+    leaveRoom() {
+      this.LeaveRoom(this.roomname);
+    },
+
+    ...mapActions('webRTC', ['EnterRoom', 'LeaveRoom']),
+  },
+
+  created() {
+    this.enterRoom();
   },
 };
 </script>
