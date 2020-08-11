@@ -40,5 +40,11 @@ yarn run electron:serve
 ## DB
 
 ### firebase
+[firebase-admin](https://firebase.google.com/docs/admin/setup#add-sdk) 사용  
+#### Realtime DB 설계  
+Rooms = 룸 정보 + 등록 유저 정보  
+MessageHub = 룸 정보 + 메시지    
+Users = 유저 정보 + 등록 룸 정보  
+
 
 ### MongoDB
