@@ -2,6 +2,7 @@ import Vue from 'vue';
 // firebase
 // Firebase App (the core Firebase SDK) is always required and must be listed first
 import * as firebase from 'firebase/app';
+import axios from 'axios';
 // If you enabled Analytics in your project, add the Firebase SDK for Analytics
 import 'firebase/analytics';
 // Add the Firebase products that you want to use
@@ -27,6 +28,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 Vue.prototype.$firebase = firebase;
+Vue.prototype.$http = axios;
 
 new Vue({
   router,

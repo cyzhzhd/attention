@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Home from '../views/Home.vue';
 import Login from '../views/Login.vue';
 import RoomList from '../views/RoomList.vue';
 import Room from '../views/Room.vue';
@@ -20,19 +19,14 @@ const routes = [
     component: RoomList,
   },
   {
-    path: '/room/:nickname/:roomid/:roomname',
+    path: '/room/:nickname/:roomId/:roomname',
     name: 'Room',
     component: Room,
   },
   {
-    path: '/add-room',
+    path: '/:nickname/add-room',
     name: 'AddRoom',
     component: AddRoom,
-  },
-  {
-    path: '/home',
-    name: 'Home',
-    component: Home,
   },
   {
     path: '/about',

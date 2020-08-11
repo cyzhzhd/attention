@@ -25,21 +25,19 @@ export default {
   name: 'AddBoard',
   data() {
     return {
+      nickname: this.$route.params.nickname,
       db: this.$firebase.firestore(),
       room: { roomName: '' },
     };
   },
   methods: {
     onSubmit() {
-      this.db
-        .collection('rooms')
-        .add({
-          roomName: this.room.roomName,
-          // timestamp: this.$firebase.firestore.FieldValue.serverTimestamp(),
-        })
-        .catch(error => {
-          console.error('Error writing new message to database', error);
-        });
+      const options = {
+        roomName: this.room.roomName,
+        host: this.nickname,
+      };
+      this.$http.post('/api/firebase/roomList', options);
+
       this.$router.go(-1);
     },
   },

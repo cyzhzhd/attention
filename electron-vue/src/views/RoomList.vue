@@ -2,22 +2,31 @@
   <div>
     <h2>
       Room List
-      <router-link to="/add-room">Add room</router-link>
+      <router-link
+        :to="{
+          name: 'AddRoom',
+          params: {
+            nickname,
+          },
+        }"
+        action
+        >Add room</router-link
+      >
     </h2>
     <ul>
-      <li v-for="room in rooms" :key="room.name">
+      <li v-for="room in rooms" :key="room.roomId">
         <router-link
           :to="{
             name: 'Room',
             params: {
               nickname: nickname,
-              roomid: room.roomKey,
+              roomId: room.roomId,
               roomname: room.roomName,
             },
           }"
           action
-          >{{ room.roomName }}</router-link
-        >
+          >{{ room.roomName }}
+        </router-link>
       </li>
     </ul>
   </div>
@@ -25,25 +34,25 @@
 
 <script>
 export default {
-  name: 'BoardList',
+  name: 'roomList',
   data() {
     return {
       nickname: this.$route.params.nickname,
       rooms: [],
-      errors: [],
-      db: this.$firebase.firestore(),
     };
   },
   created() {
-    const roomLists = this.db.collection('rooms');
-    roomLists.onSnapshot(snap => {
-      const tempRooms = [];
-      snap.forEach(doc => {
-        const item = doc.data();
-        item.roomKey = doc.id;
-        tempRooms.push(item);
+    this.$http.get('/api/firebase/roomList').then(response => {
+      // this.rooms = response.data;
+      const objectToArray = Object.entries(response.data);
+      objectToArray.forEach(([key, value]) => {
+        const newObject = {
+          roomId: key,
+          host: value.host,
+          roomName: value.roomName,
+        };
+        this.rooms.push(newObject);
       });
-      this.rooms = tempRooms;
     });
   },
 };

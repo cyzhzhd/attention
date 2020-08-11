@@ -2,7 +2,7 @@
   <div class="container">
     <h3 class="text-center">
       {{ roomname }}
-      <a @click="leaveRoom">(back)</a>
+      <a @click="$router.go(-1)">(back)</a>
       <div>
         <span class>
           see videos with pop up
@@ -28,17 +28,16 @@
           <chat v-if="!useVideo"></chat>
           <WebRTC v-if="useVideo"></WebRTC>
         </div>
-        <div class>
+        <!-- <div class>
           online
           <div v-for="user in userList" v-bind:key="user">{{ user }}</div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex';
 import chat from '../components/Room/chat.vue';
 import WebRTC from '../components/Room/webRTC.vue';
 
@@ -50,7 +49,7 @@ export default {
   },
   data() {
     return {
-      roomid: this.$route.params.roomid,
+      roomId: this.$route.params.roomId,
       roomname: this.$route.params.roomname,
       user: {
         email: 'email address',
@@ -58,54 +57,12 @@ export default {
       },
       useVideo: false,
       data: { type: '', nickname: '', message: '' },
-      // userList: [],
-      db: this.$firebase
-        .firestore()
-        .collection('rooms')
-        .doc(this.$route.params.roomid),
     };
   },
   methods: {
     showVideo() {
       this.useVideo = !this.useVideo;
     },
-
-    // fetchUserList() {
-    //   this.db.onSnapshot((querySnapshot) => {
-    //     this.userList = querySnapshot.data().userOnline;
-    //     console.log(querySnapshot.data().userOnline);
-    //   });
-    // },
-
-    enterRoom() {
-      this.db.update({
-        userOnline: this.$firebase.firestore.FieldValue.arrayUnion(this.user),
-      });
-      this.EnterRoom(this.roomname);
-    },
-
-    leaveRoom() {
-      this.$router.go(-1);
-      this.db.update({
-        userOnline: this.$firebase.firestore.FieldValue.arrayRemove(this.user),
-      });
-      this.LeaveRoom(this.roomname);
-    },
-
-    startClass() {
-      window.ipcRenderer.send('startClass', this.$route.fullPath);
-      console.log('video popup');
-    },
-
-    ...mapActions('webRTC', ['EnterRoom', 'LeaveRoom']),
-  },
-
-  created() {
-    // this.fetchUserList();
-    this.enterRoom();
-  },
-  computed: {
-    ...mapState('webRTC', ['userList']),
   },
 };
 </script>

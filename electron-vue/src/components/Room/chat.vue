@@ -42,38 +42,39 @@ export default {
         email: 'email address',
         nickname: this.$route.params.nickname,
       },
+      roomId: this.$route.params.roomId,
       data: { type: '', nickname: '', message: '' },
       message: null,
       messages: [],
       db: this.$firebase
         .firestore()
         .collection('rooms')
-        .doc(this.$route.params.roomid),
+        .doc(this.$route.params.roomId),
     };
   },
   methods: {
     saveMessage() {
-      this.db.collection('messages').add({
-        sender: this.user.nickname,
+      const options = {
+        roomId: this.roomId,
+        nickname: this.user.nickname,
         message: this.message,
-        createdAt: new Date(),
-      });
+      };
+      this.$http.post('/api/firebase/message', options);
 
       this.message = null;
     },
 
     fetchMessages() {
-      this.db
-        .collection('messages')
-        .orderBy('createdAt')
-        .onSnapshot(querySnapshot => {
-          const allMessages = [];
-          querySnapshot.forEach(doc => {
-            const message = doc.data();
-            message.key = doc.id;
-            allMessages.push(message);
-          });
-          this.messages = allMessages;
+      const params = {
+        roomId: this.roomId,
+      };
+      this.$http
+        .get('/api/firebase/message', {
+          params,
+        })
+        .then(response => {
+          this.messages = response.data;
+          console.log('message got = ', this.messages);
         });
     },
   },
