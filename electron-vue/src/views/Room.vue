@@ -1,24 +1,19 @@
 <template>
   <div class="container">
-    <h3 class="text-center">
-      {{ roomname }}
-      <a @click="leaveRoom">(back)</a>
-      <span class>
-        <br />see videos
-        <i
-          class="fa fa-video-camera"
-          aria-hidden="true"
-          @click.prevent="showVideo"
-        ></i>
-      </span>
-    </h3>
-    <div class="messaging">
-      <div class="inbox_msg">
-        <div class="mesgs">
-          <chat v-if="!useVideo"></chat>
-          <WebRTC v-if="useVideo"></WebRTC>
-        </div>
-      </div>
+    <header class="header">
+      <h3 class="text-center">
+        {{ roomname }}
+        <a @click="leaveRoom">(back)</a>
+      </h3>
+    </header>
+    <div class="webRTC">
+      <WebRTC></WebRTC>
+    </div>
+    <div class="char">
+      <chat></chat>
+    </div>
+    <div class="user-list">
+      userlist
     </div>
   </div>
 </template>
@@ -67,28 +62,27 @@ export default {
 };
 </script>
 
-<style scoped="">
+<style>
 .container {
-  max-width: 1170px;
-  margin: auto;
+  display: grid;
+  grid-template-columns: 1fr 20% 10%;
+  grid-template-areas:
+    'header header header'
+    'webRTC chat userlist';
 }
-img {
-  max-width: 100%;
+.header {
+  grid-area: header;
+  padding: 15px;
 }
-.inbox_msg {
-  border: 1px solid #c4c4c4;
-  clear: both;
-  overflow: hidden;
+.webRTC {
+  grid-area: webRTC;
 }
-
-.recent_heading h4 {
-  color: #05728f;
-  font-size: 21px;
-  margin: auto;
+.chat {
+  grid-area: chat;
 }
-.mesgs {
-  float: left;
-  padding: 30px 15px 0 25px;
-  width: 60%;
+.user-list {
+  grid-area: userlist;
+  height: 516px;
+  overflow-y: auto;
 }
 </style>

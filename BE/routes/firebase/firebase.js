@@ -3,6 +3,7 @@ const router = express.Router();
 // var admin = require('firebase-admin');
 const admin = require('firebase-admin');
 const serviceAccount = require('./serviceAccountKey.json');
+const firebaseConfigKey = require('./firebaseConfigKey.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -11,16 +12,8 @@ admin.initializeApp({
 
 const db = admin.database();
 
-router.get('/roomList', function (req, res, next) {
-  db.ref('/rooms').on(
-    'value',
-    (snapshot) => {
-      res.json(snapshot.val());
-    },
-    (errorObject) => {
-      console.log('The read failed: ' + errorObject.code);
-    }
-  );
+router.get('/', (req, res, next) => {
+  res.json(firebaseConfigKey);
 });
 
 router.post('/roomList', function (req, res, next) {
@@ -35,25 +28,14 @@ router.post('/roomList', function (req, res, next) {
   db.ref('/messageHub/' + postId + '/messages').push({
     message: host + ' created ' + roomName,
     sender: 'bot',
-    createdAt: new Date(),
+    sentAt: admin.database.ServerValue.TIMESTAMP,
+  });
+
+  db.ref('/messageHub/' + postId).update({
+    roomName,
   });
 
   res.status(201);
-});
-
-router.get('/message', function (req, res, next) {
-  const roomId = req.query.roomId;
-
-  db.ref('/messageHub/' + roomId + '/messages').on(
-    'value',
-    (snapshot) => {
-      console.log('messageHub= ', snapshot.val());
-      res.json(snapshot.val());
-    },
-    (errorObject) => {
-      console.log('The read failed: ' + errorObject.code);
-    }
-  );
 });
 
 router.post('/message', async function (req, res, next) {
@@ -62,7 +44,7 @@ router.post('/message', async function (req, res, next) {
   db.ref('/messageHub/' + roomId + '/messages').push({
     sender: nickname,
     message,
-    createdAt: new Date(),
+    sentAt: admin.database.ServerValue.TIMESTAMP,
   });
   res.status(201);
 });

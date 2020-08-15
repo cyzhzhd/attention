@@ -1,13 +1,13 @@
 <template>
-  <div id="webRTC">
+  <div class="webRTC">
     <video ref="localVideo" autoplay muted playsinline></video>
     <div ref="videos"></div>
     <div>
-      <button id="startButton" @click="OnStart">start</button>
-      <button id="callButton" @click="StartConnecting">call</button>
-      <button id="muteVideoButton">Mute</button>
+      <button class="startButton" @click="OnStart">start</button>
+      <button class="callButton" @click="StartConnecting">call</button>
+      <button class="muteVideoButton">Mute</button>
       <b>Your session ID =</b>
-      <text id="sessionID">call first</text>
+      <text class="sessionID">call first</text>
     </div>
   </div>
 </template>
