@@ -341,15 +341,12 @@ function addingListenerOnPC(user) {
       connectedUsers[user].addTrack(track, localStream);
     });
 
-    // connectedUsers[user].addTrack(localStream.getTracks()[0], localStream);
-    // connectedUsers[user].addTrack(localStream.getTracks()[1], localStream);
-
     isTrackAdded[user] = true;
   }
 }
 
 async function createSDPOffer() {
-  if (!isChannelReady || isInitiator) {
+  if (!isChannelReady) {
     try {
       // eslint-disable-next-line no-restricted-syntax
       for (const user in connectedUsers) {
@@ -385,7 +382,6 @@ async function makeAnswer(sendFrom) {
 
     connectedUsers[sendFrom].setLocalDescription(sessionDescription);
 
-    // if (!(localStream === undefined || isTrackAdded[sendFrom])) {
     if (!isTrackAdded[sendFrom]) {
       localStream
         .getTracks()
