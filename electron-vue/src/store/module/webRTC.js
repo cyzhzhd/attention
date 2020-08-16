@@ -31,8 +31,8 @@ let isStarted = false;
 let isChannelReady = false;
 
 let connectedUsers = {};
-let remoteStreams;
-let isTrackAdded;
+let remoteStreams = {};
+let isTrackAdded = {};
 
 let localStream;
 let sessionId;
@@ -119,6 +119,8 @@ const actions = {
       );
 
       state.localVideo.srcObject = localStream;
+      localStream.getTracks()[0].enabled = false;
+      localStream.getTracks()[1].enabled = false;
     } catch (error) {
       console.log('navigator.getUserMedia error: ', error);
     }
@@ -201,19 +203,14 @@ socket.on('joined', (room, socketId, clientsInRoom) => {
     createPeerConnection();
 
     isStarted = true;
-    isChannelReady = true;
   } else {
     // existing users
     connectedUsers[socketId] = new RTCPeerConnection(rtcIceServerConfiguration);
     console.log('기존 유저의 conenctedUserlist = ', connectedUsers);
+    remoteStreams[socketId] = new MediaStream();
+    isTrackAdded[socketId] = false;
     console.log('remote streams = ', remoteStreams);
-    if (!remoteStreams === true) {
-      remoteStreams = {};
-      isTrackAdded = {};
-    } else {
-      remoteStreams[socketId] = new MediaStream();
-      isTrackAdded[socketId] = false;
-    }
+
     console.log('방에 있던 유저의 connectedUsers = ', connectedUsers);
     addingListenerOnPC(socketId);
   }
@@ -323,7 +320,8 @@ function addingListenerOnPC(user) {
 
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/track_event
   connectedUsers[user].ontrack = event => {
-    console.log('Remote stream added.');
+    // 정 안되면 여기에 videos에서 video.userid === user와 같은 거 있는지 확인해야지 뭐 ....
+    console.log('Remote stream added.', event.streams[0]);
     // eslint-disable-next-line prefer-destructuring
     remoteStreams[user] = event.streams[0];
     const video = document.createElement('video');
@@ -337,20 +335,21 @@ function addingListenerOnPC(user) {
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
   connectedUsers[user].addEventListener('negotiationneeded', createSDPOffer);
 
-  localStream.getTracks()[0].enabled = false;
-  localStream.getTracks()[1].enabled = false;
   if (!(localStream === undefined || isTrackAdded[user])) {
     localStream.getTracks().forEach(track => {
+      console.log('트랙이 두 번 = ', track);
       connectedUsers[user].addTrack(track, localStream);
     });
-    // connectedUsers[user].addStream(localStream);
-    console.log('localStream added on the RTCPeerConnection');
+
+    // connectedUsers[user].addTrack(localStream.getTracks()[0], localStream);
+    // connectedUsers[user].addTrack(localStream.getTracks()[1], localStream);
+
     isTrackAdded[user] = true;
   }
 }
 
 async function createSDPOffer() {
-  if (!isChannelReady) {
+  if (!isChannelReady || isInitiator) {
     try {
       // eslint-disable-next-line no-restricted-syntax
       for (const user in connectedUsers) {
@@ -428,6 +427,11 @@ function muteAudio() {
 }
 
 function disconnectWebRTC() {
+  localStream.getTracks().forEach(track => {
+    if (track.readyState === 'live') {
+      track.stop();
+    }
+  });
   resetVariables();
 }
 
@@ -437,8 +441,8 @@ function resetVariables() {
   isChannelReady = false;
 
   connectedUsers = {};
-  remoteStreams = null;
-  isTrackAdded = null;
+  remoteStreams = {};
+  isTrackAdded = {};
 
   localStream = null;
   roomContainer = null;
