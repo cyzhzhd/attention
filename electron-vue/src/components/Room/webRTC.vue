@@ -3,9 +3,11 @@
     <video ref="localVideo" autoplay muted playsinline></video>
     <div ref="videos"></div>
     <div>
-      <button class="startButton" @click="OnStart">start</button>
-      <button class="callButton" @click="StartConnecting">call</button>
-      <button class="muteVideoButton">Mute</button>
+      <button class="start-button" @click="OnStart">start</button>
+      <button class="call-button" @click="StartConnecting">call</button>
+      <button class="mute-video-button" @click="MuteVideo">video</button>
+      <button class="mute-mic-button" @click="MuteAudio">mic</button>
+
       <b>Your session ID =</b>
       <text class="sessionID">call first</text>
     </div>
@@ -27,6 +29,8 @@ export default {
       'StartConnecting',
       'LocalVideoSetter',
       'VideoSetter',
+      'MuteVideo',
+      'MuteAudio',
     ]),
   },
   mounted() {
@@ -36,4 +40,17 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.start-button {
+  background-color: aquamarine;
+  border-radius: 0.5rem;
+}
+.call-button {
+  background-color: aquamarine;
+  border-radius: 0.5rem;
+}
+.mute-video-button {
+  background-color: aquamarine;
+  border-radius: 0.5rem;
+}
+</style>

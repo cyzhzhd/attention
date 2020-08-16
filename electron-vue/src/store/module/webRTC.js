@@ -13,7 +13,7 @@ const mediaStreamConstraints = {
     height: 240,
     width: 420,
   },
-  audio: false,
+  audio: true,
 };
 
 const rtcIceServerConfiguration = {
@@ -29,7 +29,6 @@ const rtcIceServerConfiguration = {
 let isInitiator = false;
 let isStarted = false;
 let isChannelReady = false;
-let isStreaming = false;
 
 let connectedUsers = {};
 let remoteStreams;
@@ -38,6 +37,9 @@ let isTrackAdded;
 let localStream;
 let sessionId;
 let roomContainer;
+
+let isVideoMuted = true;
+let isAudioMuted = true;
 
 const state = {
   room: '',
@@ -75,10 +77,8 @@ const mutations = {
     // state.userList = Object.keys(state);
     // console.log('state.userList = ', state.userList);
   },
-  onStart(state, mediaStream) {
-    localStream = mediaStream;
-    state.localVideo.srcObject = mediaStream;
-    isStreaming = true;
+  onStart(state) {
+    state.localVideo.srcObject = localStream;
     // startButton.disabled = true;
     // callButton.disabled = false;
   },
@@ -112,23 +112,21 @@ const mutations = {
 };
 
 const actions = {
-  EnterRoom({ commit }, roomName) {
+  async EnterRoom({ commit }, roomName) {
+    try {
+      localStream = await navigator.mediaDevices.getUserMedia(
+        mediaStreamConstraints,
+      );
+    } catch (error) {
+      console.log('navigator.getUserMedia error: ', error);
+    }
     commit('enterRoom', roomName);
   },
   LeaveRoom({ commit }, roomName) {
     commit('leaveRoom', roomName);
   },
-  async OnStart({ commit }) {
-    if (!isStreaming) {
-      try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia(
-          mediaStreamConstraints,
-        );
-        commit('onStart', mediaStream);
-      } catch (error) {
-        console.log('navigator.getUserMedia error: ', error);
-      }
-    }
+  OnStart({ commit }) {
+    commit('onStart');
   },
 
   StartConnecting({ commit }) {
@@ -141,6 +139,13 @@ const actions = {
 
   VideoSetter({ commit }, video) {
     commit('videoSetter', video);
+  },
+
+  MuteVideo() {
+    muteVideo();
+  },
+  MuteAudio() {
+    muteAudio();
   },
 };
 
@@ -324,10 +329,10 @@ function addingListenerOnPC(user) {
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
   connectedUsers[user].addEventListener('negotiationneeded', createSDPOffer);
 
-  console.log('문제 부분', connectedUsers[user]);
+  localStream.getTracks()[0].enabled = false;
+  localStream.getTracks()[1].enabled = false;
   if (!(localStream === undefined || isTrackAdded[user])) {
     localStream.getTracks().forEach(track => {
-      console.log('뭐가 문제일까?', connectedUsers[user]);
       connectedUsers[user].addTrack(track, localStream);
     });
     // connectedUsers[user].addStream(localStream);
@@ -372,7 +377,6 @@ async function makeAnswer(sendFrom) {
 
     // if (!(localStream === undefined || isTrackAdded[sendFrom])) {
     if (!isTrackAdded[sendFrom]) {
-      console.log(localStream.getTracks());
       localStream
         .getTracks()
         .forEach(async track =>
@@ -395,6 +399,23 @@ async function makeAnswer(sendFrom) {
   }
 }
 
+function muteVideo() {
+  if (!isVideoMuted) {
+    localStream.getTracks()[1].enabled = false;
+  } else {
+    localStream.getTracks()[1].enabled = true;
+  }
+  isVideoMuted = !isVideoMuted;
+}
+function muteAudio() {
+  if (!isAudioMuted) {
+    localStream.getTracks()[0].enabled = false;
+  } else {
+    localStream.getTracks()[0].enabled = true;
+  }
+  isAudioMuted = !isAudioMuted;
+}
+
 function disconnectWebRTC() {
   resetVariables();
 }
@@ -403,7 +424,6 @@ function resetVariables() {
   isInitiator = false;
   isStarted = false;
   isChannelReady = false;
-  isStreaming = false;
 
   connectedUsers = {};
   remoteStreams = null;
@@ -411,6 +431,8 @@ function resetVariables() {
 
   localStream = null;
   roomContainer = null;
+  isVideoMuted = true;
+  isAudioMuted = true;
 
   state.room = null;
   state.localVideo = null;
