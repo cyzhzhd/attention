@@ -77,11 +77,11 @@ const mutations = {
     // state.userList = Object.keys(state);
     // console.log('state.userList = ', state.userList);
   },
-  onStart(state) {
-    state.localVideo.srcObject = localStream;
-    // startButton.disabled = true;
-    // callButton.disabled = false;
-  },
+  //   onStart(state) {
+  //     state.localVideo.srcObject = localStream;
+  //     startButton.disabled = true;
+  //     callButton.disabled = false;
+  //   },
 
   startConnecting() {
     console.log(
@@ -98,8 +98,8 @@ const mutations = {
     console.log('creating peer connection');
     createPeerConnection();
 
-    isStarted = true;
-    isChannelReady = true;
+    // isStarted = true;
+    // isChannelReady = true;
   },
 
   localVideoSetter(state, localVideo) {
@@ -117,6 +117,8 @@ const actions = {
       localStream = await navigator.mediaDevices.getUserMedia(
         mediaStreamConstraints,
       );
+
+      state.localVideo.srcObject = localStream;
     } catch (error) {
       console.log('navigator.getUserMedia error: ', error);
     }
@@ -194,6 +196,12 @@ socket.on('joined', (room, socketId, clientsInRoom) => {
       isTrackAdded[user] = false;
       return isTrackAdded;
     });
+
+    console.log('creating peer connection');
+    createPeerConnection();
+
+    isStarted = true;
+    isChannelReady = true;
   } else {
     // existing users
     connectedUsers[socketId] = new RTCPeerConnection(rtcIceServerConfiguration);
@@ -342,29 +350,32 @@ function addingListenerOnPC(user) {
 }
 
 async function createSDPOffer() {
-  try {
-    // eslint-disable-next-line no-restricted-syntax
-    for (const user in connectedUsers) {
-      if (connectedUsers[user].localDescription !== null) {
-        // eslint-disable-next-line no-continue
-        continue;
-      }
-      console.log('offering sdp');
-      // eslint-disable-next-line no-await-in-loop
-      const offer = await connectedUsers[user].createOffer();
-      connectedUsers[user].setLocalDescription(offer);
-      sendMessage({
-        type: 'offer',
-        sendTo: user,
-        sendFrom: sessionId,
-        sdp: connectedUsers[user].localDescription,
-        room: roomContainer,
-      });
+  if (!isChannelReady) {
+    try {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const user in connectedUsers) {
+        if (connectedUsers[user].localDescription !== null) {
+          // eslint-disable-next-line no-continue
+          continue;
+        }
+        console.log('offering sdp');
+        // eslint-disable-next-line no-await-in-loop
+        const offer = await connectedUsers[user].createOffer();
+        connectedUsers[user].setLocalDescription(offer);
+        sendMessage({
+          type: 'offer',
+          sendTo: user,
+          sendFrom: sessionId,
+          sdp: connectedUsers[user].localDescription,
+          room: roomContainer,
+        });
 
-      console.log('offer created for a user: ', connectedUsers[user]);
+        console.log('offer created for a user: ', connectedUsers[user]);
+        isChannelReady = true;
+      }
+    } catch (e) {
+      console.error('Failed to create pc session description', e);
     }
-  } catch (e) {
-    console.error('Failed to create pc session description', e);
   }
 }
 
