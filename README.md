@@ -1,10 +1,7 @@
 # webRTC
 
 ### signaling server
-
-AWS를 이용한 signaling server  
-Demon process 이용 (추가 예정)
-PM2로 자동 업데이트 (추가 예정)
+express server에 얹혀있음 (port: 3000)  
 
 ### STUN, TURN server
 
@@ -33,18 +30,5 @@ To start a Development Server
 yarn run electron:serve
 ```
 
-# BE
-
-## Express
-
-## DB
-
-### firebase
-[firebase-admin](https://firebase.google.com/docs/admin/setup#add-sdk) 사용  
-#### Realtime DB 설계  
-Rooms = 룸 정보 + 등록 유저 정보  
-MessageHub = 룸 정보 + 메시지    
-Users = 유저 정보 + 등록 룸 정보  
-
-
-### MongoDB
+## flex & grid 
+[flex&grid guide](https://studiomeal.com/archives/533)
