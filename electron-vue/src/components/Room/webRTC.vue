@@ -1,16 +1,17 @@
 <template>
   <div class="webRTC">
+    <div>
+      <span class="mute-video-button" @click.prevent="muteVideo">
+        <i class="fa fa-video-camera fa-2x" v-if="isVideoMuted" aria-hidden="true"></i>
+        <i class="fa fa-pause fa-2x" v-if="!isVideoMuted" aria-hidden="true"></i>
+      </span>
+      <span class="mute-audio-button" @click.prevent="muteAudio">
+        <i class="fa fa-microphone fa-2x" v-if="!isAudioMuted" aria-hidden="true"></i>
+        <i class="fa fa-microphone-slash fa-2x" v-if="isAudioMuted" aria-hidden="true"></i>
+      </span>
+    </div>
     <video ref="localVideo" autoplay muted playsinline></video>
     <div ref="videos"></div>
-    <div>
-      <button class="start-button" @click="OnStart">start</button>
-      <button class="call-button" @click="StartConnecting">call</button>
-      <button class="mute-video-button" @click="MuteVideo">video</button>
-      <button class="mute-mic-button" @click="MuteAudio">mic</button>
-
-      <b>Your session ID =</b>
-      <text class="sessionID">call first</text>
-    </div>
   </div>
 </template>
 
@@ -20,13 +21,22 @@ import { mapActions } from 'vuex';
 export default {
   name: 'WebRTC',
   data() {
-    return {};
+    return {
+      isVideoMuted: true,
+      isAudioMuted: true,
+    };
   },
 
   methods: {
+    muteVideo() {
+      this.isVideoMuted = !this.isVideoMuted;
+      this.MuteVideo();
+    },
+    muteAudio() {
+      this.isAudioMuted = !this.isAudioMuted;
+      this.MuteAudio();
+    },
     ...mapActions('webRTC', [
-      'OnStart',
-      'StartConnecting',
       'LocalVideoSetter',
       'VideoSetter',
       'MuteVideo',
@@ -41,16 +51,7 @@ export default {
 </script>
 
 <style>
-.start-button {
-  background-color: aquamarine;
-  border-radius: 0.5rem;
-}
-.call-button {
-  background-color: aquamarine;
-  border-radius: 0.5rem;
-}
 .mute-video-button {
-  background-color: aquamarine;
-  border-radius: 0.5rem;
+  margin-right: 30px;
 }
 </style>

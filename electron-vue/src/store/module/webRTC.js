@@ -45,16 +45,11 @@ const state = {
   room: '',
   localVideo: '',
   videos: '',
-  userList: ['none', 'of'],
 };
 
 const getters = {
   storedRoom(state) {
     return state.room;
-  },
-  storedUserList(state) {
-    console.log('in the getters, state.userList = ', state.userList);
-    return state.userList;
   },
 };
 
@@ -70,36 +65,6 @@ const mutations = {
     console.log(`${roomName}을 떠남`);
 
     disconnectWebRTC();
-  },
-  setUserList(state, userList) {
-    console.log('setUserList가 호출됌', userList);
-    console.log('setUserList가 호출됌 state', state);
-    // state.userList = Object.keys(state);
-    // console.log('state.userList = ', state.userList);
-  },
-  //   onStart(state) {
-  //     state.localVideo.srcObject = localStream;
-  //     startButton.disabled = true;
-  //     callButton.disabled = false;
-  //   },
-
-  startConnecting() {
-    console.log(
-      'start status: ',
-      isStarted,
-      ' localStream :',
-      localStream,
-      ' Channel Ready: ',
-      isChannelReady,
-    );
-    //   callButton.disabled = true;
-    //   hangupButton.disabled = false;
-
-    console.log('creating peer connection');
-    createPeerConnection();
-
-    // isStarted = true;
-    // isChannelReady = true;
   },
 
   localVideoSetter(state, localVideo) {
@@ -128,13 +93,6 @@ const actions = {
   },
   LeaveRoom({ commit }, roomName) {
     commit('leaveRoom', roomName);
-  },
-  OnStart({ commit }) {
-    commit('onStart');
-  },
-
-  StartConnecting({ commit }) {
-    commit('startConnecting');
   },
 
   LocalVideoSetter({ commit }, localVideo) {
