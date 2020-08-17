@@ -249,9 +249,9 @@ function createPeerConnection() {
   const keys = Object.keys(connectedUsers);
   keys.map(user => {
     connectedUsers[user] = new RTCPeerConnection(rtcIceServerConfiguration);
-
     addingListenerOnPC(user);
     console.log('Created RTCPeerConnection');
+
     return connectedUsers[user];
   });
 }
@@ -279,15 +279,25 @@ function addingListenerOnPC(user) {
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/track_event
   connectedUsers[user].ontrack = event => {
     // 정 안되면 여기에 videos에서 video.userid === user와 같은 거 있는지 확인해야지 뭐 ....
-    console.log('Remote stream added.', event.streams[0]);
-    // eslint-disable-next-line prefer-destructuring
-    remoteStreams[user] = event.streams[0];
-    const video = document.createElement('video');
-    video.srcObject = remoteStreams[user];
-    video.autoplay = true;
-    video.playsinline = true;
-    video.userId = user;
-    state.videos.appendChild(video);
+    const childVideos = state.videos.childNodes;
+    let hasAdded = false;
+    childVideos.forEach(node => {
+      if (node.userId === user) {
+        hasAdded = true;
+      }
+    });
+    if (!hasAdded) {
+      console.log('childVideos = ', childVideos);
+      console.log('Remote stream added.', event.streams[0]);
+      // eslint-disable-next-line prefer-destructuring
+      remoteStreams[user] = event.streams[0];
+      const video = document.createElement('video');
+      video.srcObject = remoteStreams[user];
+      video.autoplay = true;
+      video.playsinline = true;
+      video.userId = user;
+      state.videos.appendChild(video);
+    }
   };
 
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
