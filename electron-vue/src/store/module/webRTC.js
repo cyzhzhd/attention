@@ -119,11 +119,7 @@ function sendMessage(message) {
 }
 
 socket.on('created', (room, clientsInRoom) => {
-  console.log(
-    '방 생성 시, state.userList의 상태',
-    clientsInRoom,
-    state.userList,
-  );
+  console.log('방 생성 시, state.userList의 상태', clientsInRoom);
 
   console.log(`created ${room}`);
   isInitiator = true;

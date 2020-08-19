@@ -11,7 +11,7 @@
           <p>{{ message.message }}</p>
         </div>
         <div v-else>
-          <div v-if="message.sender === user.nickname">
+          <div v-if="message.sender === user.displayName">
             <div class="sent-msg">
               <div class="sent-msg-info">
                 <p>{{ message.sentAt }}</p>
@@ -60,11 +60,12 @@ export default {
   data() {
     return {
       user: {
-        email: 'email address',
-        nickname: this.$route.params.nickname,
+        email: this.$user.email,
+        uid: this.$user.uid,
+        displayName: this.$user.displayName,
       },
       roomId: this.$route.params.roomId,
-      data: { type: '', nickname: '', message: '' },
+      data: { type: '', uid: '', message: '' },
       message: null,
       messages: [],
     };
@@ -73,7 +74,7 @@ export default {
     saveMessage() {
       const options = {
         roomId: this.roomId,
-        nickname: this.user.nickname,
+        displayName: this.user.displayName,
         message: this.message,
       };
       this.$http.post('/api/firebase/message/', options);

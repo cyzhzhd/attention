@@ -4,7 +4,7 @@
       <h2 class="category">Room List</h2>
       <router-link
         class="add-room"
-        :to="{ name: 'AddRoom', params: { nickname } }"
+        :to="{ name: 'AddRoom', params: { uid } }"
         action
         >Add room</router-link
       >
@@ -22,7 +22,7 @@
             :to="{
               name: 'Room',
               params: {
-                nickname: nickname,
+                uid: uid,
                 roomId: room.roomId,
                 roomname: room.roomName,
               },
@@ -65,18 +65,19 @@ export default {
   name: 'roomList',
   data() {
     return {
-      nickname: this.$route.params.nickname,
+      uid: this.$route.params.uid,
       rooms: [],
     };
   },
   created() {
+    console.log('uid = ', this.uid);
     this.$firebase
       .database()
-      .ref('/rooms/')
+      .ref(`/users/${this.uid}/favRooms/`)
       .on('value', snapshot => {
         this.rooms = [];
         snapshot.forEach(doc => {
-          const item = doc.val();
+          const item = doc.val().roomDetail;
           item.roomId = doc.key;
           this.rooms.push(item);
         });

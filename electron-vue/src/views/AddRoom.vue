@@ -2,17 +2,18 @@
   <div>
     <h2>
       Add Room
-      <!-- <b-link @click="$router.go(-1)">(Room List)</b-link> -->
       <a @click="$router.go(-1)">(back)</a>
     </h2>
-    <form @submit.prevent="onSubmit">
-      <input
-        id="roomname"
-        v-model.trim="room.roomName"
-        placeholder="Enter Room Name"
-      />
-      <button type="submit" variant="primary" :disabled="!room.roomName">
-        Save
+    <form @submit.prevent="createRoom">
+      <input v-model.trim="roomNameCreate" placeholder="Enter Room Name" />
+      <button type="submit" variant="primary" :disabled="!roomNameCreate">
+        Create Room
+      </button>
+    </form>
+    <form @submit.prevent="addFavRoom">
+      <input v-model.trim="roomCodeAdd" placeholder="Enter Room code" />
+      <button type="submit" variant="primary" :disabled="!roomCodeAdd">
+        Add Room
       </button>
     </form>
   </div>
@@ -23,17 +24,29 @@ export default {
   name: 'AddBoard',
   data() {
     return {
-      nickname: this.$route.params.nickname,
-      room: { roomName: '' },
+      roomNameCreate: '',
+      roomCodeAdd: '',
     };
   },
   methods: {
-    onSubmit() {
+    createRoom() {
       const options = {
-        roomName: this.room.roomName,
-        host: this.nickname,
+        roomName: this.roomNameCreate,
+        userName: this.$user.displayName,
+        host: this.$user.uid,
       };
-      this.$http.post('/api/firebase/roomList', options);
+      this.$http.post('/api/firebase/createRoom', options);
+      console.log(options);
+      this.$router.go(-1);
+    },
+
+    addFavRoom() {
+      const options = {
+        uid: this.$user.uid,
+        userName: this.$user.displayName,
+        roomId: this.roomCodeAdd,
+      };
+      this.$http.post('/api/firebase/addFavRoom', options);
 
       this.$router.go(-1);
     },
