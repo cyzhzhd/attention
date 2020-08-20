@@ -22,8 +22,11 @@
         ></i>
       </span>
     </div>
-    <video ref="localVideo" autoplay muted playsinline></video>
-    <div ref="videos"></div>
+    <div>
+      <video ref="localVideo" autoplay muted playsinline></video>
+      <p>Me</p>
+    </div>
+    <div ref="videos" class="remote-streams"></div>
   </div>
 </template>
 
@@ -67,5 +70,11 @@ export default {
 <style>
 .mute-video-button {
   margin-right: 30px;
+}
+.remote-streams div {
+  margin: 30px;
+}
+.remote-streams div p {
+  color: black;
 }
 </style>

@@ -13,11 +13,16 @@
       <chat></chat>
     </div>
     <div class="user-list">
-      Online
+      Total User
       <ul>
-        <li v-for="user in logInUser" v-bind:key="user.uid">
+        <li v-for="user in totalUser" v-bind:key="user.uid">
           {{ user.userName }}
         </li>
+      </ul>
+      <br />
+      Online
+      <ul>
+        <li></li>
       </ul>
     </div>
     <nav class="footer">
@@ -68,7 +73,7 @@ export default {
         displayName: this.$user.displayName,
       },
       logInUser: [],
-      logOutUser: [],
+      totalUser: [],
       useVideo: false,
       showModal: false,
     };
@@ -91,7 +96,6 @@ export default {
 
     ...mapActions('webRTC', ['EnterRoom', 'LeaveRoom']),
   },
-
   created() {
     this.enterRoom();
 
@@ -103,7 +107,7 @@ export default {
         snapshot.forEach(doc => {
           userlist.push(doc.val());
         });
-        this.logInUser = userlist;
+        this.totalUser = userlist;
       });
   },
 };

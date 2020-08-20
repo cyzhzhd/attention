@@ -105,7 +105,6 @@ export default {
 
   created() {
     this.fetchMessages();
-    console.log('roomID', this.roomId);
   },
 };
 </script>

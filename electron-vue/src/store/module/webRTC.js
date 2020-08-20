@@ -47,6 +47,7 @@ const state = {
   localVideo: '',
   videos: '',
   user: {},
+  userOnline: [],
 };
 
 const getters = {
@@ -58,6 +59,7 @@ const getters = {
 const mutations = {
   setUser(state, user) {
     state.user = user;
+    state.userOnline.push(user);
     userInfo = { user, sessionId };
   },
   enterRoom(state, roomName) {
@@ -219,19 +221,24 @@ socket.on('message', message => {
       'got offer connectedUsers[message.userInfo.sessionId] =',
       connectedUsers[message.userInfo.sessionId],
     );
+    // check user on the line
+    state.userOnline.push(message.userInfo);
+
     connectedUsers[message.userInfo.sessionId].setRemoteDescription(
       new RTCSessionDescription(message.sdp),
     );
     console.log('answer 만드는 중');
-    makeAnswer(message.sendFrom);
+    makeAnswer(message.userInfo.sessionId);
   } else if (message.type === 'answer' && isStarted) {
-    // 방에 들어와만 있고 시작을 안했을 때 오퍼를 받는다?
-    console.log('got answer from: ', message.sendFrom);
+    console.log('got answer from: ', message.userInfo.sessionId);
+    // check user on the line
+    state.userOnline.push(message.userInfo);
+
     connectedUsers[message.userInfo.sessionId].setRemoteDescription(
       new RTCSessionDescription(message.sdp),
     );
   } else if (message.type === 'candidate' && isStarted) {
-    console.log('got candidate from: ', message.sendFrom);
+    console.log('got candidate from: ', message.userInfo.sessionId);
     const candidate = new RTCIceCandidate({
       sdpMLineIndex: message.label,
       candidate: message.candidate,
@@ -287,7 +294,7 @@ function addingListenerOnPC(user) {
       const childVideos = state.videos.childNodes;
       let hasAdded = false;
       childVideos.forEach(node => {
-        if (node.userId === user) {
+        if (node.id === user) {
           hasAdded = true;
         }
       });
@@ -296,12 +303,29 @@ function addingListenerOnPC(user) {
         console.log('Remote stream added.', event.streams[0]);
         // eslint-disable-next-line prefer-destructuring
         remoteStreams[user] = event.streams[0];
+        const div = document.createElement('div');
+        div.id = user;
+
         const video = document.createElement('video');
         video.srcObject = remoteStreams[user];
         video.autoplay = true;
         video.playsinline = true;
         video.userId = user;
-        state.videos.appendChild(video);
+        div.appendChild(video);
+
+        let userName;
+        state.userOnline.forEach(userinfo => {
+          if (userinfo.sessionId === user) {
+            console.log(userinfo.user.displayName);
+            userName = userinfo.user.displayName;
+          }
+          return userName;
+        });
+        const p = document.createElement('p');
+        p.innerHTML = userName;
+        div.appendChild(p);
+
+        state.videos.appendChild(div);
       }
     }
   };
