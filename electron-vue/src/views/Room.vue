@@ -22,7 +22,9 @@
       <br />
       Online
       <ul>
-        <li></li>
+        <li v-for="user in logInUser" v-bind:key="user.uid">
+          {{ user.displayName }}
+        </li>
       </ul>
     </div>
     <nav class="footer">
@@ -83,12 +85,14 @@ export default {
       this.useVideo = !this.useVideo;
     },
     enterRoom() {
-      this.EnterRoom(this.roomname);
+      console.log('vue에서 roomId', this.roomId);
+      this.EnterRoom({ roomName: this.roomname, roomId: this.roomId });
     },
 
     leaveRoom() {
       this.$router.go(-1);
-      this.LeaveRoom(this.roomname);
+      console.log('vue에서 roomId', this.roomId);
+      this.LeaveRoom({ roomName: this.roomname, roomId: this.roomId });
     },
     showRoomId() {
       this.showModal = !this.showModal;
@@ -108,6 +112,17 @@ export default {
           userlist.push(doc.val());
         });
         this.totalUser = userlist;
+      });
+
+    this.$firebase
+      .database()
+      .ref(`/rooms/${this.roomId}/userOnline`)
+      .on('value', snapshot => {
+        const userlist = [];
+        snapshot.forEach(doc => {
+          userlist.push(doc.val());
+        });
+        this.logInUser = userlist;
       });
   },
 };

@@ -1,5 +1,6 @@
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
 /* eslint-disable no-use-before-define */
+// eslint-disable-next-line no-undef
 // const socket = io('localhost:3000', {
 //   autoConnect: false,
 // }).connect();
@@ -62,15 +63,16 @@ const mutations = {
     state.userOnline.push(user);
     userInfo = { user, sessionId };
   },
-  enterRoom(state, roomName) {
-    state.room = roomName;
-    roomContainer = roomName;
-    socket.emit('create or join', roomName);
-    console.log(`${roomName}을 생성 또는 ${roomName}에 참가`);
+  enterRoom(state, payload) {
+    state.room = payload.roomName;
+    roomContainer = payload.roomName;
+    socket.emit('create or join', payload.roomName, state.user, payload.roomId);
+    console.log(`${payload.roomName}을 생성 또는 ${payload.roomName}에 참가`);
   },
-  leaveRoom(state, roomName) {
-    socket.emit('leave room', roomName);
-    console.log(`${roomName}을 떠남`);
+  leaveRoom(state, payload) {
+    console.log('js에서 roomId', payload.roomId);
+    socket.emit('leave room', payload.roomName, payload.roomId);
+    console.log(`${payload.roomName}을 떠남`);
 
     disconnectWebRTC();
   },
@@ -88,7 +90,7 @@ const actions = {
   SetUser({ commit }, user) {
     commit('setUser', user);
   },
-  async EnterRoom({ commit }, roomName) {
+  async EnterRoom({ commit }, payload) {
     try {
       localStream = await navigator.mediaDevices.getUserMedia(
         mediaStreamConstraints,
@@ -100,10 +102,11 @@ const actions = {
     } catch (error) {
       console.log('navigator.getUserMedia error: ', error);
     }
-    commit('enterRoom', roomName);
+    commit('enterRoom', payload);
   },
-  LeaveRoom({ commit }, roomName) {
-    commit('leaveRoom', roomName);
+  LeaveRoom({ commit }, payload) {
+    console.log('action에서 roomId', payload.roomId);
+    commit('leaveRoom', payload);
   },
 
   LocalVideoSetter({ commit }, localVideo) {
@@ -195,7 +198,7 @@ socket.on('userLeft', (clientsInRoom, userId) => {
   console.log(childVideosNodeList);
   // eslint-disable-next-line no-restricted-syntax
   for (const node in childVideosNodeList) {
-    if (childVideosNodeList[node].userId === userId) {
+    if (childVideosNodeList[node].id === userId) {
       console.log('지워질 node의 이름은 = ', childVideosNodeList[node]);
       state.videos.removeChild(childVideosNodeList[node]);
       break;
