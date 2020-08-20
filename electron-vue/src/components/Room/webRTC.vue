@@ -49,6 +49,7 @@ export default {
       this.MuteAudio();
     },
     ...mapActions('webRTC', [
+      'SetUser',
       'LocalVideoSetter',
       'VideoSetter',
       'MuteVideo',
@@ -56,6 +57,7 @@ export default {
     ]),
   },
   mounted() {
+    this.SetUser(this.$user);
     this.LocalVideoSetter(this.$refs.localVideo);
     this.VideoSetter(this.$refs.videos);
   },

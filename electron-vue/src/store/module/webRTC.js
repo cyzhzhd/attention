@@ -36,6 +36,7 @@ let isTrackAdded = {};
 
 let localStream;
 let sessionId;
+let userInfo;
 let roomContainer;
 
 let isVideoMuted = true;
@@ -45,6 +46,7 @@ const state = {
   room: '',
   localVideo: '',
   videos: '',
+  user: {},
 };
 
 const getters = {
@@ -54,6 +56,10 @@ const getters = {
 };
 
 const mutations = {
+  setUser(state, user) {
+    state.user = user;
+    userInfo = { user, sessionId };
+  },
   enterRoom(state, roomName) {
     state.room = roomName;
     roomContainer = roomName;
@@ -77,6 +83,9 @@ const mutations = {
 };
 
 const actions = {
+  SetUser({ commit }, user) {
+    commit('setUser', user);
+  },
   async EnterRoom({ commit }, roomName) {
     try {
       localStream = await navigator.mediaDevices.getUserMedia(
@@ -120,6 +129,7 @@ function sendMessage(message) {
 
 socket.on('created', (room, clientsInRoom) => {
   console.log('방 생성 시, state.userList의 상태', clientsInRoom);
+  console.log('방 생성 시, userInfo의 상태', userInfo);
 
   console.log(`created ${room}`);
   isInitiator = true;
@@ -128,9 +138,8 @@ socket.on('created', (room, clientsInRoom) => {
 
 socket.on('joined', (room, socketId, clientsInRoom) => {
   console.log(`${socketId} joined ${room}`);
-  // mutations.setUserList(clientsInRoom.sockets);
   console.log('userList', clientsInRoom.sockets);
-  console.log('socketId === sessionId', socketId === sessionId);
+  console.log('socketId === sessionId', socketId === userInfo.sessionId);
 
   if (!isChannelReady) {
     // new users
@@ -139,13 +148,13 @@ socket.on('joined', (room, socketId, clientsInRoom) => {
       '방에 들어온 유저의 connectedUsers before delete = ',
       connectedUsers,
     );
-    delete connectedUsers[sessionId];
+    delete connectedUsers[userInfo.sessionId];
     console.log(
       '방에 들어온 유저의 connectedUsers after delete = ',
       connectedUsers,
     );
     remoteStreams = { ...clientsInRoom.sockets };
-    delete remoteStreams[sessionId];
+    delete remoteStreams[userInfo.sessionId];
     isTrackAdded = { ...clientsInRoom.sockets };
     const key = Object.keys(isTrackAdded);
     key.map(user => {
@@ -172,12 +181,6 @@ socket.on('joined', (room, socketId, clientsInRoom) => {
 
 socket.on('sessionID', id => {
   sessionId = id;
-  //   HTMLSessionID.textContent = sessionId;
-});
-
-socket.on('disconnect', () => {
-  //   HTMLSessionID.textContent = 'call first';
-  sessionId = 'call first';
 });
 
 socket.on('userLeft', (clientsInRoom, userId) => {
@@ -204,16 +207,19 @@ socket.on('log', array => {
 });
 
 socket.on('message', message => {
+  console.log('message =', message);
   if (message.type === 'offer') {
-    console.log('connectedUsers의 상태는? ', connectedUsers[message.sendFrom]);
-    console.log('connectedUsers는? ', connectedUsers);
-    // if (connectedUsers[message.sendFrom] === true) {
-    console.log('got offer from =', message.sendFrom);
+    console.log('got offer from =', message.userInfo.sessionId);
     console.log(
-      'got offer connectedUsers[message.sendFrom] =',
-      connectedUsers[message.sendFrom],
+      'connectedUsers의 상태는? ',
+      connectedUsers[message.userInfo.sessionId],
     );
-    connectedUsers[message.sendFrom].setRemoteDescription(
+    console.log('connectedUsers는? ', connectedUsers);
+    console.log(
+      'got offer connectedUsers[message.userInfo.sessionId] =',
+      connectedUsers[message.userInfo.sessionId],
+    );
+    connectedUsers[message.userInfo.sessionId].setRemoteDescription(
       new RTCSessionDescription(message.sdp),
     );
     console.log('answer 만드는 중');
@@ -221,7 +227,7 @@ socket.on('message', message => {
   } else if (message.type === 'answer' && isStarted) {
     // 방에 들어와만 있고 시작을 안했을 때 오퍼를 받는다?
     console.log('got answer from: ', message.sendFrom);
-    connectedUsers[message.sendFrom].setRemoteDescription(
+    connectedUsers[message.userInfo.sessionId].setRemoteDescription(
       new RTCSessionDescription(message.sdp),
     );
   } else if (message.type === 'candidate' && isStarted) {
@@ -230,7 +236,7 @@ socket.on('message', message => {
       sdpMLineIndex: message.label,
       candidate: message.candidate,
     });
-    connectedUsers[message.sendFrom].addIceCandidate(candidate);
+    connectedUsers[message.userInfo.sessionId].addIceCandidate(candidate);
   } else if (message.type === 'bye' && isStarted) {
     // handleRemoteHangup();
   } else if (message.type === 'muted') {
@@ -264,7 +270,7 @@ function addingListenerOnPC(user) {
         id: event.candidate.sdpMid,
         candidate: event.candidate.candidate,
         sendTo: user,
-        sendFrom: sessionId,
+        userInfo,
         room: roomContainer,
       });
     } else {
@@ -275,24 +281,28 @@ function addingListenerOnPC(user) {
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/track_event
   connectedUsers[user].ontrack = event => {
     // 정 안되면 여기에 videos에서 video.userid === user와 같은 거 있는지 확인해야지 뭐 ....
-    const childVideos = state.videos.childNodes;
-    let hasAdded = false;
-    childVideos.forEach(node => {
-      if (node.userId === user) {
-        hasAdded = true;
+    console.log('비디오가 추가될 때, evnet = ', event);
+    console.log('비디오가 추가될 때, evnet.streams = ', event.streams);
+    if (event) {
+      const childVideos = state.videos.childNodes;
+      let hasAdded = false;
+      childVideos.forEach(node => {
+        if (node.userId === user) {
+          hasAdded = true;
+        }
+      });
+      if (!hasAdded) {
+        console.log('childVideos = ', childVideos);
+        console.log('Remote stream added.', event.streams[0]);
+        // eslint-disable-next-line prefer-destructuring
+        remoteStreams[user] = event.streams[0];
+        const video = document.createElement('video');
+        video.srcObject = remoteStreams[user];
+        video.autoplay = true;
+        video.playsinline = true;
+        video.userId = user;
+        state.videos.appendChild(video);
       }
-    });
-    if (!hasAdded) {
-      console.log('childVideos = ', childVideos);
-      console.log('Remote stream added.', event.streams[0]);
-      // eslint-disable-next-line prefer-destructuring
-      remoteStreams[user] = event.streams[0];
-      const video = document.createElement('video');
-      video.srcObject = remoteStreams[user];
-      video.autoplay = true;
-      video.playsinline = true;
-      video.userId = user;
-      state.videos.appendChild(video);
     }
   };
 
@@ -301,7 +311,6 @@ function addingListenerOnPC(user) {
 
   if (!(localStream === undefined || isTrackAdded[user])) {
     localStream.getTracks().forEach(track => {
-      console.log('트랙이 두 번 = ', track);
       connectedUsers[user].addTrack(track, localStream);
     });
 
@@ -325,7 +334,7 @@ async function createSDPOffer() {
         sendMessage({
           type: 'offer',
           sendTo: user,
-          sendFrom: sessionId,
+          userInfo,
           sdp: connectedUsers[user].localDescription,
           room: roomContainer,
         });
@@ -360,7 +369,7 @@ async function makeAnswer(sendFrom) {
     sendMessage({
       type: 'answer',
       sendTo: sendFrom,
-      sendFrom: sessionId,
+      userInfo,
       sdp: connectedUsers[sendFrom].localDescription,
       room: roomContainer,
     });
