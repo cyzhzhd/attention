@@ -10,7 +10,6 @@ import 'firebase/analytics';
 import 'firebase/auth';
 import 'firebase/database';
 import 'firebase/firestore';
-// import * as firebaseui from 'firebaseui';
 // import 'firebase/storage';
 
 import App from './App.vue';
@@ -18,19 +17,7 @@ import router from './router';
 import store from './store';
 
 Vue.config.productionTip = false;
-// const ui = new firebaseui.auth.AuthUI(firebase.auth());
-
-// Vue.prototype.$ui = ui;
 Vue.prototype.$http = axios;
-
-// ui.start('#firebaseui-auth-container', {
-//   signInOptions: [
-//     {
-//       provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-//       signInMethod: firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD,
-//     },
-//   ],
-// });
 
 axios.get('/api/firebase').then(response => {
   console.log(response.data);

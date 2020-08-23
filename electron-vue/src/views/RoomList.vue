@@ -2,10 +2,7 @@
   <div class="page">
     <header class="header1">
       <h2 class="category">Room List</h2>
-      <router-link
-        class="add-room"
-        :to="{ name: 'AddRoom', params: { uid } }"
-        action
+      <router-link class="add-room" :to="{ name: 'AddRoom' }" action
         >Add room</router-link
       >
     </header>
@@ -22,7 +19,6 @@
             :to="{
               name: 'Room',
               params: {
-                uid: uid,
                 roomId: room.roomId,
                 roomname: room.roomName,
               },
@@ -65,7 +61,7 @@ export default {
   name: 'roomList',
   data() {
     return {
-      uid: this.$route.params.uid,
+      uid: this.$user.uid,
       rooms: [],
     };
   },

@@ -14,7 +14,9 @@ const mediaStreamConstraints = {
     height: 240,
     width: 420,
   },
-  audio: true,
+  audio: {
+    echoCancellation: true,
+  },
 };
 
 const rtcIceServerConfiguration = {
@@ -39,6 +41,7 @@ let localStream;
 let sessionId;
 let userInfo;
 let roomContainer;
+let interval;
 
 let isVideoMuted = true;
 let isAudioMuted = true;
@@ -68,6 +71,9 @@ const mutations = {
     roomContainer = payload.roomName;
     socket.emit('create or join', payload.roomName, state.user, payload.roomId);
     console.log(`${payload.roomName}을 생성 또는 ${payload.roomName}에 참가`);
+
+    // signal to server every 2 sec for keeping connection
+    interval = setInterval(() => socket.emit('ImOnline', state.room), 10000);
   },
   leaveRoom(state, payload) {
     console.log('js에서 roomId', payload.roomId);
@@ -428,6 +434,8 @@ function disconnectWebRTC() {
       track.stop();
     }
   });
+
+  clearInterval(interval);
   resetVariables();
 }
 

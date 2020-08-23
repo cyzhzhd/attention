@@ -88,7 +88,6 @@ export default {
 
           this.$router.push({
             name: 'RoomList',
-            params: { uid: credential.user.uid },
           });
         });
     },

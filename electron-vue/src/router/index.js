@@ -14,17 +14,17 @@ const routes = [
     component: Login,
   },
   {
-    path: '/roomList/:uid',
+    path: '/roomList',
     name: 'RoomList',
     component: RoomList,
   },
   {
-    path: '/room/:uid/:roomId/:roomname',
+    path: '/room/:roomId/:roomname',
     name: 'Room',
     component: Room,
   },
   {
-    path: '/:uid/add-room',
+    path: '/add-room',
     name: 'AddRoom',
     component: AddRoom,
   },
