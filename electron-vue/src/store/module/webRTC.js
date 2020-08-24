@@ -73,7 +73,7 @@ const mutations = {
     console.log(`${payload.roomName}을 생성 또는 ${payload.roomName}에 참가`);
 
     // signal to server every 2 sec for keeping connection
-    interval = setInterval(() => socket.emit('ImOnline', state.room), 10000);
+    interval = setInterval(() => socket.emit('ImOnline', state.room), 2000);
   },
   leaveRoom(state, payload) {
     console.log('js에서 roomId', payload.roomId);

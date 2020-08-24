@@ -1,5 +1,7 @@
+/* eslint-disable no-use-before-define */
 import Vue from 'vue';
 import axios from 'axios';
+import CryptoJS from 'crypto-js';
 
 // firebase
 // Firebase App (the core Firebase SDK) is always required and must be listed first
@@ -19,9 +21,17 @@ import store from './store';
 Vue.config.productionTip = false;
 Vue.prototype.$http = axios;
 
-axios.get('/api/firebase').then(response => {
+const key = generateRandomKey();
+const options = {
+  params: key,
+};
+console.log(options);
+axios.get('/api/firebase', options).then(response => {
   console.log(response.data);
-  firebase.initializeApp(response.data);
+  const bytes = CryptoJS.AES.decrypt(response.data, key);
+  const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+  console.log(decryptedData);
+  firebase.initializeApp(decryptedData);
   Vue.prototype.$firebase = firebase;
   Vue.prototype.$auth = firebase.auth();
 
@@ -29,6 +39,16 @@ axios.get('/api/firebase').then(response => {
     Vue.prototype.$user = user;
   };
 });
+
+function generateRandomKey() {
+  let tempKey = '';
+  for (let i = 0; i < 16; i += 1) {
+    const random = Math.floor(Math.random() * 58 + 65);
+    const char = String.fromCharCode(random);
+    tempKey += char;
+  }
+  return tempKey;
+}
 
 new Vue({
   router,
