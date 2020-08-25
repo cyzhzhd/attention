@@ -9,27 +9,18 @@
     <div class="webRTC">
       <WebRTC></WebRTC>
     </div>
-    <div class="char">
+    <div class="chat">
       <chat></chat>
     </div>
     <div class="user-list">
-      Total User
-      <ul>
-        <li v-for="user in totalUser" v-bind:key="user.uid">
-          {{ user.userName }}
-        </li>
-      </ul>
-      <br />
-      Online
-      <ul>
-        <li v-for="user in logInUser" v-bind:key="user.uid">
-          {{ user.displayName }}
-        </li>
-      </ul>
+      <userList></userList>
     </div>
     <nav class="footer">
       <ul class="menu">
-        <li class="menu-item" @click.prevent="showRoomId">
+        <li
+          class="menu-item"
+          @click.prevent="controlModal('showingInviteModal')"
+        >
           <a href="#" class="menu-link">Invite</a>
         </li>
         <li class="menu-item" @click.prevent>
@@ -37,18 +28,12 @@
         </li>
       </ul>
     </nav>
-    <Modal v-if="showModal" @close="showModal">
-      <h3 slot="header">Copy this roomId and give it to your student</h3>
 
-      <h4 slot="body">{{ roomId }}</h4>
-      <h4 slot="footer">
-        <i
-          class="fa fa-times closeModalBtn fa-2x"
-          aria-hidden="true"
-          @click="showModal = false"
-        ></i>
-      </h4>
-    </Modal>
+    <inviteModal
+      class="invite-modal"
+      v-bind:showModal="modelList.showingInviteModal"
+      v-on:closemodal="controlModal('showingInviteModal')"
+    ></inviteModal>
   </div>
 </template>
 
@@ -56,14 +41,16 @@
 import { mapActions } from 'vuex';
 import chat from '../components/Room/chat.vue';
 import WebRTC from '../components/Room/webRTC.vue';
-import Modal from '../components/common/Modal.vue';
+import userList from '../components/Room/userlist.vue';
+import inviteModal from '../components/Room/inviteModal.vue';
 
 export default {
   name: 'room',
   components: {
     chat,
     WebRTC,
-    Modal,
+    userList,
+    inviteModal,
   },
   data() {
     return {
@@ -76,14 +63,13 @@ export default {
       },
       logInUser: [],
       totalUser: [],
-      useVideo: false,
-      showModal: false,
+      logInUserModal: {},
+      modelList: {
+        showingInviteModal: false,
+      },
     };
   },
   methods: {
-    showVideo() {
-      this.useVideo = !this.useVideo;
-    },
     enterRoom() {
       console.log('vue에서 roomId', this.roomId);
       this.EnterRoom({ roomName: this.roomname, roomId: this.roomId });
@@ -94,36 +80,13 @@ export default {
       console.log('vue에서 roomId', this.roomId);
       this.LeaveRoom({ roomName: this.roomname, roomId: this.roomId });
     },
-    showRoomId() {
-      this.showModal = !this.showModal;
+    controlModal(modelName) {
+      this.modelList[modelName] = !this.modelList[modelName];
     },
-
     ...mapActions('webRTC', ['EnterRoom', 'LeaveRoom']),
   },
   created() {
     this.enterRoom();
-
-    this.$firebase
-      .database()
-      .ref(`/rooms/${this.roomId}/userlist`)
-      .on('value', snapshot => {
-        const userlist = [];
-        snapshot.forEach(doc => {
-          userlist.push(doc.val());
-        });
-        this.totalUser = userlist;
-      });
-
-    this.$firebase
-      .database()
-      .ref(`/rooms/${this.roomId}/userOnline`)
-      .on('value', snapshot => {
-        const userlist = [];
-        snapshot.forEach(doc => {
-          userlist.push(doc.val());
-        });
-        this.logInUser = userlist;
-      });
   },
 };
 </script>

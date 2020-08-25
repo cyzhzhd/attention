@@ -40,7 +40,7 @@ let isTrackAdded = {};
 let localStream;
 let sessionId;
 let userInfo;
-let roomContainer;
+let roomName;
 let interval;
 
 let isVideoMuted = true;
@@ -68,7 +68,7 @@ const mutations = {
   },
   enterRoom(state, payload) {
     state.room = payload.roomName;
-    roomContainer = payload.roomName;
+    roomName = payload.roomName;
     socket.emit('create or join', payload.roomName, state.user, payload.roomId);
     console.log(`${payload.roomName}을 생성 또는 ${payload.roomName}에 참가`);
 
@@ -81,6 +81,16 @@ const mutations = {
     console.log(`${payload.roomName}을 떠남`);
 
     disconnectWebRTC();
+  },
+
+  connectWithTheUser(state, targetUser) {
+    console.log(targetUser);
+  },
+
+  disconnectWithTheUser(state, targetUser) {
+    connectedUsers[targetUser.sessionId].close();
+    removeVideo(targetUser.sessionId);
+    socket.emit('disconnectRequest', userInfo.sessionId, targetUser.sessionId);
   },
 
   localVideoSetter(state, localVideo) {
@@ -111,8 +121,17 @@ const actions = {
     commit('enterRoom', payload);
   },
   LeaveRoom({ commit }, payload) {
-    console.log('action에서 roomId', payload.roomId);
     commit('leaveRoom', payload);
+  },
+
+  ConnectWithTheUser({ commit }, targetUser) {
+    console.log('ConnectWithTheUser - userInfo = ', targetUser);
+    commit('connectWithTheUser', targetUser);
+  },
+
+  DisconnectWithTheUser({ commit }, targetUser) {
+    console.log('ConnectWithTheUser - userInfo = ', targetUser);
+    commit('disconnectWithTheUser', targetUser);
   },
 
   LocalVideoSetter({ commit }, localVideo) {
@@ -194,23 +213,12 @@ socket.on('sessionID', id => {
   sessionId = id;
 });
 
-socket.on('userLeft', (clientsInRoom, userId) => {
-  console.log(
-    '서버로 부터 left 받음. 방에 남아 있는 유저 목록 = ',
-    clientsInRoom.sockets,
-  );
+socket.on('disconnectRequest', fromUser => {
+  removeVideo(fromUser);
+});
 
-  const childVideosNodeList = state.videos.childNodes;
-  console.log(childVideosNodeList);
-  // eslint-disable-next-line no-restricted-syntax
-  for (const node in childVideosNodeList) {
-    if (childVideosNodeList[node].id === userId) {
-      console.log('지워질 node의 이름은 = ', childVideosNodeList[node]);
-      state.videos.removeChild(childVideosNodeList[node]);
-      break;
-    }
-  }
-  console.log('지워지고 난 후 videos = ', childVideosNodeList);
+socket.on('userLeft', (clientsInRoom, userId) => {
+  removeVideo(userId);
 });
 
 socket.on('log', array => {
@@ -262,7 +270,7 @@ socket.on('message', message => {
 
 // RTC part
 function createPeerConnection() {
-  console.log('roomContainer=', roomContainer);
+  console.log('roomName=', roomName);
   console.log('connected Users =', connectedUsers);
   const keys = Object.keys(connectedUsers);
   keys.map(user => {
@@ -287,7 +295,7 @@ function addingListenerOnPC(user) {
         candidate: event.candidate.candidate,
         sendTo: user,
         userInfo,
-        room: roomContainer,
+        room: roomName,
       });
     } else {
       console.log('End of candidates.');
@@ -369,7 +377,7 @@ async function createSDPOffer() {
           sendTo: user,
           userInfo,
           sdp: connectedUsers[user].localDescription,
-          room: roomContainer,
+          room: roomName,
         });
 
         console.log('offer created for a user: ', connectedUsers[user]);
@@ -404,10 +412,21 @@ async function makeAnswer(sendFrom) {
       sendTo: sendFrom,
       userInfo,
       sdp: connectedUsers[sendFrom].localDescription,
-      room: roomContainer,
+      room: roomName,
     });
   } catch (error) {
     console.trace(`Failed to create session description: ${error.toString()}`);
+  }
+}
+
+function removeVideo(targetSessionId) {
+  const childVideosNodeList = state.videos.childNodes;
+  // eslint-disable-next-line no-restricted-syntax
+  for (const node of childVideosNodeList) {
+    if (node.id === targetSessionId) {
+      state.videos.removeChild(node);
+      break;
+    }
   }
 }
 
@@ -449,7 +468,7 @@ function resetVariables() {
   isTrackAdded = {};
 
   localStream = null;
-  roomContainer = null;
+  roomName = null;
   isVideoMuted = true;
   isAudioMuted = true;
 
