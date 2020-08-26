@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <ul class="msg">
+  <div class="msg" ref="msg">
+    <ul class="msg-container">
       <li
         v-for="message in messages"
         v-bind:key="message.key"
@@ -101,10 +101,36 @@ export default {
           });
         });
     },
+
+    scrollToEnd() {
+      // const content = this.$refs.msg;
+      // content.scrollTop = content.scrollHeight;
+
+      // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
+      const content = this.$el.getElementsByClassName('msg-container')[0];
+      // console.log(content.scrollTop);
+      // console.log(content.scrollHeight - content.clientHeight);
+      // console.log(content.scrollHeight);
+      // console.log(
+      //   content.scrollTop / (content.scrollHeight - content.clientHeight),
+      // );
+      content.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end',
+        inline: 'nearest',
+      });
+    },
   },
 
   created() {
     this.fetchMessages();
+  },
+  mounted() {
+    this.scrollToEnd();
+  },
+  updated() {
+    this.$nextTick(() => this.scrollToEnd());
+    // this.$nextTick(() => this.$refs.msg.scrollIntoView());
   },
 };
 </script>
@@ -115,20 +141,26 @@ img {
 }
 .msg {
   overflow-y: auto;
-  height: 516px;
+  height: 400px;
 }
-.msg-history {
+.msg-container {
   display: flex;
-  flex-direction: column;
-  margin-bottom: 10px;
   flex: 0 1 40px;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-bottom: 10px;
 }
+/* .msg-history {
+} */
 .sent-msg-text {
   background-color: gold;
   border-radius: 0.5rem;
   padding: 5px;
 }
 .received-msg-text {
+  display: flex;
+  justify-content: flex-start;
+  flex: 0 1 40px;
   background-color: aquamarine;
   border-radius: 0.5rem;
   padding: 5px;
@@ -149,64 +181,4 @@ img {
   background-color: gray;
   border-radius: 0.5rem;
 }
-
-/* img {
-  max-width: 100%;
-}
-.incoming_msg_img {
-  display: inline-block;
-  width: 6%;
-}
-.received_msg {
-  display: inline-block;
-  padding: 0 0 0 10px;
-  vertical-align: top;
-  width: 92%;
-}
-.received_withd_msg p {
-  background: #ebebeb none repeat scroll 0 0;
-  border-radius: 3px;
-  color: #646464;
-  font-size: 14px;
-  margin: 0;
-  padding: 5px 10px 5px 12px;
-  width: 100%;
-}
-.received_withd_msg {
-  width: 57%;
-}
-.send_msg {
-  display: inline-block;
-  padding: 0 0 0 10px;
-  vertical-align: top;
-  color: #743333;
-  width: 92%;
-}
-.send_withd_msg p {
-  position: relative;
-  background: #eeff00 none repeat scroll 0 0;
-  border-radius: 3px;
-  color: #033f28;
-  font-size: 14px;
-  margin: 0;
-  padding: 5px 10px 5px 12px;
-  width: 80%;
-  left: 90%;
-}
-.send_withd_msg {
-  width: 57%;
-}
-.msg_history {
-  height: 516px;
-  width: 420px;
-  overflow-y: auto;
-}
-.input_msg_write input {
-  background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
-  border: medium none;
-  color: #4c4c4c;
-  font-size: 15px;
-  min-height: 48px;
-  width: 100%;
-} */
 </style>

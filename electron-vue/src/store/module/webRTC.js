@@ -28,13 +28,12 @@ const rtcIceServerConfiguration = {
   iceCandidatePoolSize: 10,
 };
 
-// eslint-disable-next-line no-unused-vars
-let isInitiator = false;
 let isStarted = false;
 let isChannelReady = false;
 
 let connectedUsers = {};
 let remoteStreams = {};
+
 let isTrackAdded = {};
 
 let localStream;
@@ -174,8 +173,8 @@ socket.on('created', (room, clientsInRoom) => {
   console.log('방 생성 시, userInfo의 상태', userInfo);
 
   console.log(`created ${room}`);
-  isInitiator = true;
   isChannelReady = true;
+  isStarted = true;
 });
 
 socket.on('joined', (room, socketId, clientsInRoom) => {
@@ -198,11 +197,10 @@ socket.on('joined', (room, socketId, clientsInRoom) => {
     remoteStreams = { ...clientsInRoom.sockets };
     delete remoteStreams[userInfo.sessionId];
     isTrackAdded = { ...clientsInRoom.sockets };
+    isStarted = true;
 
     console.log('creating peer connection');
     createPeerConnection();
-
-    isStarted = true;
   } else {
     // existing users
     addPC(socketId);
@@ -227,7 +225,7 @@ socket.on('userLeft', (clientsInRoom, userId) => {
 // });
 
 socket.on('message', message => {
-  // console.log('message =', message);
+  console.log('message =', message);
   if (message.type === 'offer') {
     console.log('got offer from =', message.userInfo.sessionId);
     console.log(
@@ -264,10 +262,6 @@ socket.on('message', message => {
       candidate: message.candidate,
     });
     connectedUsers[message.userInfo.sessionId].addIceCandidate(candidate);
-  } else if (message.type === 'bye' && isStarted) {
-    // handleRemoteHangup();
-  } else if (message.type === 'muted') {
-    // muteRemoteVideo();
   }
 });
 
@@ -310,7 +304,7 @@ function addingListenerOnPC(userId, isOfferer) {
     }
   });
 
-  connectedUsers[userId].addEventListener('icecandidate', () => {
+  connectedUsers[userId].addEventListener('iceconnectionstatechange', () => {
     if (connectedUsers[userId].iceConnectionState === 'failed') {
       connectedUsers[userId].restartIce();
     }
@@ -363,12 +357,35 @@ function addingListenerOnPC(userId, isOfferer) {
     }
   };
 
+  // if (isOfferer) {
+  //   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
+  //   connectedUsers[userId].addEventListener(
+  //     'negotiationneeded',
+  //     createSDPOffer,
+  //   );
+  // }
+
   if (isOfferer) {
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
-    connectedUsers[userId].addEventListener(
-      'negotiationneeded',
-      createSDPOffer,
-    );
+    connectedUsers[userId].addEventListener('negotiationneeded', async () => {
+      try {
+        console.log('offering sdp');
+        const offer = await connectedUsers[userId].createOffer();
+        connectedUsers[userId].setLocalDescription(offer);
+        sendMessage({
+          type: 'offer',
+          sendTo: userId,
+          userInfo,
+          sdp: offer,
+          room: roomName,
+        });
+
+        console.log('offer created for a user: ', connectedUsers[userId]);
+        isChannelReady = true;
+      } catch (e) {
+        console.error('Failed to create pc session description', e);
+      }
+    });
   }
 
   if (!(localStream === undefined || isTrackAdded[userId])) {
@@ -381,34 +398,6 @@ function addingListenerOnPC(userId, isOfferer) {
   }
 }
 
-async function createSDPOffer() {
-  try {
-    // eslint-disable-next-line no-restricted-syntax
-    for (const user in connectedUsers) {
-      if (connectedUsers[user].localDescription !== null) {
-        // eslint-disable-next-line no-continue
-        continue;
-      }
-      console.log('offering sdp');
-      // eslint-disable-next-line no-await-in-loop
-      const offer = await connectedUsers[user].createOffer();
-      connectedUsers[user].setLocalDescription(offer);
-      sendMessage({
-        type: 'offer',
-        sendTo: user,
-        userInfo,
-        sdp: connectedUsers[user].localDescription,
-        room: roomName,
-      });
-
-      console.log('offer created for a user: ', connectedUsers[user]);
-      isChannelReady = true;
-    }
-  } catch (e) {
-    console.error('Failed to create pc session description', e);
-  }
-}
-
 async function makeAnswer(sendFrom) {
   try {
     console.log('make answer to: ', sendFrom);
@@ -416,22 +405,22 @@ async function makeAnswer(sendFrom) {
 
     connectedUsers[sendFrom].setLocalDescription(sessionDescription);
 
-    if (!isTrackAdded[sendFrom]) {
-      localStream
-        .getTracks()
-        .forEach(async track =>
-          connectedUsers[sendFrom].addTrack(track, localStream),
-        );
-      console.log('localStream added on the RTCPeerConnection');
-      isTrackAdded[sendFrom] = true;
-    }
+    // if (!isTrackAdded[sendFrom]) {
+    //   localStream
+    //     .getTracks()
+    //     .forEach(async track =>
+    //       connectedUsers[sendFrom].addTrack(track, localStream),
+    //     );
+    //   console.log('localStream added on the RTCPeerConnection');
+    //   isTrackAdded[sendFrom] = true;
+    // }
 
     console.log('makeAnswer ', sessionDescription);
     sendMessage({
       type: 'answer',
       sendTo: sendFrom,
       userInfo,
-      sdp: connectedUsers[sendFrom].localDescription,
+      sdp: sessionDescription,
       room: roomName,
     });
   } catch (error) {
@@ -479,7 +468,6 @@ function disconnectWebRTC() {
 }
 
 function resetVariables() {
-  isInitiator = false;
   isStarted = false;
   isChannelReady = false;
 
