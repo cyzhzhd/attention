@@ -100,6 +100,8 @@ const mutations = {
         userInfo.sessionId,
         targetUser.sessionId,
       );
+
+      addPC(targetUser.sessionId);
     }
   },
 
@@ -163,7 +165,7 @@ const actions = {
 // communication with signaling server
 
 function sendMessage(message) {
-  console.log('Client sending message: ', message);
+  // console.log('Client sending message: ', message);
   socket.emit('message', message);
 }
 
@@ -213,18 +215,19 @@ socket.on('sessionID', id => {
 
 socket.on('disconnectRequest', fromUser => {
   removeVideo(fromUser);
+  addPC(fromUser);
 });
 
 socket.on('userLeft', (clientsInRoom, userId) => {
   removeVideo(userId);
 });
 
-socket.on('log', array => {
-  console.log(array);
-});
+// socket.on('log', array => {
+//   console.log(array);
+// });
 
 socket.on('message', message => {
-  console.log('message =', message);
+  // console.log('message =', message);
   if (message.type === 'offer') {
     console.log('got offer from =', message.userInfo.sessionId);
     console.log(
@@ -283,10 +286,6 @@ function addPC(userId, isOfferer = false) {
   connectedUsers[userId] = new RTCPeerConnection(rtcIceServerConfiguration);
   remoteStreams[userId] = new MediaStream();
   isTrackAdded[userId] = false;
-  console.log('addPC');
-  console.log(connectedUsers[userId]);
-  console.log(remoteStreams[userId]);
-  console.log(isTrackAdded[userId]);
 
   addingListenerOnPC(userId, isOfferer);
 }
@@ -295,7 +294,7 @@ function addingListenerOnPC(userId, isOfferer) {
   // setLocalDescription()에 의해 호출 됌.
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/icecandidate_event
   connectedUsers[userId].addEventListener('icecandidate', event => {
-    console.log('icecandidate event: ', event);
+    // console.log('icecandidate event: ', event);
     if (event.candidate) {
       sendMessage({
         type: 'candidate',
