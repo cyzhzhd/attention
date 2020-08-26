@@ -84,13 +84,23 @@ const mutations = {
   },
 
   connectWithTheUser(state, targetUser) {
-    console.log(targetUser);
+    if (connectedUsers[targetUser.sessionId].connectionState === 'connected') {
+      alert(`you are already connected with ${targetUser.displayName}`);
+    } else {
+      addPC(targetUser.sessionId, true);
+    }
   },
 
   disconnectWithTheUser(state, targetUser) {
-    connectedUsers[targetUser.sessionId].close();
-    removeVideo(targetUser.sessionId);
-    socket.emit('disconnectRequest', userInfo.sessionId, targetUser.sessionId);
+    if (connectedUsers[targetUser.sessionId].connectionState === 'connected') {
+      connectedUsers[targetUser.sessionId].close();
+      removeVideo(targetUser.sessionId);
+      socket.emit(
+        'disconnectRequest',
+        userInfo.sessionId,
+        targetUser.sessionId,
+      );
+    }
   },
 
   localVideoSetter(state, localVideo) {
@@ -186,11 +196,6 @@ socket.on('joined', (room, socketId, clientsInRoom) => {
     remoteStreams = { ...clientsInRoom.sockets };
     delete remoteStreams[userInfo.sessionId];
     isTrackAdded = { ...clientsInRoom.sockets };
-    const key = Object.keys(isTrackAdded);
-    key.map(user => {
-      isTrackAdded[user] = false;
-      return isTrackAdded;
-    });
 
     console.log('creating peer connection');
     createPeerConnection();
@@ -198,14 +203,7 @@ socket.on('joined', (room, socketId, clientsInRoom) => {
     isStarted = true;
   } else {
     // existing users
-    connectedUsers[socketId] = new RTCPeerConnection(rtcIceServerConfiguration);
-    console.log('기존 유저의 conenctedUserlist = ', connectedUsers);
-    remoteStreams[socketId] = new MediaStream();
-    isTrackAdded[socketId] = false;
-    console.log('remote streams = ', remoteStreams);
-
-    console.log('방에 있던 유저의 connectedUsers = ', connectedUsers);
-    addingListenerOnPC(socketId);
+    addPC(socketId);
   }
 });
 
@@ -238,8 +236,9 @@ socket.on('message', message => {
       'got offer connectedUsers[message.userInfo.sessionId] =',
       connectedUsers[message.userInfo.sessionId],
     );
-    // check user on the line
-    state.userOnline.push(message.userInfo);
+    if (!state.userOnline.includes(message.userInfo)) {
+      state.userOnline.push(message.userInfo);
+    }
 
     connectedUsers[message.userInfo.sessionId].setRemoteDescription(
       new RTCSessionDescription(message.sdp),
@@ -248,8 +247,9 @@ socket.on('message', message => {
     makeAnswer(message.userInfo.sessionId);
   } else if (message.type === 'answer' && isStarted) {
     console.log('got answer from: ', message.userInfo.sessionId);
-    // check user on the line
-    state.userOnline.push(message.userInfo);
+    if (!state.userOnline.includes(message.userInfo)) {
+      state.userOnline.push(message.userInfo);
+    }
 
     connectedUsers[message.userInfo.sessionId].setRemoteDescription(
       new RTCSessionDescription(message.sdp),
@@ -274,18 +274,27 @@ function createPeerConnection() {
   console.log('connected Users =', connectedUsers);
   const keys = Object.keys(connectedUsers);
   keys.map(user => {
-    connectedUsers[user] = new RTCPeerConnection(rtcIceServerConfiguration);
-    addingListenerOnPC(user);
-    console.log('Created RTCPeerConnection');
-
-    return connectedUsers[user];
+    addPC(user, true);
+    return user;
   });
 }
 
-function addingListenerOnPC(user) {
+function addPC(userId, isOfferer = false) {
+  connectedUsers[userId] = new RTCPeerConnection(rtcIceServerConfiguration);
+  remoteStreams[userId] = new MediaStream();
+  isTrackAdded[userId] = false;
+  console.log('addPC');
+  console.log(connectedUsers[userId]);
+  console.log(remoteStreams[userId]);
+  console.log(isTrackAdded[userId]);
+
+  addingListenerOnPC(userId, isOfferer);
+}
+
+function addingListenerOnPC(userId, isOfferer) {
   // setLocalDescription()에 의해 호출 됌.
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/icecandidate_event
-  connectedUsers[user].addEventListener('icecandidate', event => {
+  connectedUsers[userId].addEventListener('icecandidate', event => {
     console.log('icecandidate event: ', event);
     if (event.candidate) {
       sendMessage({
@@ -293,7 +302,7 @@ function addingListenerOnPC(user) {
         label: event.candidate.sdpMLineIndex,
         id: event.candidate.sdpMid,
         candidate: event.candidate.candidate,
-        sendTo: user,
+        sendTo: userId,
         userInfo,
         room: roomName,
       });
@@ -302,8 +311,14 @@ function addingListenerOnPC(user) {
     }
   });
 
+  connectedUsers[userId].addEventListener('icecandidate', () => {
+    if (connectedUsers[userId].iceConnectionState === 'failed') {
+      connectedUsers[userId].restartIce();
+    }
+  });
+
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/track_event
-  connectedUsers[user].ontrack = event => {
+  connectedUsers[userId].ontrack = event => {
     // 정 안되면 여기에 videos에서 video.userid === user와 같은 거 있는지 확인해야지 뭐 ....
     console.log('비디오가 추가될 때, evnet = ', event);
     console.log('비디오가 추가될 때, evnet.streams = ', event.streams);
@@ -311,7 +326,7 @@ function addingListenerOnPC(user) {
       const childVideos = state.videos.childNodes;
       let hasAdded = false;
       childVideos.forEach(node => {
-        if (node.id === user) {
+        if (node.id === userId) {
           hasAdded = true;
         }
       });
@@ -319,24 +334,26 @@ function addingListenerOnPC(user) {
         console.log('childVideos = ', childVideos);
         console.log('Remote stream added.', event.streams[0]);
         // eslint-disable-next-line prefer-destructuring
-        remoteStreams[user] = event.streams[0];
+        remoteStreams[userId] = event.streams[0];
         const div = document.createElement('div');
-        div.id = user;
+        div.id = userId;
 
         const video = document.createElement('video');
-        video.srcObject = remoteStreams[user];
+        video.srcObject = remoteStreams[userId];
         video.autoplay = true;
         video.playsinline = true;
-        video.userId = user;
+        video.userId = userId;
         div.appendChild(video);
 
         let userName;
-        state.userOnline.forEach(userinfo => {
-          if (userinfo.sessionId === user) {
+        console.log('state.userOnline = ', state.userOnline);
+        state.userOnline.some(userinfo => {
+          if (userinfo.sessionId === userId) {
             console.log(userinfo.user.displayName);
             userName = userinfo.user.displayName;
+            return true;
           }
-          return userName;
+          return false;
         });
         const p = document.createElement('p');
         p.innerHTML = userName;
@@ -347,45 +364,49 @@ function addingListenerOnPC(user) {
     }
   };
 
-  // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
-  connectedUsers[user].addEventListener('negotiationneeded', createSDPOffer);
+  if (isOfferer) {
+    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
+    connectedUsers[userId].addEventListener(
+      'negotiationneeded',
+      createSDPOffer,
+    );
+  }
 
-  if (!(localStream === undefined || isTrackAdded[user])) {
+  if (!(localStream === undefined || isTrackAdded[userId])) {
+    console.log(userId, '에 track을 추가하는 중.');
     localStream.getTracks().forEach(track => {
-      connectedUsers[user].addTrack(track, localStream);
+      connectedUsers[userId].addTrack(track, localStream);
     });
 
-    isTrackAdded[user] = true;
+    isTrackAdded[userId] = true;
   }
 }
 
 async function createSDPOffer() {
-  if (!isChannelReady) {
-    try {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const user in connectedUsers) {
-        if (connectedUsers[user].localDescription !== null) {
-          // eslint-disable-next-line no-continue
-          continue;
-        }
-        console.log('offering sdp');
-        // eslint-disable-next-line no-await-in-loop
-        const offer = await connectedUsers[user].createOffer();
-        connectedUsers[user].setLocalDescription(offer);
-        sendMessage({
-          type: 'offer',
-          sendTo: user,
-          userInfo,
-          sdp: connectedUsers[user].localDescription,
-          room: roomName,
-        });
-
-        console.log('offer created for a user: ', connectedUsers[user]);
-        isChannelReady = true;
+  try {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const user in connectedUsers) {
+      if (connectedUsers[user].localDescription !== null) {
+        // eslint-disable-next-line no-continue
+        continue;
       }
-    } catch (e) {
-      console.error('Failed to create pc session description', e);
+      console.log('offering sdp');
+      // eslint-disable-next-line no-await-in-loop
+      const offer = await connectedUsers[user].createOffer();
+      connectedUsers[user].setLocalDescription(offer);
+      sendMessage({
+        type: 'offer',
+        sendTo: user,
+        userInfo,
+        sdp: connectedUsers[user].localDescription,
+        room: roomName,
+      });
+
+      console.log('offer created for a user: ', connectedUsers[user]);
+      isChannelReady = true;
     }
+  } catch (e) {
+    console.error('Failed to create pc session description', e);
   }
 }
 
@@ -476,6 +497,7 @@ function resetVariables() {
   state.localVideo = null;
   state.videos = null;
   state.userList = ['none', 'of'];
+  state.userOnline = [];
 }
 
 export default {
