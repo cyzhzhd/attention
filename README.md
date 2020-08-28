@@ -1,3 +1,17 @@
+# FE
+
+## electron-vue
+
+[electron-vue builder](https://nklayman.github.io/vue-cli-plugin-electron-builder/) 사용
+
+```
+To start a Development Server
+yarn run electron:serve
+```
+
+## flex & grid 
+[flex&grid guide](https://studiomeal.com/archives/533)
+
 # webRTC
 
 ### signaling server
@@ -19,6 +33,10 @@ TURN 서버 구축 필요 시 COTRUN PROJECT 이용
 이 중 Full Mesh Network를 사용  
 가장 간단하고, 모두가 모두를 볼 수 있는 구조  
 
+추후 Small world network를 변형하여 적용할 예정 
+
+
+
 #### 구현 방법 
 ##### 새로 입장한 유저 
 1. 기존에 방에 있던 유저들에게 signaling server를 이용해 자신의 정보(session ID)를 넘긴다.
@@ -29,16 +47,22 @@ TURN 서버 구축 필요 시 COTRUN PROJECT 이용
 1. 기존 연결 유저 목록에 새로운 유저에 대한 peerconnection 객체를 추가한다. 
 2. offer를 받으면 answer한다. 
 
-# FE
 
-## electron-vue
+### 음질 개선
+1. EchoCancellation은 default로 적용되어 있음.
+2. 크롬에선 다른 소스에서 나오는 소리는 에코 캔슬링이 안됨. Ex 유튜브 영상, zoom에서 나오는 소리
+3. Safari에서는 non-webRTC audio도 echo cancelling 가능
 
-[electron-vue builder](https://nklayman.github.io/vue-cli-plugin-electron-builder/) 사용
+webRTC Echo cancellation, noise suppression
+https://chromium.googlesource.com/external/webrtc/+/b3b79b611597f44c1d2b29f2d833b6d5928d7a68/webrtc/modules/audio_processing/include/audio_processing.h  
+line 582
 
-```
-To start a Development Server
-yarn run electron:serve
-```
+#### Noise Cancelling
+1. DSP Algorithm = 
+    딥러닝으로 깨끗한 Signal 1과 noise Signal 2를 합쳐 Signal 3을 만듦.
+    딥러닝 베이스 소프트웨어로 signal 2를 불리해 냄.
 
-## flex & grid 
-[flex&grid guide](https://studiomeal.com/archives/533)
+2. [Least Mean Square Algorithm](https://kr.mathworks.com/help/dsp/examples/acoustic-noise-cancellation-lms.html)
+3. 
+
+
