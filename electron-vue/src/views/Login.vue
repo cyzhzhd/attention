@@ -21,7 +21,7 @@
         @submit.prevent="LogIn(login.email, login.password)"
       >
         <input
-          type="text"
+          type="email"
           class="login-email"
           v-model.trim="login.email"
           placeholder="Enter your email address"

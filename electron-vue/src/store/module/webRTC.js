@@ -1,13 +1,13 @@
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
 /* eslint-disable no-use-before-define */
 // eslint-disable-next-line no-undef
-const socket = io('localhost:3000', {
-  autoConnect: true,
-}).connect();
-// eslint-disable-next-line no-undef
-// const socket = io('13.125.214.253:3000', {
+// const socket = io('localhost:3000', {
 //   autoConnect: true,
 // }).connect();
+// eslint-disable-next-line no-undef
+const socket = io('13.125.214.253:3000', {
+  autoConnect: true,
+}).connect();
 
 const mediaStreamConstraints = {
   video: {
@@ -216,8 +216,13 @@ socket.on('disconnectRequest', fromUser => {
   addPC(fromUser);
 });
 
-socket.on('userLeft', (clientsInRoom, userId) => {
+socket.on('userDisconnected', (clientsInRoom, userId) => {
   removeVideo(userId);
+});
+
+socket.on('noSignal', payload => {
+  mutations.leaveRoom(payload);
+  alert('연결이 끊겼습니다. 방을 나갔다 다시 들어와주세요.');
 });
 
 // socket.on('log', array => {
