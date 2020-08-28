@@ -1,13 +1,13 @@
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
 /* eslint-disable no-use-before-define */
 // eslint-disable-next-line no-undef
-// const socket = io('localhost:3000', {
-//   autoConnect: false,
-// }).connect();
-// eslint-disable-next-line no-undef
-const socket = io('13.125.214.253:3000', {
-  autoConnect: false,
+const socket = io('localhost:3000', {
+  autoConnect: true,
 }).connect();
+// eslint-disable-next-line no-undef
+// const socket = io('13.125.214.253:3000', {
+//   autoConnect: true,
+// }).connect();
 
 const mediaStreamConstraints = {
   video: {
@@ -305,7 +305,11 @@ function addingListenerOnPC(userId, isOfferer) {
   });
 
   connectedUsers[userId].addEventListener('iceconnectionstatechange', () => {
-    if (connectedUsers[userId].iceConnectionState === 'failed') {
+    if (
+      connectedUsers[userId] &&
+      connectedUsers[userId].iceConnectionState === 'failed'
+    ) {
+      console.log('restartICE');
       connectedUsers[userId].restartIce();
     }
   });
@@ -357,14 +361,6 @@ function addingListenerOnPC(userId, isOfferer) {
     }
   };
 
-  // if (isOfferer) {
-  //   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
-  //   connectedUsers[userId].addEventListener(
-  //     'negotiationneeded',
-  //     createSDPOffer,
-  //   );
-  // }
-
   if (isOfferer) {
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
     connectedUsers[userId].addEventListener('negotiationneeded', async () => {
@@ -404,16 +400,6 @@ async function makeAnswer(sendFrom) {
     const sessionDescription = await connectedUsers[sendFrom].createAnswer();
 
     connectedUsers[sendFrom].setLocalDescription(sessionDescription);
-
-    // if (!isTrackAdded[sendFrom]) {
-    //   localStream
-    //     .getTracks()
-    //     .forEach(async track =>
-    //       connectedUsers[sendFrom].addTrack(track, localStream),
-    //     );
-    //   console.log('localStream added on the RTCPeerConnection');
-    //   isTrackAdded[sendFrom] = true;
-    // }
 
     console.log('makeAnswer ', sessionDescription);
     sendMessage({

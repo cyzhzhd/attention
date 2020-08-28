@@ -14,13 +14,26 @@
     <section class="room">
       <ul class="room-list">
         <li class="room-item" v-for="room in rooms" :key="room.roomId">
+          <p
+            class="room-settings"
+            @click.prevent="
+              $refs.menu.open($event, {
+                roomId: room.roomId,
+                roomName: room.roomName,
+                host: room.host,
+              })
+            "
+            @click.stop
+          >
+            <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+          </p>
           <router-link
             class="room-name"
             :to="{
               name: 'Room',
               params: {
                 roomId: room.roomId,
-                roomname: room.roomName,
+                roomName: room.roomName,
               },
             }"
             action
@@ -53,18 +66,85 @@
         </ul>
       </div>
     </section>
+    <vue-context ref="menu">
+      <template slot-scope="child">
+        <li>
+          <a @click.prevent="manageTeam(child.data)">팀 관리</a>
+        </li>
+        <li>
+          <a @click.prevent="leaveTeam(child.data)">팀 나가기</a>
+        </li>
+        <li>
+          <a @click.prevent="deleteTeam(child.data)">팀 삭제</a>
+        </li>
+      </template>
+    </vue-context>
+    <handoverModal
+      v-bind:showModal="modalList.showingHandOverModal"
+      v-bind:roomId="roomId"
+      v-on:closemodal="controlModal('showingHandOverModal')"
+    ></handoverModal>
   </div>
 </template>
 
 <script>
+import VueContext from 'vue-context';
+import 'vue-context/src/sass/vue-context.scss';
+import handoverModal from '../components/RoomList/handoverModal.vue';
+
 export default {
   name: 'roomList',
+
+  components: { VueContext, handoverModal },
+
   data() {
     return {
       uid: this.$user.uid,
+      modalList: {
+        showingHandOverModal: false,
+      },
       rooms: [],
+      roomId: '',
     };
   },
+
+  methods: {
+    manageTeam(room) {
+      this.$router.push({
+        name: 'TeamSettings',
+        params: { roomId: room.roomId, roomName: room.roomName },
+      });
+    },
+
+    leaveTeam(room) {
+      if (room.host === this.uid) {
+        this.roomId = room.roomId;
+        this.modalList.showingHandOverModal = true;
+      } else {
+        const options = {
+          roomId: room.roomId,
+          uid: this.uid,
+        };
+        this.$http.post('/api/firebase/leaveTeam', options);
+      }
+    },
+
+    deleteTeam(room) {
+      if (room.host === this.uid) {
+        const options = {
+          roomId: room.roomId,
+          uid: this.uid,
+        };
+        this.$http.post('/api/firebase/deleteTeam', options);
+      } else {
+        // host만 삭제할 수 있다는 모달 띄우기
+      }
+    },
+    controlModal(modelName) {
+      this.modalList[modelName] = !this.modalList[modelName];
+    },
+  },
+
   created() {
     console.log('uid = ', this.uid);
     this.$firebase
@@ -96,19 +176,21 @@ export default {
   display: flex;
   flex-direction: column;
   margin-bottom: 2rem;
+  background: white;
 }
 .room-image {
   height: 0;
   padding-bottom: 60%;
-  background-color: lightgray;
+  /* background-color: lightgray; */
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
 }
 .room-name {
   flex: 1 1 auto;
-  padding: 1em;
-  background: white;
+  padding-left: 1em;
+  padding-right: 1em;
+  padding-bottom: 1em;
   flex-grow: 1;
 }
 .add-room {
@@ -141,6 +223,19 @@ export default {
 }
 .content-item p {
   font-size: 1rem;
+}
+
+.room-settings {
+  align-self: flex-end;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 0.5em;
+}
+.room-settings:hover {
+  background: grey;
+}
+.room-settings:hover i {
+  color: white;
 }
 
 .page {

@@ -2,8 +2,10 @@
   <div class="container">
     <header class="header">
       <h3 class="text-center">
-        {{ roomname }}
-        <a @click="leaveRoom">(back)</a>
+        {{ roomName }}
+        <a @click="leaveRoom">
+          <i class="fa fa-long-arrow-left fa-2x" aria-hidden="true"></i
+        ></a>
       </h3>
     </header>
     <div class="webRTC">
@@ -31,7 +33,7 @@
 
     <inviteModal
       class="invite-modal"
-      v-bind:showModal="modelList.showingInviteModal"
+      v-bind:showModal="modalList.showingInviteModal"
       v-on:closemodal="controlModal('showingInviteModal')"
     ></inviteModal>
   </div>
@@ -55,7 +57,7 @@ export default {
   data() {
     return {
       roomId: this.$route.params.roomId,
-      roomname: this.$route.params.roomname,
+      roomName: this.$route.params.roomName,
       user: {
         email: this.$user.email,
         uid: this.$user.uid,
@@ -64,7 +66,7 @@ export default {
       logInUser: [],
       totalUser: [],
       logInUserModal: {},
-      modelList: {
+      modalList: {
         showingInviteModal: false,
       },
     };
@@ -72,16 +74,16 @@ export default {
   methods: {
     enterRoom() {
       console.log('vue에서 roomId', this.roomId);
-      this.EnterRoom({ roomName: this.roomname, roomId: this.roomId });
+      this.EnterRoom({ roomName: this.roomName, roomId: this.roomId });
     },
 
     leaveRoom() {
       this.$router.go(-1);
       console.log('vue에서 roomId', this.roomId);
-      this.LeaveRoom({ roomName: this.roomname, roomId: this.roomId });
+      this.LeaveRoom({ roomName: this.roomName, roomId: this.roomId });
     },
     controlModal(modelName) {
-      this.modelList[modelName] = !this.modelList[modelName];
+      this.modalList[modelName] = !this.modalList[modelName];
     },
     ...mapActions('webRTC', ['EnterRoom', 'LeaveRoom']),
   },

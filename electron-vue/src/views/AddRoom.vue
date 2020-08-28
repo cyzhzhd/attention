@@ -36,7 +36,6 @@ export default {
         host: this.$user.uid,
       };
       this.$http.post('/api/firebase/createRoom', options);
-      console.log(options);
       this.$router.go(-1);
     },
 

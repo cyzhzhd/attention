@@ -42,7 +42,7 @@
       <div class="type-msg">
         <div class="input-msg-write">
           <input
-            @keyup.enter="saveMessage"
+            @keyup.enter="sendMessage"
             v-model="message"
             type="text"
             class="write-msg"
@@ -71,7 +71,8 @@ export default {
     };
   },
   methods: {
-    saveMessage() {
+    // net::ERR_EMPTY_RESPONSE 발생
+    sendMessage() {
       const options = {
         roomId: this.roomId,
         displayName: this.user.displayName,
@@ -103,17 +104,15 @@ export default {
     },
 
     scrollToEnd() {
+      // 나중에 스크롤 중이면 밑으로 안 내려가고 밑에 팝업만 뜨면 좋을듯.
+      // 바로 맨 밑으로
       // const content = this.$refs.msg;
       // content.scrollTop = content.scrollHeight;
 
+      // 부드럽게 맨 밑으로
       // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
       const content = this.$el.getElementsByClassName('msg-container')[0];
-      // console.log(content.scrollTop);
-      // console.log(content.scrollHeight - content.clientHeight);
-      // console.log(content.scrollHeight);
-      // console.log(
-      //   content.scrollTop / (content.scrollHeight - content.clientHeight),
-      // );
+
       content.scrollIntoView({
         behavior: 'smooth',
         block: 'end',
@@ -152,6 +151,10 @@ img {
 }
 /* .msg-history {
 } */
+.bot-msg {
+  padding-left: 5px;
+  padding-right: 5px;
+}
 .sent-msg-text {
   background-color: gold;
   border-radius: 0.5rem;

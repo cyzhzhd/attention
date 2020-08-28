@@ -23,9 +23,6 @@ export default {
     Modal,
   },
   props: ['showModal'],
-  methods: {
-    CloseModal() {},
-  },
 };
 </script>
 

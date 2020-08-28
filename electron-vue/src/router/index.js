@@ -4,6 +4,7 @@ import Login from '../views/Login.vue';
 import RoomList from '../views/RoomList.vue';
 import Room from '../views/Room.vue';
 import AddRoom from '../views/AddRoom.vue';
+import TeamSettings from '../views/TeamSettings.vue';
 
 Vue.use(VueRouter);
 
@@ -19,7 +20,7 @@ const routes = [
     component: RoomList,
   },
   {
-    path: '/room/:roomId/:roomname',
+    path: '/room/:roomId/:roomName',
     name: 'Room',
     component: Room,
   },
@@ -27,6 +28,11 @@ const routes = [
     path: '/add-room',
     name: 'AddRoom',
     component: AddRoom,
+  },
+  {
+    path: '/team-settings/:roomId/:roomName',
+    name: 'TeamSettings',
+    component: TeamSettings,
   },
   {
     path: '/about',
