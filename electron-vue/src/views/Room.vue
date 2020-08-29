@@ -87,7 +87,7 @@ export default {
     },
     ...mapActions('webRTC', ['EnterRoom', 'LeaveRoom']),
   },
-  created() {
+  mounted() {
     this.enterRoom();
   },
 };

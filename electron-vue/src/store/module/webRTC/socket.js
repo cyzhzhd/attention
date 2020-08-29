@@ -1,48 +1,33 @@
-import * as rtc from './webRTC';
-
+/* eslint-disable no-use-before-define */
+// eslint-disable-next-line no-undef
+// const socket = io('localhost:3000', {
+//   autoConnect: true,
+// }).connect();
+// eslint-disable-next-line no-undef
 const socket = io('13.125.214.253:3000', {
-  autoConnect: false,
+  autoConnect: true,
 }).connect();
 
-const mediaStreamConstraints = {
-  video: {
-    height: 240,
-    width: 420,
-  },
-  audio: true,
-};
-
-const rtcIceServerConfiguration = {
-  iceServers: [
-    {
-      urls: ['stun:stun.l.google.com:19302'],
-    },
-  ],
-  iceCandidatePoolSize: 10,
-};
-
 // communication with signaling server
+
 function sendMessage(message) {
-  console.log('Client sending message: ', message);
+  // console.log('Client sending message: ', message);
   socket.emit('message', message);
 }
 
 socket.on('created', (room, clientsInRoom) => {
-  console.log(
-    '방 생성 시, state.userList의 상태',
-    clientsInRoom,
-    state.userList,
-  );
+  console.log('방 생성 시, state.userList의 상태', clientsInRoom);
+  console.log('방 생성 시, userInfo의 상태', userInfo);
 
   console.log(`created ${room}`);
-  isInitiator = true;
+  isChannelReady = true;
+  isStarted = true;
 });
 
 socket.on('joined', (room, socketId, clientsInRoom) => {
   console.log(`${socketId} joined ${room}`);
-  // mutations.setUserList(clientsInRoom.sockets);
   console.log('userList', clientsInRoom.sockets);
-  console.log('socketId === sessionId', socketId === sessionId);
+  console.log('socketId === sessionId', socketId === userInfo.sessionId);
 
   if (!isChannelReady) {
     // new users
@@ -51,97 +36,84 @@ socket.on('joined', (room, socketId, clientsInRoom) => {
       '방에 들어온 유저의 connectedUsers before delete = ',
       connectedUsers,
     );
-    delete connectedUsers[sessionId];
+    delete connectedUsers[userInfo.sessionId];
     console.log(
       '방에 들어온 유저의 connectedUsers after delete = ',
       connectedUsers,
     );
     remoteStreams = { ...clientsInRoom.sockets };
-    delete remoteStreams[sessionId];
+    delete remoteStreams[userInfo.sessionId];
     isTrackAdded = { ...clientsInRoom.sockets };
-    const key = Object.keys(isTrackAdded);
-    key.map(user => {
-      isTrackAdded[user] = false;
-      return isTrackAdded;
-    });
+    isStarted = true;
+
+    console.log('creating peer connection');
+    createPeerConnection();
   } else {
     // existing users
-    connectedUsers[socketId] = new RTCPeerConnection(rtcIceServerConfiguration);
-    if (remoteStreams === undefined) {
-      remoteStreams = {};
-      isTrackAdded = {};
-    } else {
-      remoteStreams[socketId] = new MediaStream();
-      isTrackAdded[socketId] = false;
-    }
-    console.log('방에 있던 유저의 connectedUsers = ', connectedUsers);
-    addingListenerOnPC(socketId);
+    addPC(socketId);
   }
 });
 
 socket.on('sessionID', id => {
   sessionId = id;
-  //   HTMLSessionID.textContent = sessionId;
 });
 
-socket.on('disconnect', () => {
-  //   HTMLSessionID.textContent = 'call first';
-  sessionId = 'call first';
+socket.on('disconnectRequest', fromUser => {
+  removeVideo(fromUser);
+  addPC(fromUser);
 });
 
-socket.on('userLeft', (clientsInRoom, userId) => {
-  console.log(
-    '서버로 부터 left 받음. 방에 남아 있는 유저 목록 = ',
-    clientsInRoom.sockets,
-  );
-
-  const childVideosNodeList = state.videos.childNodes;
-  console.log(childVideosNodeList);
-  // eslint-disable-next-line no-restricted-syntax
-  for (const node in childVideosNodeList) {
-    if (childVideosNodeList[node].userId === userId) {
-      console.log('지워질 node의 이름은 = ', childVideosNodeList[node]);
-      state.videos.removeChild(childVideosNodeList[node]);
-      break;
-    }
-  }
-  console.log('지워지고 난 후 videos = ', childVideosNodeList);
+socket.on('userDisconnected', (clientsInRoom, userId) => {
+  removeVideo(userId);
+  connectedUsers[userId].close();
 });
 
-socket.on('log', array => {
-  console.log(array);
+socket.on('noSignal', payload => {
+  mutations.leaveRoom({}, payload);
+  alert('연결이 끊겼습니다. 방을 나갔다 다시 들어와주세요.');
 });
+
+// socket.on('log', array => {
+//   console.log(array);
+// });
 
 socket.on('message', message => {
+  console.log('message =', message);
   if (message.type === 'offer') {
-    console.log('got offer from: ', message.sendFrom);
-    if (connectedUsers[message.sendFrom] !== true) {
-      console.log('got offer from =', message.sendFrom);
-      console.log(
-        'got offer connectedUsers[message.sendFrom] =',
-        connectedUsers[message.sendFrom],
-      );
-      connectedUsers[message.sendFrom].setRemoteDescription(
-        new RTCSessionDescription(message.sdp),
-      );
-      makeAnswer(message.sendFrom);
+    console.log('got offer from =', message.userInfo.sessionId);
+    console.log(
+      'connectedUsers의 상태는? ',
+      connectedUsers[message.userInfo.sessionId],
+    );
+    console.log('connectedUsers는? ', connectedUsers);
+    console.log(
+      'got offer connectedUsers[message.userInfo.sessionId] =',
+      connectedUsers[message.userInfo.sessionId],
+    );
+    if (!state.userOnline.includes(message.userInfo)) {
+      state.userOnline.push(message.userInfo);
     }
+
+    connectedUsers[message.userInfo.sessionId].setRemoteDescription(
+      new RTCSessionDescription(message.sdp),
+    );
+    console.log('answer 만드는 중');
+    makeAnswer(message.userInfo.sessionId);
   } else if (message.type === 'answer' && isStarted) {
-    // 방에 들어와만 있고 시작을 안했을 때 오퍼를 받는다?
-    console.log('got answer from: ', message.sendFrom);
-    connectedUsers[message.sendFrom].setRemoteDescription(
+    console.log('got answer from: ', message.userInfo.sessionId);
+    if (!state.userOnline.includes(message.userInfo)) {
+      state.userOnline.push(message.userInfo);
+    }
+
+    connectedUsers[message.userInfo.sessionId].setRemoteDescription(
       new RTCSessionDescription(message.sdp),
     );
   } else if (message.type === 'candidate' && isStarted) {
-    console.log('got candidate from: ', message.sendFrom);
+    console.log('got candidate from: ', message.userInfo.sessionId);
     const candidate = new RTCIceCandidate({
       sdpMLineIndex: message.label,
       candidate: message.candidate,
     });
-    connectedUsers[message.sendFrom].addIceCandidate(candidate);
-  } else if (message.type === 'bye' && isStarted) {
-    // handleRemoteHangup();
-  } else if (message.type === 'muted') {
-    // muteRemoteVideo();
+    connectedUsers[message.userInfo.sessionId].addIceCandidate(candidate);
   }
 });

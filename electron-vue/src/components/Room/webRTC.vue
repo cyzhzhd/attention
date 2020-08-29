@@ -2,24 +2,12 @@
   <div class="webRTC">
     <div>
       <span class="mute-video-button" @click.prevent="muteVideo">
-        <i
-          class="fa fa-video-camera fa-2x"
-          v-if="!isVideoMuted"
-          aria-hidden="true"
-        ></i>
+        <i class="fa fa-video-camera fa-2x" v-if="!isVideoMuted" aria-hidden="true"></i>
         <i class="fa fa-pause fa-2x" v-if="isVideoMuted" aria-hidden="true"></i>
       </span>
       <span class="mute-audio-button" @click.prevent="muteAudio">
-        <i
-          class="fa fa-microphone fa-2x"
-          v-if="!isAudioMuted"
-          aria-hidden="true"
-        ></i>
-        <i
-          class="fa fa-microphone-slash fa-2x"
-          v-if="isAudioMuted"
-          aria-hidden="true"
-        ></i>
+        <i class="fa fa-microphone fa-2x" v-if="!isAudioMuted" aria-hidden="true"></i>
+        <i class="fa fa-microphone-slash fa-2x" v-if="isAudioMuted" aria-hidden="true"></i>
       </span>
     </div>
     <div>
