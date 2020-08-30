@@ -1,28 +1,18 @@
 image: node:14.5.0
 
 variables:
-  RTC: 'WebRTC'
   ELECTRON: 'electron-vue'
-
 
   #cache:
   #  paths:
-  #    - ./"$RTC"/node_modules
   #    - ./"$ELECTRON"/node_modules
 
 before_script:
   - apt-get update -qq && apt-get install
 
-webrtc:
-  script: yarn --cwd ./$RTC
-  #  only:
-  #    changes:
-  #      - ./$RTC/*
-
 electron:
   script:
     - yarn --cwd ./$ELECTRON
-    - yarn --cwd ./$ELECTRON react-test --watchAll=false
   #  only:
   #    changes:
   #      - ./$ELECTRON/*
