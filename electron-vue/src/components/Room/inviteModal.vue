@@ -1,6 +1,6 @@
 <template>
   <div class="modal-wrapper" v-on:click="$emit('closemodal')">
-    <Modal v-if="showModal" @close="showModal">
+    <smallModal v-if="showModal" @close="showModal">
       <h3 slot="header">Copy this roomId and give it to your student</h3>
 
       <h4 slot="body">{{ this.$route.params.roomId }}</h4>
@@ -11,16 +11,16 @@
           v-on:click="$emit('closemodal')"
         ></i>
       </h4>
-    </Modal>
+    </smallModal>
   </div>
 </template>
 
 <script>
-import Modal from '../common/Modal.vue';
+import smallModal from '../common/smallModal.vue';
 
 export default {
   components: {
-    Modal,
+    smallModal,
   },
   props: ['showModal'],
 };

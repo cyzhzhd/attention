@@ -21,7 +21,7 @@
         @submit.prevent="LogIn(login.email, login.password)"
       >
         <input
-          type="text"
+          type="email"
           class="login-email"
           v-model.trim="login.email"
           placeholder="Enter your email address"
@@ -63,6 +63,7 @@
         </button>
       </form>
     </div>
+    <p class="error-message">{{ errorMessage }}</p>
   </div>
 </template>
 
@@ -73,6 +74,7 @@ export default {
     return {
       login: { email: '', password: '' },
       signup: { email: '', password: '', displayName: '' },
+      errorMessage: '',
       hasLogInActivated: true,
     };
   },
@@ -89,6 +91,10 @@ export default {
           this.$router.push({
             name: 'RoomList',
           });
+        })
+        .catch(error => {
+          this.errorMessage = '잘못된 아이디 혹은 비밀번호를 입력하셨습니다.';
+          console.log(error);
         });
     },
 
@@ -98,18 +104,34 @@ export default {
         password: this.signup.password,
         displayName: this.signup.displayName,
       };
-      this.$http.post('/api/firebase/signup', options).then(() => {
-        this.login.email = this.signup.email;
-        this.signup.email = '';
-        this.signup.password = '';
-        this.hasLogInActivated = true;
-      });
+      this.$http
+        .post('/api/firebase/signup', options)
+        .then(response => {
+          if (response.data.code === 'auth/invalid-password') {
+            this.errorMessage = '비밀번호는 6자리 이상 입력해주세요';
+          } else if (response.data.code === 'auth/invalid-email') {
+            this.errorMessage = '정확한 이메일 주소를 입력해주세요.';
+          } else {
+            console.log(response);
+            this.login.email = this.signup.email;
+            this.signup.email = '';
+            this.signup.password = '';
+            this.signup.displayName = '';
+            this.errorMessage = '';
+            this.hasLogInActivated = true;
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
     },
 
     activeLogIn() {
+      this.errorMessage = '';
       this.hasLogInActivated = true;
     },
     activeSignUp() {
+      this.errorMessage = '';
       this.hasLogInActivated = false;
     },
   },

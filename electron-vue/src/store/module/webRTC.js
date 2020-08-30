@@ -1,13 +1,13 @@
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
 /* eslint-disable no-use-before-define */
 // eslint-disable-next-line no-undef
-const socket = io('localhost:3000', {
-  autoConnect: true,
-}).connect();
-// eslint-disable-next-line no-undef
-// const socket = io('13.125.214.253:3000', {
+// const socket = io('localhost:3000', {
 //   autoConnect: true,
 // }).connect();
+// eslint-disable-next-line no-undef
+const socket = io('13.125.214.253:3000', {
+  autoConnect: true,
+}).connect();
 
 const mediaStreamConstraints = {
   video: {
@@ -72,7 +72,7 @@ const mutations = {
     console.log(`${payload.roomName}을 생성 또는 ${payload.roomName}에 참가`);
 
     // signal to server every 2 sec for keeping connection
-    interval = setInterval(() => socket.emit('ImOnline', state.room), 2000);
+    interval = setInterval(() => socket.emit('ImOnline', state.room), 202200);
   },
   leaveRoom(state, payload) {
     console.log('js에서 roomId', payload.roomId);
@@ -216,8 +216,14 @@ socket.on('disconnectRequest', fromUser => {
   addPC(fromUser);
 });
 
-socket.on('userLeft', (clientsInRoom, userId) => {
+socket.on('userDisconnected', (clientsInRoom, userId) => {
   removeVideo(userId);
+  connectedUsers[userId].close();
+});
+
+socket.on('noSignal', payload => {
+  mutations.leaveRoom({}, payload);
+  alert('연결이 끊겼습니다. 방을 나갔다 다시 들어와주세요.');
 });
 
 // socket.on('log', array => {
@@ -466,10 +472,12 @@ function resetVariables() {
   isVideoMuted = true;
   isAudioMuted = true;
 
+  while (state.videos.lastElementChild) {
+    state.videos.removeChild(state.videos.lastElementChild);
+  }
   state.room = null;
   state.localVideo = null;
   state.videos = null;
-  state.userList = ['none', 'of'];
   state.userOnline = [];
 }
 

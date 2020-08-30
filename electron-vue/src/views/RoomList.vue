@@ -7,9 +7,7 @@
       >
     </header>
     <header class="header2">
-      <h2 class="notice-header">
-        공지사항
-      </h2>
+      <h2 class="notice-header">공지사항</h2>
     </header>
     <section class="room">
       <ul class="room-list">
@@ -54,13 +52,17 @@
         <ul class="content-list">
           <li class="content-item">
             수학
-            <p>1. 숙제해오기 <br />2. 3번 풀어오기</p>
+            <p>
+              1. 숙제해오기
+              <br />2. 3번 풀어오기
+            </p>
           </li>
           <li class="content-item">
             영어
             <p>
-              1. 2단원 지문 3번 읽기 <br />
-              2. 3단원 듣기테스트 2개 듣기 <br />3. 3단원 단어 30문제 테스트
+              1. 2단원 지문 3번 읽기
+              <br />2. 3단원 듣기테스트 2개 듣기 <br />3. 3단원 단어 30문제
+              테스트
             </p>
           </li>
         </ul>
@@ -82,8 +84,35 @@
     <handoverModal
       v-bind:showModal="modalList.showingHandOverModal"
       v-bind:roomId="roomId"
-      v-on:closemodal="controlModal('showingHandOverModal')"
+      v-on:closemodal="closeModal('showingHandOverModal')"
     ></handoverModal>
+    <div class="modal-wrapper" v-on:click="closeModal('showingConfirmModal')">
+      <smallModal
+        v-if="modalList.showingConfirmModal"
+        @close="modalList.showingConfirmModal"
+      >
+        <h3 slot="header">
+          방을 삭제하려면 '확인'을 입력해주세요
+        </h3>
+
+        <h4 slot="body">
+          <form v-on:submit.prevent="confirm">
+            <input type="text" v-model.trim="textConfirm" placeholder="확인" />
+            <button type="submit" variant="primary" :disabled="!confirm">
+              확인
+            </button>
+          </form>
+        </h4>
+        <h6 slot="footer">
+          이 행동은 되돌릴 수 없습니다.
+          <i
+            class="fa fa-times closeModalBtn fa-2x"
+            aria-hidden="true"
+            v-on:click="closeModal('showingConfirmModal')"
+          ></i>
+        </h6>
+      </smallModal>
+    </div>
   </div>
 </template>
 
@@ -91,20 +120,22 @@
 import VueContext from 'vue-context';
 import 'vue-context/src/sass/vue-context.scss';
 import handoverModal from '../components/RoomList/handoverModal.vue';
+import smallModal from '../components/common/smallModal.vue';
 
 export default {
   name: 'roomList',
-
-  components: { VueContext, handoverModal },
+  components: { VueContext, handoverModal, smallModal },
 
   data() {
     return {
       uid: this.$user.uid,
       modalList: {
         showingHandOverModal: false,
+        showingConfirmModal: false,
       },
       rooms: [],
       roomId: '',
+      textConfirm: '',
     };
   },
 
@@ -131,17 +162,26 @@ export default {
 
     deleteTeam(room) {
       if (room.host === this.uid) {
+        this.modalList.showingConfirmModal = true;
+        this.roomId = room.roomId;
+      }
+    },
+
+    confirm() {
+      if (this.textConfirm === '확인') {
+        this.closeModal('showingConfirmModal');
+
         const options = {
-          roomId: room.roomId,
+          roomId: this.roomId,
           uid: this.uid,
         };
         this.$http.post('/api/firebase/deleteTeam', options);
-      } else {
-        // host만 삭제할 수 있다는 모달 띄우기
       }
     },
-    controlModal(modelName) {
-      this.modalList[modelName] = !this.modalList[modelName];
+
+    closeModal(modelName) {
+      this.modalList[modelName] = false;
+      this.textConfirm = '';
     },
   },
 
