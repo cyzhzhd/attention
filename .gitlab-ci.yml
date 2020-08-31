@@ -3,9 +3,10 @@ image: node:14.5.0
 variables:
   ELECTRON: 'electron-vue'
 
-  cache:
-    paths:
-      - ./"$ELECTRON"/node_modules
+cache:
+  paths:
+    - ./"$ELECTRON"/node_modules
+
 
 before_script:
   - apt-get update -qq && apt-get install
@@ -13,6 +14,7 @@ before_script:
 electron:
   script:
     - yarn --cwd ./$ELECTRON
-    only:
-     changes:
-        - ./$ELECTRON/*
+  only:
+    changes:
+      - ./"$ELECTRON"/*
+
