@@ -21,15 +21,15 @@ const mediaStreamConstraints = {
 
 const rtcIceServerConfiguration = {
   iceServers: [
-    {
-      // urls: 'stun:stun.l.google.com:19302',
-      urls: 'stun:13.125.214.253:3478',
-    },
     // {
-    //   urls: 'turn:13.125.214.253:3478',
-    //   username: 'swteam183',
-    //   credentials: '12345',
+    //   // urls: 'stun:stun.l.google.com:19302',
+    //   urls: 'stun:13.125.214.253:3478',
     // },
+    {
+      urls: 'turn:ec2-13-125-214-253.ap-northeast-2.compute.amazonaws.com:3478',
+      username: 'Oh',
+      credential: 'test',
+    },
   ],
   iceCandidatePoolSize: 10,
 };
