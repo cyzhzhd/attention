@@ -3,23 +3,16 @@
     <nav class="login-signup">
       <ul class="menu">
         <li class="menu-item" @click.prevent="activeLogIn">
-          <a href="#" class="menu-link">
-            Log In
-          </a>
+          <a href="#" class="menu-link">Log In</a>
         </li>
         <li class="menu-item" @click.prevent="activeSignUp">
-          <a href="#" class="menu-link">
-            Sign Up
-          </a>
+          <a href="#" class="menu-link">Sign Up</a>
         </li>
       </ul>
     </nav>
     <div class="login-form" v-if="hasLogInActivated">
       <h2>Login</h2>
-      <form
-        class="login-form"
-        @submit.prevent="LogIn(login.email, login.password)"
-      >
+      <form class="login-form" @submit.prevent="LogIn(login.email, login.password)">
         <input
           type="email"
           class="login-email"
@@ -32,9 +25,7 @@
           v-model.trim="login.password"
           placeholder="password"
         />
-        <button type="submit" variant="primary" :disabled="!login.email">
-          Login
-        </button>
+        <button type="submit" variant="primary" :disabled="!login.email">Login</button>
       </form>
     </div>
     <div class="signup-form" v-else>
@@ -58,9 +49,7 @@
           v-model.trim="signup.displayName"
           placeholder="displayname"
         />
-        <button type="submit" variant="primary" :disabled="!signup.email">
-          Sign Up
-        </button>
+        <button type="submit" variant="primary" :disabled="!signup.email">Sign Up</button>
       </form>
     </div>
     <p class="error-message">{{ errorMessage }}</p>
@@ -82,7 +71,7 @@ export default {
     LogIn() {
       this.$auth
         .signInWithEmailAndPassword(this.login.email, this.login.password)
-        .then(credential => {
+        .then((credential) => {
           this.$setUser(credential.user);
 
           this.login.email = '';
@@ -92,7 +81,7 @@ export default {
             name: 'RoomList',
           });
         })
-        .catch(error => {
+        .catch((error) => {
           this.errorMessage = '잘못된 아이디 혹은 비밀번호를 입력하셨습니다.';
           console.log(error);
         });
@@ -106,7 +95,7 @@ export default {
       };
       this.$http
         .post('/api/firebase/signup', options)
-        .then(response => {
+        .then((response) => {
           if (response.data.code === 'auth/invalid-password') {
             this.errorMessage = '비밀번호는 6자리 이상 입력해주세요';
           } else if (response.data.code === 'auth/invalid-email') {
@@ -121,7 +110,7 @@ export default {
             this.hasLogInActivated = true;
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(error);
         });
     },
