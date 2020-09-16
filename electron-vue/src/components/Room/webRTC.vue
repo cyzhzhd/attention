@@ -1,6 +1,6 @@
 <template>
-  <div class="webRTC">
-    <div>
+  <div>
+    <div class="buttons">
       <span class="mute-video-button" @click.prevent="muteVideo">
         <i class="fa fa-video-camera fa-2x" v-if="!isVideoMuted" aria-hidden="true"></i>
         <i class="fa fa-pause fa-2x" v-if="isVideoMuted" aria-hidden="true"></i>
@@ -10,11 +10,15 @@
         <i class="fa fa-microphone-slash fa-2x" v-if="isAudioMuted" aria-hidden="true"></i>
       </span>
     </div>
-    <div>
-      <video ref="localVideo" autoplay muted playsinline></video>
-      <p>Me</p>
+    <div class="webRTC">
+      <div>
+        <div>
+          <video ref="localVideo" class="localVideo" autoplay muted playsinline></video>
+          <p>Me</p>
+        </div>
+      </div>
+      <div ref="videos" class="remote-streams"></div>
     </div>
-    <div ref="videos" class="remote-streams"></div>
   </div>
 </template>
 
@@ -56,6 +60,14 @@ export default {
 </script>
 
 <style>
+.webRTC {
+  display: flex;
+}
+
+.localVideo {
+  padding-top: 30px;
+}
+
 .mute-video-button {
   margin-right: 30px;
 }

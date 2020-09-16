@@ -1,13 +1,16 @@
 <template>
   <div class="container">
-    <header class="header">
-      <h3 class="text-center">
-        {{ roomName }}
-        <a @click="leaveRoom">
-          <i class="fa fa-long-arrow-left fa-2x" aria-hidden="true"></i
-        ></a>
-      </h3>
-    </header>
+    <div class="goal">
+      <p>학습목표</p>
+      <p>관동 별곡의 감성을 느끼다</p>
+    </div>
+    <h2 class="room-detail">
+      <!-- {{ roomName }} -->
+      <a @click="leaveRoom">
+        뒤로가기
+        <i class="fa fa-long-arrow-left fa" aria-hidden="true"></i>
+      </a>
+    </h2>
     <div class="webRTC">
       <WebRTC></WebRTC>
     </div>
@@ -19,10 +22,7 @@
     </div>
     <nav class="footer">
       <ul class="menu">
-        <li
-          class="menu-item"
-          @click.prevent="controlModal('showingInviteModal')"
-        >
+        <li class="menu-item" @click.prevent="controlModal('showingInviteModal')">
           <a href="#" class="menu-link">Invite</a>
         </li>
         <li class="menu-item" @click.prevent>
@@ -97,16 +97,37 @@ export default {
 .container {
   display: grid;
   height: 100vh;
-  grid-template-columns: 1fr 20% 10%;
+  grid-template-columns: 100px 1fr 20%;
   grid-template-rows: 10% 1fr 65px;
   grid-template-areas:
-    'header header header'
-    'webRTC chat userlist'
+    '. goal detail'
+    'userlist webRTC chat'
     'footer footer footer';
 }
-.header {
-  grid-area: header;
-  padding: 15px;
+.goal {
+  grid-area: goal;
+  display: flex;
+
+  height: 50px;
+  margin-top: 20px;
+
+  background: #00d39d;
+  border-radius: 31px;
+}
+.goal p {
+  margin-left: 20px;
+  margin-top: 10px;
+
+  text-align: start;
+  font-family: SpoqaHanSans;
+  font-size: 1.3rem;
+  font-style: normal;
+  font-weight: normal;
+  color: white;
+}
+.room-detail {
+  grid-area: detail;
+  margin-top: 30px;
 }
 .webRTC {
   grid-area: webRTC;

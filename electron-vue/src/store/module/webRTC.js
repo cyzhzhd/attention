@@ -5,7 +5,7 @@
 //   autoConnect: true,
 // }).connect();
 // eslint-disable-next-line no-undef
-const socket = io('13.125.214.253:3000', {
+const socket = io('13.125.214.253:5000', {
   autoConnect: true,
 }).connect();
 

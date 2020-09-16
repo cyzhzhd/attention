@@ -2,9 +2,7 @@
   <div class="page">
     <header class="header1">
       <h2 class="category">Room List</h2>
-      <router-link class="add-room" :to="{ name: 'AddRoom' }" action
-        >Add room</router-link
-      >
+      <router-link class="add-room" :to="{ name: 'AddRoom' }" action>Add room</router-link>
     </header>
     <header class="header2">
       <h2 class="notice-header">공지사항</h2>
@@ -61,7 +59,8 @@
             영어
             <p>
               1. 2단원 지문 3번 읽기
-              <br />2. 3단원 듣기테스트 2개 듣기 <br />3. 3단원 단어 30문제
+              <br />2. 3단원 듣기테스트 2개 듣기
+              <br />3. 3단원 단어 30문제
               테스트
             </p>
           </li>
@@ -87,20 +86,13 @@
       v-on:closemodal="closeModal('showingHandOverModal')"
     ></handoverModal>
     <div class="modal-wrapper" v-on:click="closeModal('showingConfirmModal')">
-      <smallModal
-        v-if="modalList.showingConfirmModal"
-        @close="modalList.showingConfirmModal"
-      >
-        <h3 slot="header">
-          방을 삭제하려면 '확인'을 입력해주세요
-        </h3>
+      <smallModal v-if="modalList.showingConfirmModal" @close="modalList.showingConfirmModal">
+        <h3 slot="header">방을 삭제하려면 '확인'을 입력해주세요</h3>
 
         <h4 slot="body">
           <form v-on:submit.prevent="confirm">
             <input type="text" v-model.trim="textConfirm" placeholder="확인" />
-            <button type="submit" variant="primary" :disabled="!confirm">
-              확인
-            </button>
+            <button type="submit" variant="primary" :disabled="!confirm">확인</button>
           </form>
         </h4>
         <h6 slot="footer">
@@ -190,9 +182,9 @@ export default {
     this.$firebase
       .database()
       .ref(`/users/${this.uid}/favRooms/`)
-      .on('value', snapshot => {
+      .on('value', (snapshot) => {
         this.rooms = [];
-        snapshot.forEach(doc => {
+        snapshot.forEach((doc) => {
           const item = doc.val().roomDetail;
           item.roomId = doc.key;
           this.rooms.push(item);
