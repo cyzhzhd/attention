@@ -38,9 +38,12 @@ let isStarted = false;
 let isChannelReady = false;
 
 let connectedUsers = {};
+const sendingTracks = [];
 let remoteStreams = {};
+let screenTrack = null;
 
 let isTrackAdded = {};
+let isScreenSharing = false;
 
 let localStream;
 let sessionId;
@@ -141,6 +144,15 @@ const actions = {
   },
   LeaveRoom({ commit }, payload) {
     commit('leaveRoom', payload);
+  },
+
+  async ShareScreen() {
+    console.log('sending tracks = ', sendingTracks);
+    const screenStream = await navigator.mediaDevices.getDisplayMedia({
+      cursor: true,
+    });
+    screenTrack = screenStream.getTracks();
+    replaceTrack(screenTrack[0]);
   },
 
   ConnectWithTheUser({ commit }, targetUser) {
@@ -399,9 +411,13 @@ function addingListenerOnPC(userId, isOfferer) {
   }
 
   if (!(localStream === undefined || isTrackAdded[userId])) {
-    console.log(userId, '에 track을 추가하는 중.');
+    console.log(userId, '에 track을 추가하는 중.', localStream.getTracks());
     localStream.getTracks().forEach(track => {
-      connectedUsers[userId].addTrack(track, localStream);
+      sendingTracks.push(connectedUsers[userId].addTrack(track, localStream));
+
+      if (isScreenSharing) {
+        replaceTrack(screenTrack[0]);
+      }
     });
 
     isTrackAdded[userId] = true;
@@ -426,6 +442,20 @@ async function makeAnswer(sendFrom) {
   } catch (error) {
     console.trace(`Failed to create session description: ${error.toString()}`);
   }
+}
+
+function replaceTrack(track) {
+  sendingTracks
+    .filter(tracks => tracks.track.kind === 'video')
+    .forEach(tracks => tracks.replaceTrack(track));
+  isScreenSharing = true;
+
+  track.addEventListener('ended', () => {
+    sendingTracks
+      .filter(tracks => tracks.track.kind === 'video')
+      .forEach(tracks => tracks.replaceTrack(localStream.getTracks()[1]));
+    isScreenSharing = true;
+  });
 }
 
 function removeVideo(targetSessionId) {

@@ -1,6 +1,9 @@
 <template>
   <div>
     <ul class="menu">
+      <li class="menu-item menu-link" @click.prevent="ShareScreen">
+        <i class="fa fa-desktop fa-2x" aria-hidden="true"></i>
+      </li>
       <li class="menu-item menu-link" @click.prevent="muteVideo">
         <i class="fa fa-video-camera fa-2x" v-if="!isVideoMuted" aria-hidden="true"></i>
         <i class="fa fa-pause fa-2x" v-if="isVideoMuted" aria-hidden="true"></i>
@@ -65,7 +68,7 @@ export default {
       this.MuteAudio();
     },
 
-    ...mapActions('webRTC', ['MuteVideo', 'MuteAudio']),
+    ...mapActions('webRTC', ['MuteVideo', 'MuteAudio', 'ShareScreen']),
   },
 };
 </script>
