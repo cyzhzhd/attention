@@ -1,5 +1,7 @@
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
 /* eslint-disable no-use-before-define */
+import resolutions from './webRTC/resolution';
+
 // eslint-disable-next-line no-undef
 // const socket = io('localhost:3000', {
 //   autoConnect: true,
@@ -9,15 +11,14 @@ const socket = io('13.125.214.253:5000', {
   autoConnect: true,
 }).connect();
 
-const mediaStreamConstraints = {
-  video: {
-    height: 240,
-    width: 420,
-  },
-  audio: {
-    echoCancellation: true,
-  },
-};
+function mediaStreamConstraints(resolution) {
+  return {
+    video: resolution,
+    audio: {
+      echoCancellation: true,
+    },
+  };
+}
 
 const rtcIceServerConfiguration = {
   iceServers: [
@@ -36,6 +37,7 @@ const rtcIceServerConfiguration = {
 
 let isStarted = false;
 let isChannelReady = false;
+let currentResolution = 'HD';
 
 let connectedUsers = {};
 const sendingTracks = [];
@@ -129,7 +131,7 @@ const actions = {
   async EnterRoom({ commit }, payload) {
     try {
       localStream = await navigator.mediaDevices.getUserMedia(
-        mediaStreamConstraints,
+        mediaStreamConstraints(resolutions.hdConstraints),
       );
 
       state.localVideo.srcObject = localStream;
@@ -310,7 +312,7 @@ function addPC(userId, isOfferer = false) {
   addingListenerOnPC(userId, isOfferer);
 }
 
-function addingListenerOnPC(userId, isOfferer) {
+async function addingListenerOnPC(userId, isOfferer) {
   // setLocalDescription()에 의해 호출 됌.
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/icecandidate_event
   connectedUsers[userId].addEventListener('icecandidate', event => {
@@ -412,6 +414,7 @@ function addingListenerOnPC(userId, isOfferer) {
 
   if (!(localStream === undefined || isTrackAdded[userId])) {
     console.log(userId, '에 track을 추가하는 중.', localStream.getTracks());
+    await adjustResolution();
     localStream.getTracks().forEach(track => {
       sendingTracks.push(connectedUsers[userId].addTrack(track, localStream));
 
@@ -421,6 +424,43 @@ function addingListenerOnPC(userId, isOfferer) {
     });
 
     isTrackAdded[userId] = true;
+  }
+}
+
+async function adjustResolution() {
+  const numConnectedUsers = state.userOnline.length;
+  try {
+    if (numConnectedUsers > 2 && currentResolution !== 'VGA') {
+      localStream = await navigator.mediaDevices.getUserMedia(
+        mediaStreamConstraints(resolutions.vgaConstraints),
+      );
+      currentResolution = 'VGA';
+    } else if (numConnectedUsers > 4 && currentResolution !== 'QVGA') {
+      localStream = await navigator.mediaDevices.getUserMedia(
+        mediaStreamConstraints(resolutions.qvgaConstraints),
+      );
+      currentResolution = 'QVGA';
+    } else {
+      localStream = await navigator.mediaDevices.getUserMedia(
+        mediaStreamConstraints(resolutions.hdConstraints),
+      );
+      currentResolution = 'HD';
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  console.log('adjustResolution', localStream, currentResolution);
+
+  state.localVideo.srcObject = localStream;
+  if (isVideoMuted) {
+    localStream.getTracks()[1].enabled = false;
+  } else {
+    localStream.getTracks()[1].enabled = true;
+  }
+  if (isAudioMuted) {
+    localStream.getTracks()[0].enabled = false;
+  } else {
+    localStream.getTracks()[0].enabled = true;
   }
 }
 
@@ -467,6 +507,12 @@ function removeVideo(targetSessionId) {
       break;
     }
   }
+
+  adjustResolution();
+
+  sendingTracks
+    .filter(tracks => tracks.track.kind === 'video')
+    .forEach(tracks => tracks.replaceTrack(localStream.getTracks()[1]));
 }
 
 function muteVideo() {

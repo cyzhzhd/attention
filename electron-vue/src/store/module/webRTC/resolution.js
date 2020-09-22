@@ -1,11 +1,7 @@
-export default resolution = {
+export default {
   qvgaConstraints: {
     video: { width: { exact: 320 }, height: { exact: 240 } },
   },
-
-  //   custom2Constraints: {
-  //     video: { width: { exact: 480 }, height: { exact: 360 } },
-  //   },
 
   vgaConstraints: {
     video: { width: { exact: 640 }, height: { exact: 480 } },
