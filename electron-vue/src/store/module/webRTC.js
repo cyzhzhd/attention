@@ -130,6 +130,8 @@ const actions = {
       );
 
       state.localVideo.srcObject = localStream;
+      // console.log('state.localVideo.style', state.localVideo.style);
+      // state.localVideo.style.width = '100%';
       localStream.getTracks()[0].enabled = false;
       localStream.getTracks()[1].enabled = false;
     } catch (error) {

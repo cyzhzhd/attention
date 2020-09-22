@@ -1,25 +1,12 @@
 <template>
-  <div>
-    <div class="buttons">
-      <span class="mute-video-button" @click.prevent="muteVideo">
-        <i class="fa fa-video-camera fa-2x" v-if="!isVideoMuted" aria-hidden="true"></i>
-        <i class="fa fa-pause fa-2x" v-if="isVideoMuted" aria-hidden="true"></i>
-      </span>
-      <span class="mute-audio-button" @click.prevent="muteAudio">
-        <i class="fa fa-microphone fa-2x" v-if="!isAudioMuted" aria-hidden="true"></i>
-        <i class="fa fa-microphone-slash fa-2x" v-if="isAudioMuted" aria-hidden="true"></i>
-      </span>
-    </div>
-    <div class="webRTC">
-      <div>
-        <div>
-          <video ref="localVideo" class="localVideo" autoplay muted playsinline></video>
-          <p>Me</p>
-        </div>
-      </div>
-      <div ref="videos" class="remote-streams"></div>
+  <!-- <div class="webRTC"> -->
+  <div ref="videos" class="videos">
+    <div>
+      <video ref="localVideo" class="localVideo" autoplay muted playsinline></video>
+      <p>Me</p>
     </div>
   </div>
+  <!-- </div> -->
 </template>
 
 <script>
@@ -27,29 +14,8 @@ import { mapActions } from 'vuex';
 
 export default {
   name: 'WebRTC',
-  data() {
-    return {
-      isVideoMuted: true,
-      isAudioMuted: true,
-    };
-  },
-
   methods: {
-    muteVideo() {
-      this.isVideoMuted = !this.isVideoMuted;
-      this.MuteVideo();
-    },
-    muteAudio() {
-      this.isAudioMuted = !this.isAudioMuted;
-      this.MuteAudio();
-    },
-    ...mapActions('webRTC', [
-      'SetUser',
-      'LocalVideoSetter',
-      'VideoSetter',
-      'MuteVideo',
-      'MuteAudio',
-    ]),
+    ...mapActions('webRTC', ['SetUser', 'LocalVideoSetter', 'VideoSetter']),
   },
   mounted() {
     this.SetUser(this.$user);
@@ -60,21 +26,15 @@ export default {
 </script>
 
 <style>
-.webRTC {
-  display: flex;
+.videos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, auto));
+  /* grid-template-rows: repeat(auto-fit, minmax(240px, 720px)); */
 }
-
-.localVideo {
-  padding-top: 30px;
+.videos video {
+  width: 100%;
 }
-
-.mute-video-button {
-  margin-right: 30px;
-}
-.remote-streams div {
-  margin: 30px;
-}
-.remote-streams div p {
+.videos div p {
   color: black;
 }
 </style>

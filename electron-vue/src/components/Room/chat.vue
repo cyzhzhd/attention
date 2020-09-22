@@ -1,11 +1,7 @@
 <template>
   <div class="msg" ref="msg">
     <ul class="msg-container">
-      <li
-        v-for="message in messages"
-        v-bind:key="message.key"
-        class="msg-history"
-      >
+      <li v-for="message in messages" v-bind:key="message.key" class="msg-history">
         <div class="bot-msg" v-if="message.sender === 'bot'">
           <p>{{ message.sentAt }}</p>
           <p>{{ message.message }}</p>
@@ -60,12 +56,12 @@ export default {
   data() {
     return {
       user: {
-        email: this.$user.email,
-        uid: this.$user.uid,
+        // email: this.$user.email,
+        // uid: this.$user.uid,
         displayName: this.$user.displayName,
       },
       roomId: this.$route.params.roomId,
-      data: { type: '', uid: '', message: '' },
+      // data: { type: '', uid: '', message: '' },
       message: null,
       messages: [],
     };
@@ -87,9 +83,9 @@ export default {
       this.$firebase
         .database()
         .ref(`/messageHub/${this.roomId}/messages`)
-        .on('value', snapshot => {
+        .on('value', (snapshot) => {
           this.messages = [];
-          snapshot.forEach(doc => {
+          snapshot.forEach((doc) => {
             const item = doc.val();
             item.key = doc.key;
 
@@ -141,6 +137,7 @@ img {
 .msg {
   overflow-y: auto;
   height: 400px;
+  background-color: gray;
 }
 .msg-container {
   display: flex;
