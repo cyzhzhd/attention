@@ -1,37 +1,29 @@
 <template>
   <div class="container">
     <div class="goal">
-      <p>학습목표</p>
-      <p>관동 별곡의 감성을 느끼다</p>
+      <p>2주차 관동별곡</p>
     </div>
-    <h2 class="room-detail">
-      <!-- {{ roomName }} -->
-      <a @click="leaveRoom">
-        뒤로가기
-        <i class="fa fa-long-arrow-left fa" aria-hidden="true"></i>
-      </a>
-    </h2>
     <web-rtc class="webRTC"></web-rtc>
-    <chat class="chat"></chat>
+    <!-- <chat class="chat"></chat> -->
     <user-list class="user-list"></user-list>
-    <room-footer class="footer"></room-footer>
+    <room-options class="room-options"></room-options>
   </div>
 </template>
 
 <script>
 import { mapActions } from 'vuex';
-import chat from '../components/Room/chat.vue';
+// import chat from '../components/Room/chat.vue';
 import WebRtc from '../components/Room/webRTC.vue';
 import userList from '../components/Room/userlist.vue';
-import RoomFooter from '../components/Room/roomFooter.vue';
+import roomOptions from '../components/Room/roomOptions.vue';
 
 export default {
   name: 'room',
   components: {
-    chat,
+    // chat,
     WebRtc,
     userList,
-    RoomFooter,
+    roomOptions,
   },
   data() {
     return {
@@ -44,13 +36,7 @@ export default {
       console.log('vue에서 roomId', this.roomId);
       this.EnterRoom({ roomName: this.roomName, roomId: this.roomId });
     },
-
-    leaveRoom() {
-      this.$router.go(-1);
-      console.log('vue에서 roomId', this.roomId);
-      this.LeaveRoom({ roomName: this.roomName, roomId: this.roomId });
-    },
-    ...mapActions('webRTC', ['EnterRoom', 'LeaveRoom']),
+    ...mapActions('webRTC', ['EnterRoom']),
   },
   mounted() {
     this.enterRoom();
@@ -62,32 +48,31 @@ export default {
 .container {
   display: grid;
   height: 100vh;
-  grid-template-columns: 100px 1fr 20%;
-  grid-template-rows: 10% 1fr 65px;
+  grid-template-columns: 100px 1fr 100px;
+  grid-template-rows: 60px 1fr;
   grid-template-areas:
-    '. goal detail'
-    'userlist webRTC chat'
-    'footer footer footer';
+    'goal goal goal'
+    'userlist webRTC options';
+  /* 'footer footer footer'; */
 }
 .goal {
   grid-area: goal;
   display: flex;
 
-  height: 50px;
-  margin-top: 20px;
-
-  background: #00d39d;
-  border-radius: 31px;
+  background: #12ac85;
 }
-.goal p {
-  margin-left: 20px;
-  margin-top: 10px;
 
-  text-align: start;
-  font-family: SpoqaHanSans;
-  font-size: 1.3rem;
+.goal p {
+  margin-left: 9rem;
+  margin-top: 16px;
+
+  font-family: Gmarket Sans;
   font-style: normal;
-  font-weight: normal;
+  font-weight: bold;
+  font-size: 25px;
+  /* line-height: 36px; */
+  text-align: center;
+  letter-spacing: 0.31em;
   color: white;
 }
 .room-detail {
@@ -105,7 +90,7 @@ export default {
   height: 516px;
   overflow-y: auto;
 }
-.footer {
-  grid-area: footer;
+.room-options {
+  grid-area: options;
 }
 </style>

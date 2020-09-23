@@ -1,15 +1,13 @@
 <template>
-  <div>
-    <nav class="online-total">
-      <ul class="menu">
-        <li class="menu-item-userlist" @click.prevent="activeOnlineUserList">
-          <a href="#" class="menu-link-userlist">참여중</a>
-        </li>
-        <li class="menu-item-userlist" @click.prevent="activeTotalUserList">
-          <a href="#" class="menu-link-userlist">전체</a>
-        </li>
-      </ul>
-    </nav>
+  <div class="userlist-vue">
+    <div class="online-total">
+      <p class="button" @click.prevent="activeOnlineUserList">
+        <a href="#">all</a>
+      </p>
+      <p class="button" @click.prevent="activeTotalUserList">
+        <a href="#">online</a>
+      </p>
+    </div>
     <div class="userlist">
       <ul v-if="hasOnlineActive">
         <li class="userlist-onlie" v-for="userInfo in logInUser" v-bind:key="userInfo.uid">
@@ -108,42 +106,16 @@ export default {
 </script>
 
 <style>
-.menu {
-  display: flex;
+.userlist-vue {
+  /* display: flex; */
+  background-color: #e4f6f1;
+  min-height: 100%;
 }
-.menu-item-userlist {
-  background: white;
-  width: 50%;
-  transition: 0.5s;
-}
-.menu-item-userlist:hover {
-  background: #00d39d;
-  width: 55%;
-}
-.menu-link-userlist {
-  display: block;
-  padding: 0.5rem;
-  font-size: 0.6rem;
-  font-weight: bold;
-  color: #333333;
-  text-decoration: none;
-  text-align: center;
-}
-.menu-link-userlist:hover {
-  color: white;
-}
-
 .userlist {
   position: absolute;
-  width: 90px;
-  height: 600px;
+  width: 100px;
   margin-top: 10px;
-  margin-left: 5px;
   overflow-y: auto;
-
-  background: #ffffff;
-  box-shadow: 0px 0px 10px 2px rgba(10, 8, 2, 0.2);
-  border-radius: 20px;
 }
 
 .userlist-profile {
@@ -161,7 +133,29 @@ export default {
 }
 
 .userlist-total {
-  padding-top: 0.5rem;
+  /* padding-top: 0.5rem; */
   padding-bottom: 0.5rem;
+}
+.online-total {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-top: 20px;
+  height: 70px;
+}
+.button {
+  background-color: #c9caca;
+
+  height: 30px;
+  border-radius: 8px;
+  width: 80px;
+  font-size: 0.8rem;
+}
+.button a {
+  text-decoration: none;
+  margin-top: 7px;
+  color: black;
 }
 </style>>

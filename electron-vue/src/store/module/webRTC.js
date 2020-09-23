@@ -1,6 +1,7 @@
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
 /* eslint-disable no-use-before-define */
 import resolutions from './webRTC/resolution';
+import bus from '../../../utils/bus';
 
 // eslint-disable-next-line no-undef
 // const socket = io('localhost:3000', {
@@ -37,7 +38,7 @@ const rtcIceServerConfiguration = {
 
 let isStarted = false;
 let isChannelReady = false;
-let currentResolution = 'HD';
+let currentResolution = 'START';
 
 let connectedUsers = {};
 const sendingTracks = [];
@@ -45,7 +46,7 @@ let remoteStreams = {};
 let screenTrack = null;
 
 let isTrackAdded = {};
-let isScreenSharing = false;
+let ScreenSharing = false;
 
 let localStream;
 let sessionId;
@@ -130,8 +131,9 @@ const actions = {
   },
   async EnterRoom({ commit }, payload) {
     try {
+      console.log(mediaStreamConstraints(resolutions.qvgaConstraints));
       localStream = await navigator.mediaDevices.getUserMedia(
-        mediaStreamConstraints(resolutions.hdConstraints),
+        mediaStreamConstraints(resolutions.startConstraints),
       );
 
       state.localVideo.srcObject = localStream;
@@ -154,7 +156,9 @@ const actions = {
       cursor: true,
     });
     screenTrack = screenStream.getTracks();
-    replaceTrack(screenTrack[0]);
+    substitueTrack(screenTrack[0]);
+
+    socket.emit('screenSharing', state.room, sessionId);
   },
 
   ConnectWithTheUser({ commit }, targetUser) {
@@ -199,7 +203,7 @@ socket.on('created', (room, clientsInRoom) => {
   isStarted = true;
 });
 
-socket.on('joined', (room, socketId, clientsInRoom) => {
+socket.on('joined', (room, socketId, clientsInRoom, isScreenSharing, id) => {
   console.log(`${socketId} joined ${room}`);
   console.log('userList', clientsInRoom.sockets);
   console.log('socketId === sessionId', socketId === userInfo.sessionId);
@@ -223,6 +227,14 @@ socket.on('joined', (room, socketId, clientsInRoom) => {
 
     console.log('creating peer connection');
     createPeerConnection();
+
+    if (isScreenSharing) {
+      // change resolution
+      adjustResolution(true);
+
+      // 레이아웃 id 위주로 변경
+      console.log(id);
+    }
   } else {
     // existing users
     addPC(socketId);
@@ -231,6 +243,19 @@ socket.on('joined', (room, socketId, clientsInRoom) => {
 
 socket.on('sessionID', id => {
   sessionId = id;
+});
+
+socket.on('screenSharingMode', id => {
+  // 화질 변경
+  adjustResolution(true);
+  // 공유한 사람 위주로 레이아웃 재편성
+  console.log(id);
+});
+socket.on('camSharingMode', id => {
+  // 화질 변경
+  adjustResolution(false);
+  // 레이아웃 원래대로 되돌림
+  console.log(id);
 });
 
 socket.on('disconnectRequest', fromUser => {
@@ -418,8 +443,8 @@ async function addingListenerOnPC(userId, isOfferer) {
     localStream.getTracks().forEach(track => {
       sendingTracks.push(connectedUsers[userId].addTrack(track, localStream));
 
-      if (isScreenSharing) {
-        replaceTrack(screenTrack[0]);
+      if (ScreenSharing) {
+        substitueTrack(screenTrack[0]);
       }
     });
 
@@ -427,30 +452,27 @@ async function addingListenerOnPC(userId, isOfferer) {
   }
 }
 
-async function adjustResolution() {
-  const numConnectedUsers = state.userOnline.length;
+async function adjustResolution(screenMode) {
   try {
-    if (numConnectedUsers > 2 && currentResolution !== 'VGA') {
-      localStream = await navigator.mediaDevices.getUserMedia(
-        mediaStreamConstraints(resolutions.vgaConstraints),
-      );
-      currentResolution = 'VGA';
-    } else if (numConnectedUsers > 4 && currentResolution !== 'QVGA') {
+    if (screenMode) {
       localStream = await navigator.mediaDevices.getUserMedia(
         mediaStreamConstraints(resolutions.qvgaConstraints),
       );
       currentResolution = 'QVGA';
     } else {
       localStream = await navigator.mediaDevices.getUserMedia(
-        mediaStreamConstraints(resolutions.hdConstraints),
+        mediaStreamConstraints(resolutions.startConstraints),
       );
-      currentResolution = 'HD';
+      currentResolution = 'START';
     }
+    console.log('change resolution to ', currentResolution);
   } catch (error) {
     console.log(error);
   }
-  console.log('adjustResolution', localStream, currentResolution);
 
+  sendingTracks
+    .filter(tracks => tracks.track.kind === 'video')
+    .forEach(tracks => tracks.replaceTrack(localStream.getTracks()[1]));
   state.localVideo.srcObject = localStream;
   if (isVideoMuted) {
     localStream.getTracks()[1].enabled = false;
@@ -484,17 +506,18 @@ async function makeAnswer(sendFrom) {
   }
 }
 
-function replaceTrack(track) {
+function substitueTrack(track) {
   sendingTracks
     .filter(tracks => tracks.track.kind === 'video')
     .forEach(tracks => tracks.replaceTrack(track));
-  isScreenSharing = true;
+  ScreenSharing = true;
 
   track.addEventListener('ended', () => {
     sendingTracks
       .filter(tracks => tracks.track.kind === 'video')
       .forEach(tracks => tracks.replaceTrack(localStream.getTracks()[1]));
-    isScreenSharing = true;
+    ScreenSharing = false;
+    socket.emit('endScreenSharing', state.room, sessionId);
   });
 }
 
@@ -509,6 +532,9 @@ function removeVideo(targetSessionId) {
   }
 
   adjustResolution();
+  state.userOnline = state.userOnline.filter(
+    user => user.sessionId !== targetSessionId,
+  );
 
   sendingTracks
     .filter(tracks => tracks.track.kind === 'video')
@@ -522,6 +548,7 @@ function muteVideo() {
     localStream.getTracks()[1].enabled = true;
   }
   isVideoMuted = !isVideoMuted;
+  bus.$emit('test');
 }
 function muteAudio() {
   if (!isAudioMuted) {
