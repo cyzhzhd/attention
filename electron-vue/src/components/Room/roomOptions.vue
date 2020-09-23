@@ -12,12 +12,17 @@
         </div>
         <div class="camdio">
           <div @click.prevent="muteVideo">
-            <i class="fa fa-video-camera" v-if="!isVideoMuted" aria-hidden="true"></i>
-            <i class="fa fa-pause" v-if="isVideoMuted" aria-hidden="true"></i>
+            <!-- <img src="../../assets/camera-on.svg" /> -->
+            <img src="../../assets/camera-on.svg" v-if="!isVideoMuted" />
+            <img src="../../assets/camera-off.svg" v-if="isVideoMuted" />
+            <!-- <i class="fa fa-video-camera" v-if="!isVideoMuted" aria-hidden="true"></i> -->
+            <!-- <i class="fa fa-pause" v-if="isVideoMuted" aria-hidden="true"></i> -->
           </div>
           <div @click.prevent="muteAudio">
-            <i class="fa fa-microphone" v-if="!isAudioMuted" aria-hidden="true"></i>
-            <i class="fa fa-microphone-slash" v-if="isAudioMuted" aria-hidden="true"></i>
+            <img src="../../assets/mic-on.svg" v-if="!isAudioMuted" />
+            <img src="../../assets/mic-off.svg" v-if="isAudioMuted" />
+            <!-- <i class="fa fa-microphone" v-if="!isAudioMuted" aria-hidden="true"></i>
+            <i class="fa fa-microphone-slash" v-if="isAudioMuted" aria-hidden="true"></i>-->
           </div>
         </div>
       </div>
@@ -127,9 +132,11 @@ export default {
 }
 .camdio {
   display: flex;
-  justify-content: space-evenly;
-  font-size: 1.9rem;
 }
+.camdio div img {
+  height: 40px;
+}
+
 .back {
   font-size: 1.1rem;
   background: #00d39d;
