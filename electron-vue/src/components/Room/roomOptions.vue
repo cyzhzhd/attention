@@ -3,26 +3,25 @@
     <div class="option-bar">
       <div class="options">
         <div class="option" @click.prevent="ShareScreen">화면공유</div>
+        <div class="option" ref="temp">임시버튼</div>
         <div class="option">채팅</div>
         <div class="option" @click.prevent="controlModal('showingInviteModal')">
-          <a href="#">초대</a>
+          초대
         </div>
-        <div class="option" @click.prevent>
-          <a href="#">설정</a>
+        <div
+          class="option"
+          @click.prevent="controlModal('showingSettingModal')"
+        >
+          설정
         </div>
         <div class="camdio">
           <div @click.prevent="muteVideo">
-            <!-- <img src="../../assets/camera-on.svg" /> -->
             <img src="../../assets/camera-on.svg" v-if="!isVideoMuted" />
             <img src="../../assets/camera-off.svg" v-if="isVideoMuted" />
-            <!-- <i class="fa fa-video-camera" v-if="!isVideoMuted" aria-hidden="true"></i> -->
-            <!-- <i class="fa fa-pause" v-if="isVideoMuted" aria-hidden="true"></i> -->
           </div>
           <div @click.prevent="muteAudio">
             <img src="../../assets/mic-on.svg" v-if="!isAudioMuted" />
             <img src="../../assets/mic-off.svg" v-if="isAudioMuted" />
-            <!-- <i class="fa fa-microphone" v-if="!isAudioMuted" aria-hidden="true"></i>
-            <i class="fa fa-microphone-slash" v-if="isAudioMuted" aria-hidden="true"></i>-->
           </div>
         </div>
       </div>
@@ -33,7 +32,10 @@
       </div>
     </div>
     <div class="modal-wrapper" v-on:click="controlModal('showingInviteModal')">
-      <smallModal v-if="modalList.showingInviteModal" @close="modalList.showingInviteModal">
+      <smallModal
+        v-if="modalList.showingInviteModal"
+        @close="modalList.showingInviteModal"
+      >
         <h3 slot="header">Copy this roomId and give it to your student</h3>
         <h4 slot="body">{{ this.$route.params.roomId }}</h4>
         <h4 slot="footer">
@@ -45,17 +47,24 @@
         </h4>
       </smallModal>
     </div>
+    <settings
+      v-bind:showingModal="modalList.showingSettingModal"
+      v-on:closeModal="controlModal"
+    ></settings>
   </div>
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 import smallModal from '../common/smallModal.vue';
+import settings from './roomOptions/mainSettings.vue';
+import bus from '../../../utils/bus';
 
 export default {
   name: 'room-footer',
   components: {
     smallModal,
+    settings,
   },
   data() {
     return {
@@ -63,15 +72,24 @@ export default {
       roomName: this.$route.params.roomName,
       modalList: {
         showingInviteModal: false,
+        showingSettingModal: false,
       },
 
       isVideoMuted: true,
       isAudioMuted: true,
     };
   },
+
+  computed: {
+    ...mapGetters('webRTC', ['storedLocalVideo']),
+  },
   methods: {
     controlModal(modelName) {
       this.modalList[modelName] = !this.modalList[modelName];
+
+      if (this.modalList[modelName] && modelName === 'showingSettingModal') {
+        bus.$emit('videoSetting');
+      }
     },
 
     muteVideo() {
@@ -94,7 +112,11 @@ export default {
       'MuteAudio',
       'ShareScreen',
       'LeaveRoom',
+      'ButtonSetter1',
     ]),
+  },
+  mounted() {
+    this.ButtonSetter1(this.$refs.temp);
   },
 };
 </script>

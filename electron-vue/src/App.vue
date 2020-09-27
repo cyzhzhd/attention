@@ -1,9 +1,9 @@
 <template>
   <div class="app">
-    <!-- <div class="nav">
+    <div class="nav">
       <router-link class="router" to="/">Home</router-link>
       <router-link class="router" to="/about">About</router-link>
-    </div>-->
+    </div>
     <router-view class="router-view" />
   </div>
 </template>
@@ -16,9 +16,9 @@
   text-align: center;
   color: #2c3e50;
 
-  // display: grid;
-  // grid-template-columns: minmax(70px, 5%) 1fr;
-  // grid-template-areas: 'nav router-view';
+  display: grid;
+  grid-template-columns: minmax(70px, 5%) 1fr;
+  grid-template-areas: 'nav router-view';
 }
 
 .nav {

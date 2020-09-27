@@ -60,6 +60,8 @@ let isAudioMuted = true;
 const state = {
   room: '',
   localVideo: '',
+  tempButton1: '',
+  tempButton2: '',
   videos: '',
   user: {},
   userOnline: [],
@@ -68,6 +70,9 @@ const state = {
 const getters = {
   storedRoom(state) {
     return state.room;
+  },
+  storedLocalVideo(state) {
+    return state.localVideo;
   },
 };
 
@@ -123,6 +128,18 @@ const mutations = {
   videoSetter(state, video) {
     state.videos = video;
   },
+  buttonSetter1(state, button) {
+    state.tempButton1 = button;
+    state.tempButton1.addEventListener('click', () => {
+      console.log('button clicked!');
+    });
+  },
+  buttonSetter2(state, button) {
+    state.tempButton2 = button;
+    state.tempButton2.addEventListener('click', () => {
+      console.log('button clicked2!');
+    });
+  },
 };
 
 const actions = {
@@ -173,6 +190,12 @@ const actions = {
 
   LocalVideoSetter({ commit }, localVideo) {
     commit('localVideoSetter', localVideo);
+  },
+  ButtonSetter1({ commit }, button) {
+    commit('buttonSetter1', button);
+  },
+  ButtonSetter2({ commit }, button) {
+    commit('buttonSetter2', button);
   },
 
   VideoSetter({ commit }, video) {
