@@ -20,7 +20,7 @@
               class="userlist-profile"
               :style="{
                 backgroundImage:
-                  'url(' + require('../../assets/profile.png') + ')',
+                  'url(' + require('../../assets/img/room/profile.png') + ')',
               }"
             ></figure>
             {{ userInfo.displayName }}
@@ -90,9 +90,9 @@ export default {
     this.$firebase
       .database()
       .ref(`/rooms/${this.roomId}/userlist`)
-      .on('value', (snapshot) => {
+      .on('value', snapshot => {
         const userlist = [];
-        snapshot.forEach((doc) => {
+        snapshot.forEach(doc => {
           userlist.push(doc.val());
         });
         this.totalUser = userlist;
@@ -101,9 +101,9 @@ export default {
     this.$firebase
       .database()
       .ref(`/rooms/${this.roomId}/userOnline`)
-      .on('value', (snapshot) => {
+      .on('value', snapshot => {
         const userlist = [];
-        snapshot.forEach((doc) => {
+        snapshot.forEach(doc => {
           userlist.push(doc.val());
         });
         this.logInUser = userlist;
@@ -138,10 +138,13 @@ export default {
   background-position: center;
   background-size: cover;
 }
-
+.userlist-onlie {
+  cursor: pointer;
+}
 .userlist-total {
   /* padding-top: 0.5rem; */
   padding-bottom: 0.5rem;
+  cursor: pointer;
 }
 .online-total {
   display: flex;
@@ -164,5 +167,5 @@ export default {
   text-decoration: none;
   margin-top: 7px;
   color: black;
-}
-</style>>
+}</style
+>>

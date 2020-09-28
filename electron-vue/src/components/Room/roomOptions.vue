@@ -16,12 +16,18 @@
         </div>
         <div class="camdio">
           <div @click.prevent="muteVideo">
-            <img src="../../assets/camera-on.svg" v-if="!isVideoMuted" />
-            <img src="../../assets/camera-off.svg" v-if="isVideoMuted" />
+            <img
+              src="../../assets/img/room/camera-on.svg"
+              v-if="!isVideoMuted"
+            />
+            <img
+              src="../../assets/img/room/camera-off.svg"
+              v-if="isVideoMuted"
+            />
           </div>
           <div @click.prevent="muteAudio">
-            <img src="../../assets/mic-on.svg" v-if="!isAudioMuted" />
-            <img src="../../assets/mic-off.svg" v-if="isAudioMuted" />
+            <img src="../../assets/img/room/mic-on.svg" v-if="!isAudioMuted" />
+            <img src="../../assets/img/room/mic-off.svg" v-if="isAudioMuted" />
           </div>
         </div>
       </div>
@@ -147,6 +153,7 @@ export default {
   height: 30px;
   color: white;
   padding-top: 6px;
+  cursor: pointer;
 }
 .options div a {
   text-decoration: none;
@@ -169,5 +176,6 @@ export default {
   margin-bottom: 2rem;
   height: 30px;
   width: 80%;
+  cursor: pointer;
 }
 </style>
