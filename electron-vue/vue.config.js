@@ -1,4 +1,9 @@
 module.exports = {
+  pluginOptions: {
+    electronBuilder: {
+      nodeIntegration: true,
+    },
+  },
   devServer: {
     proxy: {
       '/api': {

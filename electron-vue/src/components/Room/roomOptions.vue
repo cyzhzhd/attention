@@ -2,9 +2,16 @@
   <div class="options-vue">
     <div class="option-bar">
       <div class="options">
-        <div class="option" @click.prevent="ShareScreen">화면공유</div>
+        <div
+          class="option"
+          @click.prevent="controlModal('showingScreenSharingModal')"
+        >
+          화면공유
+        </div>
         <div class="option" ref="temp">임시버튼</div>
-        <div class="option">채팅</div>
+        <div class="option" @click.prevent="controlModal('showingChatModal')">
+          채팅
+        </div>
         <div class="option" @click.prevent="controlModal('showingInviteModal')">
           초대
         </div>
@@ -57,6 +64,14 @@
       v-bind:showingModal="modalList.showingSettingModal"
       v-on:closeModal="controlModal"
     ></settings>
+    <chat
+      v-bind:showingModal="modalList.showingChatModal"
+      v-on:closeModal="controlModal"
+    ></chat>
+    <screen-sharing
+      v-bind:showingModal="modalList.showingScreenSharingModal"
+      v-on:closeModal="controlModal"
+    ></screen-sharing>
   </div>
 </template>
 
@@ -64,13 +79,17 @@
 import { mapGetters, mapActions } from 'vuex';
 import smallModal from '../common/smallModal.vue';
 import settings from './roomOptions/mainSettings.vue';
+import chat from './roomOptions/chat.vue';
+import screenSharing from './roomOptions/screenSharing.vue';
 import bus from '../../../utils/bus';
 
 export default {
-  name: 'room-footer',
+  name: 'room-options',
   components: {
     smallModal,
     settings,
+    chat,
+    screenSharing,
   },
   data() {
     return {
@@ -79,6 +98,8 @@ export default {
       modalList: {
         showingInviteModal: false,
         showingSettingModal: false,
+        showingChatModal: false,
+        showingScreenSharingModal: false,
       },
 
       isVideoMuted: true,
@@ -95,6 +116,11 @@ export default {
 
       if (this.modalList[modelName] && modelName === 'showingSettingModal') {
         bus.$emit('videoSetting');
+      } else if (
+        this.modalList[modelName] &&
+        modelName === 'showingScreenSharingModal'
+      ) {
+        bus.$emit('screenSharing');
       }
     },
 

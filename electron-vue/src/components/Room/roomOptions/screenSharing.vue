@@ -1,0 +1,77 @@
+<template>
+  <div class="modal-wrapper" v-on:click="closeModal">
+    <largeModal v-if="showingModal" @close="showingModal">
+      <h3 slot="header" class="header">
+        <div class="modal-title">화면 공유</div>
+        <div class="closeModalBtn">
+          <i class="fa fa-times" aria-hidden="true" v-on:click="closeModal"></i>
+        </div>
+      </h3>
+      <h4 slot="body">
+        <div ref="screenNames" id="screenNames"></div>
+        <div ref="screenInfo" id="screenInfo"></div>
+        <div ref="thumbnail" class="thumbnail"></div>
+        <div ref="screenVideos" id="screenVideos"></div>
+      </h4>
+      <h4 slot="footer"></h4>
+    </largeModal>
+  </div>
+</template>
+
+<script>
+import { mapActions } from 'vuex';
+import largeModal from '../../common/largeModal.vue';
+import bus from '../../../../utils/bus';
+
+export default {
+  name: 'screen-sharing',
+  props: ['showingModal'],
+  components: {
+    largeModal,
+  },
+  methods: {
+    closeModal() {
+      this.$emit('closeModal', 'showingScreenSharingModal');
+    },
+    ...mapActions('electron', ['VariableSetter', 'CaptureScreens']),
+  },
+
+  mounted() {
+    bus.$on('screenSharing', () => {
+      this.$nextTick(() => {
+        const payload = {
+          screenNames: this.$refs.screenNames,
+          screenInfo: this.$refs.screenInfo,
+          canvas: this.$refs.thumbnail,
+          screenVideos: this.$refs.screenVideos,
+          captureScreens: this.$refs.captureScreens,
+        };
+        this.VariableSetter(payload);
+        this.CaptureScreens();
+      });
+    });
+  },
+
+  beforeDestroy() {
+    bus.$off('screenSharing');
+  },
+};
+</script>
+
+<style>
+.thumbnail {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, auto));
+
+  gap: 5%;
+  height: 634px;
+  overflow-y: auto;
+}
+.header {
+  display: flex;
+  padding: 0px 30px;
+}
+.modal-title {
+  flex: 1;
+}
+</style>

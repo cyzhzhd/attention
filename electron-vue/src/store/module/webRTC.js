@@ -1,5 +1,6 @@
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
 /* eslint-disable no-use-before-define */
+
 import resolutions from './webRTC/resolution';
 import bus from '../../../utils/bus';
 
@@ -168,12 +169,44 @@ const actions = {
   },
 
   async ShareScreen() {
-    console.log('sending tracks = ', sendingTracks);
+    // console.log('sending tracks = ', sendingTracks);
+    // on chrome
     const screenStream = await navigator.mediaDevices.getDisplayMedia({
       cursor: true,
     });
     screenTrack = screenStream.getTracks();
     substitueTrack(screenTrack[0]);
+
+    // on electron
+    // desktopCapturer
+    //   .getSources({ types: ['window', 'screen'] })
+    //   .then(async sources => {
+    //     console.log(sources);
+    //     for (const source of sources) {
+    //       if (source.name === 'Electron') {
+    //         try {
+    //           const screenStream = await navigator.mediaDevices.getUserMedia({
+    //             audio: false,
+    //             video: {
+    //               madnatory: {
+    //                 chromeMediaSource: 'desktop',
+    //                 chromeMediaSourceId: source.id,
+    //                 minWidth: 1280,
+    //                 maxWidth: 1280,
+    //                 minHeight: 720,
+    //                 maxHeight: 720,
+    //               },
+    //             },
+    //           });
+    //           screenTrack = screenStream.getTracks();
+    //           substitueTrack(screenTrack[0]);
+    //         } catch (e) {
+    //           console.log(e);
+    //         }
+    //         return;
+    //       }
+    //     }
+    //   });
 
     socket.emit('screenSharing', state.room, sessionId);
   },
