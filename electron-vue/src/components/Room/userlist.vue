@@ -1,21 +1,26 @@
 <template>
   <div class="userlist-vue">
     <div class="online-total">
-      <p class="button" @click.prevent="activeOnlineUserList">
+      <p class="button" @click.prevent="activeTotalUserList">
         <a href="#">all</a>
       </p>
-      <p class="button" @click.prevent="activeTotalUserList">
+      <p class="button" @click.prevent="activeOnlineUserList">
         <a href="#">online</a>
       </p>
     </div>
     <div class="userlist">
       <ul v-if="hasOnlineActive">
-        <li class="userlist-onlie" v-for="userInfo in logInUser" v-bind:key="userInfo.uid">
+        <li
+          class="userlist-onlie"
+          v-for="userInfo in logInUser"
+          v-bind:key="userInfo.uid"
+        >
           <div @click.prevent="$refs.menu.open($event, userInfo)" @click.stop>
             <figure
               class="userlist-profile"
               :style="{
-                backgroundImage: 'url(' + require('../../assets/profile.png') + ')',
+                backgroundImage:
+                  'url(' + require('../../assets/img/room/profile.png') + ')',
               }"
             ></figure>
             {{ userInfo.displayName }}
@@ -27,7 +32,9 @@
           class="userlist-total"
           v-for="userInfo in totalUser"
           v-bind:key="userInfo.uid"
-        >{{ userInfo.userName }}</li>
+        >
+          {{ userInfo.userName }}
+        </li>
       </ul>
     </div>
     <vue-context ref="menu">
@@ -83,9 +90,9 @@ export default {
     this.$firebase
       .database()
       .ref(`/rooms/${this.roomId}/userlist`)
-      .on('value', (snapshot) => {
+      .on('value', snapshot => {
         const userlist = [];
-        snapshot.forEach((doc) => {
+        snapshot.forEach(doc => {
           userlist.push(doc.val());
         });
         this.totalUser = userlist;
@@ -94,9 +101,9 @@ export default {
     this.$firebase
       .database()
       .ref(`/rooms/${this.roomId}/userOnline`)
-      .on('value', (snapshot) => {
+      .on('value', snapshot => {
         const userlist = [];
-        snapshot.forEach((doc) => {
+        snapshot.forEach(doc => {
           userlist.push(doc.val());
         });
         this.logInUser = userlist;
@@ -131,10 +138,13 @@ export default {
   background-position: center;
   background-size: cover;
 }
-
+.userlist-onlie {
+  cursor: pointer;
+}
 .userlist-total {
   /* padding-top: 0.5rem; */
   padding-bottom: 0.5rem;
+  cursor: pointer;
 }
 .online-total {
   display: flex;
@@ -157,5 +167,5 @@ export default {
   text-decoration: none;
   margin-top: 7px;
   color: black;
-}
-</style>>
+}</style
+>>

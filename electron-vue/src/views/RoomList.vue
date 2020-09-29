@@ -1,72 +1,77 @@
 <template>
-  <div class="page">
-    <header class="header1">
-      <h2 class="category">Room List</h2>
-      <router-link class="add-room" :to="{ name: 'AddRoom' }" action>Add room</router-link>
-    </header>
-    <header class="header2">
-      <h2 class="notice-header">공지사항</h2>
-    </header>
-    <section class="room">
-      <ul class="room-list">
-        <li class="room-item" v-for="room in rooms" :key="room.roomId">
-          <p
-            class="room-settings"
-            @click.prevent="
-              $refs.menu.open($event, {
-                roomId: room.roomId,
-                roomName: room.roomName,
-                host: room.host,
-              })
-            "
-            @click.stop
-          >
-            <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
-          </p>
+  <div class="wrapper">
+    <div class="side-navigation-panel">
+      <div class="side-navigation-header">
+        <img src="../assets/img/roomlist/attention-logo.png" />
+      </div>
+      <div class="side-navigation-body">
+        <router-link class="side-navigation-item" to="/">홈</router-link>
+        <div class="side-navigation-item">교실 목록</div>
+        <div class="side-navigation-item">수업 목록</div>
+      </div>
+      <div class="side-navigation-footer">
+        <div class="current-user-profile"></div>
+        <div class="current-user-name">이지은 선생님</div>
+      </div>
+    </div>
+    <div class="main-panel">
+      <header class="main-panel-header">
+        <div class="main-panel-header-title">교실 목록</div>
+        <div class="main-panel-header-icon">
+          <img src="../assets/img/roomlist/blackboard.png" />
+        </div>
+      </header>
+      <section class="main-panel-contents">
+        <ul class="main-panel-classroom-list">
           <router-link
-            class="room-name"
-            :to="{
-              name: 'Room',
-              params: {
-                roomId: room.roomId,
-                roomName: room.roomName,
-              },
-            }"
+            class="create-classroom-title"
+            :to="{ name: 'AddRoom' }"
             action
           >
-            <figure
-              class="room-image"
-              :style="{
-                backgroundImage: 'url(' + require('../assets/cat.png') + ')',
-              }"
-            ></figure>
-            {{ room.roomName }}
+            <div class="create-classroom-card">
+              <div class="create-classroom-plus-icon">
+                <img src="../assets/img/roomlist/plus.png" />
+              </div>
+              교실 만들기
+            </div>
           </router-link>
-        </li>
-      </ul>
-    </section>
-    <section class="notice">
-      <div class="contents">
-        <ul class="content-list">
-          <li class="content-item">
-            수학
-            <p>
-              1. 숙제해오기
-              <br />2. 3번 풀어오기
-            </p>
-          </li>
-          <li class="content-item">
-            영어
-            <p>
-              1. 2단원 지문 3번 읽기
-              <br />2. 3단원 듣기테스트 2개 듣기
-              <br />3. 3단원 단어 30문제
-              테스트
-            </p>
+          <li class="classroom-card" v-for="room in rooms" :key="room.roomId">
+            <div class="classroom-card-header">
+              <router-link
+                class="classroom-card-title"
+                :to="{
+                  name: 'Room',
+                  params: {
+                    roomId: room.roomId,
+                    roomName: room.roomName,
+                  },
+                }"
+                action
+              >
+                {{ room.roomName }}
+                <img
+                  class="classroom-card-background"
+                  src="../assets/img/roomlist/charisse-kenion-ts-E3IVKv8o-unsplash.jpg"
+                />
+              </router-link>
+              <div
+                class="classroom-card-more-button"
+                @click.prevent="
+                  $refs.menu.open($event, {
+                    roomId: room.roomId,
+                    roomName: room.roomName,
+                    host: room.host,
+                  })
+                "
+                @click.stop
+              >
+                <img src="../assets/img/roomlist/threedot.png" />
+              </div>
+            </div>
           </li>
         </ul>
-      </div>
-    </section>
+      </section>
+    </div>
     <vue-context ref="menu">
       <template slot-scope="child">
         <li>
@@ -86,13 +91,18 @@
       v-on:closemodal="closeModal('showingHandOverModal')"
     ></handoverModal>
     <div class="modal-wrapper" v-on:click="closeModal('showingConfirmModal')">
-      <smallModal v-if="modalList.showingConfirmModal" @close="modalList.showingConfirmModal">
+      <smallModal
+        v-if="modalList.showingConfirmModal"
+        @close="modalList.showingConfirmModal"
+      >
         <h3 slot="header">방을 삭제하려면 '확인'을 입력해주세요</h3>
 
         <h4 slot="body">
           <form v-on:submit.prevent="confirm">
             <input type="text" v-model.trim="textConfirm" placeholder="확인" />
-            <button type="submit" variant="primary" :disabled="!confirm">확인</button>
+            <button type="submit" variant="primary" :disabled="!confirm">
+              확인
+            </button>
           </form>
         </h4>
         <h6 slot="footer">
@@ -182,9 +192,9 @@ export default {
     this.$firebase
       .database()
       .ref(`/users/${this.uid}/favRooms/`)
-      .on('value', (snapshot) => {
+      .on('value', snapshot => {
         this.rooms = [];
-        snapshot.forEach((doc) => {
+        snapshot.forEach(doc => {
           const item = doc.val().roomDetail;
           item.roomId = doc.key;
           this.rooms.push(item);
@@ -194,107 +204,15 @@ export default {
 };
 </script>
 
-<style>
-.room {
-  padding: 10px;
+<style scoped>
+/* @import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css);
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-jp.css); */
+@font-face {
+  font-family: 'GmarketSansLight';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansLight.woff')
+    format('woff');
+  font-weight: normal;
+  font-style: normal;
 }
-.room-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, auto));
-
-  gap: 2%;
-}
-.room-item {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 2rem;
-  background: white;
-}
-.room-image {
-  height: 0;
-  padding-bottom: 60%;
-  /* background-color: lightgray; */
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
-}
-.room-name {
-  flex: 1 1 auto;
-  padding-left: 1em;
-  padding-right: 1em;
-  padding-bottom: 1em;
-  flex-grow: 1;
-}
-.add-room {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: white;
-  border-radius: 0.3em;
-  height: 30px;
-  width: 100px;
-}
-.add-room:hover {
-  height: 40px;
-  width: 110px;
-  background: rgb(133, 132, 132);
-  transition: 0.5s;
-}
-.notice {
-  display: flex;
-  justify-content: center;
-}
-.contents {
-  background: white;
-  width: 70%;
-  border: 1px solid #c4c4c4;
-}
-.content-item {
-  font-size: 1.5rem;
-  padding-bottom: 1rem;
-}
-.content-item p {
-  font-size: 1rem;
-}
-
-.room-settings {
-  align-self: flex-end;
-  padding-left: 10px;
-  padding-right: 10px;
-  border-radius: 0.5em;
-}
-.room-settings:hover {
-  background: grey;
-}
-.room-settings:hover i {
-  color: white;
-}
-
-.page {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-areas:
-    'header1 header2'
-    'room notice';
-}
-.header1 {
-  grid-area: header1;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  height: 80px;
-  padding: 0 1 rem;
-}
-.header2 {
-  display: flex;
-  grid-area: header2;
-  align-items: center;
-  justify-content: center;
-}
-.room {
-  grid-area: room;
-}
-.notice {
-  grid-area: notice;
-}
+@import '../assets/css/RoomList.css';
 </style>

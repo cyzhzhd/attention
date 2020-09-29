@@ -1,5 +1,6 @@
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
 /* eslint-disable no-use-before-define */
+
 import resolutions from './webRTC/resolution';
 import bus from '../../../utils/bus';
 import analyzeLib from './analyze/analyzeLib';
@@ -63,6 +64,8 @@ let isAudioMuted = true;
 const state = {
   room: '',
   localVideo: '',
+  tempButton1: '',
+  tempButton2: '',
   videos: '',
   user: {},
   userOnline: [],
@@ -72,6 +75,9 @@ const state = {
 const getters = {
   storedRoom(state) {
     return state.room;
+  },
+  storedLocalVideo(state) {
+    return state.localVideo;
   },
 };
 
@@ -135,6 +141,18 @@ const mutations = {
   videoSetter(state, video) {
     state.videos = video;
   },
+  buttonSetter1(state, button) {
+    state.tempButton1 = button;
+    state.tempButton1.addEventListener('click', () => {
+      console.log('button clicked!');
+    });
+  },
+  buttonSetter2(state, button) {
+    state.tempButton2 = button;
+    state.tempButton2.addEventListener('click', () => {
+      console.log('button clicked2!');
+    });
+  },
 };
 
 const actions = {
@@ -164,12 +182,44 @@ const actions = {
   },
 
   async ShareScreen() {
-    console.log('sending tracks = ', sendingTracks);
+    // console.log('sending tracks = ', sendingTracks);
+    // on chrome
     const screenStream = await navigator.mediaDevices.getDisplayMedia({
       cursor: true,
     });
     screenTrack = screenStream.getTracks();
     substitueTrack(screenTrack[0]);
+
+    // on electron
+    // desktopCapturer
+    //   .getSources({ types: ['window', 'screen'] })
+    //   .then(async sources => {
+    //     console.log(sources);
+    //     for (const source of sources) {
+    //       if (source.name === 'Electron') {
+    //         try {
+    //           const screenStream = await navigator.mediaDevices.getUserMedia({
+    //             audio: false,
+    //             video: {
+    //               madnatory: {
+    //                 chromeMediaSource: 'desktop',
+    //                 chromeMediaSourceId: source.id,
+    //                 minWidth: 1280,
+    //                 maxWidth: 1280,
+    //                 minHeight: 720,
+    //                 maxHeight: 720,
+    //               },
+    //             },
+    //           });
+    //           screenTrack = screenStream.getTracks();
+    //           substitueTrack(screenTrack[0]);
+    //         } catch (e) {
+    //           console.log(e);
+    //         }
+    //         return;
+    //       }
+    //     }
+    //   });
 
     socket.emit('screenSharing', state.room, sessionId);
   },
@@ -186,6 +236,12 @@ const actions = {
 
   LocalVideoSetter({ commit }, localVideo) {
     commit('localVideoSetter', localVideo);
+  },
+  ButtonSetter1({ commit }, button) {
+    commit('buttonSetter1', button);
+  },
+  ButtonSetter2({ commit }, button) {
+    commit('buttonSetter2', button);
   },
 
   VideoSetter({ commit }, video) {

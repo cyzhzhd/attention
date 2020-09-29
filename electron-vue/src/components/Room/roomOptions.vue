@@ -2,27 +2,39 @@
   <div class="options-vue">
     <div class="option-bar">
       <div class="options">
-        <div class="option" @click.prevent="ShareScreen">화면공유</div>
-        <div class="option">채팅</div>
-        <div class="option" @click.prevent="controlModal('showingInviteModal')">
-          <a href="#">초대</a>
+        <div
+          class="option"
+          @click.prevent="controlModal('showingScreenSharingModal')"
+        >
+          화면공유
         </div>
-        <div class="option" @click.prevent>
-          <a href="#">설정</a>
+        <div class="option" ref="temp">임시버튼</div>
+        <div class="option" @click.prevent="controlModal('showingChatModal')">
+          채팅
+        </div>
+        <div class="option" @click.prevent="controlModal('showingInviteModal')">
+          초대
+        </div>
+        <div
+          class="option"
+          @click.prevent="controlModal('showingSettingModal')"
+        >
+          설정
         </div>
         <div class="camdio">
           <div @click.prevent="muteVideo">
-            <!-- <img src="../../assets/camera-on.svg" /> -->
-            <img src="../../assets/camera-on.svg" v-if="!isVideoMuted" />
-            <img src="../../assets/camera-off.svg" v-if="isVideoMuted" />
-            <!-- <i class="fa fa-video-camera" v-if="!isVideoMuted" aria-hidden="true"></i> -->
-            <!-- <i class="fa fa-pause" v-if="isVideoMuted" aria-hidden="true"></i> -->
+            <img
+              src="../../assets/img/room/camera-on.svg"
+              v-if="!isVideoMuted"
+            />
+            <img
+              src="../../assets/img/room/camera-off.svg"
+              v-if="isVideoMuted"
+            />
           </div>
           <div @click.prevent="muteAudio">
-            <img src="../../assets/mic-on.svg" v-if="!isAudioMuted" />
-            <img src="../../assets/mic-off.svg" v-if="isAudioMuted" />
-            <!-- <i class="fa fa-microphone" v-if="!isAudioMuted" aria-hidden="true"></i>
-            <i class="fa fa-microphone-slash" v-if="isAudioMuted" aria-hidden="true"></i>-->
+            <img src="../../assets/img/room/mic-on.svg" v-if="!isAudioMuted" />
+            <img src="../../assets/img/room/mic-off.svg" v-if="isAudioMuted" />
           </div>
         </div>
       </div>
@@ -33,7 +45,10 @@
       </div>
     </div>
     <div class="modal-wrapper" v-on:click="controlModal('showingInviteModal')">
-      <smallModal v-if="modalList.showingInviteModal" @close="modalList.showingInviteModal">
+      <smallModal
+        v-if="modalList.showingInviteModal"
+        @close="modalList.showingInviteModal"
+      >
         <h3 slot="header">Copy this roomId and give it to your student</h3>
         <h4 slot="body">{{ this.$route.params.roomId }}</h4>
         <h4 slot="footer">
@@ -45,17 +60,36 @@
         </h4>
       </smallModal>
     </div>
+    <settings
+      v-bind:showingModal="modalList.showingSettingModal"
+      v-on:closeModal="controlModal"
+    ></settings>
+    <chat
+      v-bind:showingModal="modalList.showingChatModal"
+      v-on:closeModal="controlModal"
+    ></chat>
+    <screen-sharing
+      v-bind:showingModal="modalList.showingScreenSharingModal"
+      v-on:closeModal="controlModal"
+    ></screen-sharing>
   </div>
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 import smallModal from '../common/smallModal.vue';
+import settings from './roomOptions/mainSettings.vue';
+import chat from './roomOptions/chat.vue';
+import screenSharing from './roomOptions/screenSharing.vue';
+import bus from '../../../utils/bus';
 
 export default {
-  name: 'room-footer',
+  name: 'room-options',
   components: {
     smallModal,
+    settings,
+    chat,
+    screenSharing,
   },
   data() {
     return {
@@ -63,15 +97,31 @@ export default {
       roomName: this.$route.params.roomName,
       modalList: {
         showingInviteModal: false,
+        showingSettingModal: false,
+        showingChatModal: false,
+        showingScreenSharingModal: false,
       },
 
       isVideoMuted: true,
       isAudioMuted: true,
     };
   },
+
+  computed: {
+    ...mapGetters('webRTC', ['storedLocalVideo']),
+  },
   methods: {
     controlModal(modelName) {
       this.modalList[modelName] = !this.modalList[modelName];
+
+      if (this.modalList[modelName] && modelName === 'showingSettingModal') {
+        bus.$emit('videoSetting');
+      } else if (
+        this.modalList[modelName] &&
+        modelName === 'showingScreenSharingModal'
+      ) {
+        bus.$emit('screenSharing');
+      }
     },
 
     muteVideo() {
@@ -94,7 +144,11 @@ export default {
       'MuteAudio',
       'ShareScreen',
       'LeaveRoom',
+      'ButtonSetter1',
     ]),
+  },
+  mounted() {
+    this.ButtonSetter1(this.$refs.temp);
   },
 };
 </script>
@@ -125,6 +179,7 @@ export default {
   height: 30px;
   color: white;
   padding-top: 6px;
+  cursor: pointer;
 }
 .options div a {
   text-decoration: none;
@@ -147,5 +202,6 @@ export default {
   margin-bottom: 2rem;
   height: 30px;
   width: 80%;
+  cursor: pointer;
 }
 </style>

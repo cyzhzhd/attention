@@ -3,7 +3,7 @@
     <!-- <div class="nav">
       <router-link class="router" to="/">Home</router-link>
       <router-link class="router" to="/about">About</router-link>
-    </div>-->
+    </div> -->
     <router-view class="router-view" />
   </div>
 </template>
@@ -30,10 +30,12 @@
     font-weight: bold;
     color: #2c3e50;
     background: white;
+    text-decoration: none;
 
     &.router-link-exact-active {
       color: #676ed4;
       background: #42b983;
+      text-decoration: none;
     }
   }
 
@@ -55,7 +57,6 @@ html {
   word-wrap: break-word;
 }
 body {
-  background: #eee;
   -webkit-font-smoothing: antialiased;
 }
 html,
@@ -142,6 +143,7 @@ video {
   margin: 0;
   padding: 0;
   border: 0;
+  text-decoration: none;
 }
 article,
 aside,
