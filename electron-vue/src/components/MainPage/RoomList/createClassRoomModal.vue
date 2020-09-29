@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import mediumInputModal from '../common/mediumInputModal.vue';
+import mediumInputModal from '../../common/mediumInputModal.vue';
 
 export default {
   name: 'CreateClassRoomModal',

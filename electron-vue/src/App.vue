@@ -9,15 +9,7 @@
 </template>
 
 <style lang="scss">
-@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css);
-@font-face {
-  font-family: 'GmarketSansLight';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansLight.woff')
-    format('woff');
-  font-weight: normal;
-  font-style: normal;
-}
-
+@import './assets/css/app.css';
 .app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -58,165 +50,14 @@
   grid-area: 'router-view';
 }
 
-html {
-  font-family: 'Apple SD Gothic Neo', Roboto, 'Noto Sans KR', NanumGothic,
-    'Malgun Gothic', sans-serif;
-  color: #555;
-  line-height: 1.2;
-  word-wrap: break-word;
-}
-body {
-  -webkit-font-smoothing: antialiased;
-}
-html,
-body,
-div,
-span,
-applet,
-object,
-iframe,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p,
-blockquote,
-pre,
-a,
-abbr,
-acronym,
-address,
-big,
-cite,
-code,
-del,
-dfn,
-em,
-img,
-ins,
-kbd,
-q,
-s,
-samp,
-small,
-strike,
-strong,
-sub,
-sup,
-tt,
-var,
-b,
-u,
-i,
-center,
-dl,
-dt,
-dd,
-ol,
-ul,
-li,
-fieldset,
-form,
-label,
-legend,
-table,
-caption,
-tbody,
-tfoot,
-thead,
-tr,
-th,
-td,
-article,
-aside,
-canvas,
-details,
-embed,
-figure,
-figcaption,
-footer,
-header,
-hgroup,
-menu,
-nav,
-output,
-ruby,
-section,
-summary,
-time,
-mark,
-audio,
-video {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  text-decoration: none;
-}
-article,
-aside,
-details,
-figcaption,
-figure,
-footer,
-header,
-hgroup,
-menu,
-nav,
-section {
-  display: block;
-}
-div,
-span,
-article,
-section,
-header,
-footer,
-aside,
-p,
-ul,
-li,
-fieldset,
-legend,
-label,
-a,
-nav,
-form {
-  box-sizing: border-box;
-  /* content-box */
-}
-ol,
-ul,
-li {
-  list-style: none;
-}
-table {
-  border-collapse: collapse;
-  border-spacing: 0;
-}
-img {
-  max-width: 100%;
-  height: auto;
-  border: 0;
-}
-a {
-  display: inline-block;
-}
-button {
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.grid-container {
-  padding: 10px;
-  background: lightgray;
-}
-.grid-item {
-  padding: 10px;
-  border: 3px solid rgb(50, 50, 40);
-  color: white;
-  background: #ff6937;
-}
+// html {
+//   font-family: 'Apple SD Gothic Neo', Roboto, 'Noto Sans KR', NanumGothic,
+//     'Malgun Gothic', sans-serif;
+//   color: #555;
+//   line-height: 1.2;
+//   word-wrap: break-word;
+// }
+// body {
+//   -webkit-font-smoothing: antialiased;
+// }
 </style>

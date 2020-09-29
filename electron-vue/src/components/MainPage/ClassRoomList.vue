@@ -1,24 +1,10 @@
 <template>
-  <div class="wrapper">
-    <div class="side-navigation-panel">
-      <div class="side-navigation-header">
-        <img src="../assets/img/common/attention-logo.png" />
-      </div>
-      <div class="side-navigation-body">
-        <router-link class="side-navigation-item" to="/">홈</router-link>
-        <div class="side-navigation-item">교실 목록</div>
-        <div class="side-navigation-item">수업 목록</div>
-      </div>
-      <div class="side-navigation-footer">
-        <div class="current-user-profile"></div>
-        <div class="current-user-name">이지은 선생님</div>
-      </div>
-    </div>
+  <div>
     <div class="main-panel">
       <header class="main-panel-header">
         <div class="main-panel-header-title">교실 목록</div>
         <div class="main-panel-header-icon">
-          <img src="../assets/img/roomlist/blackboard.png" />
+          <img src="../../assets/img/ClassRoomList/blackboard.png" />
         </div>
       </header>
       <section class="main-panel-contents">
@@ -33,11 +19,10 @@
             @click="controlModal('addClassRoomModal')"
           >
             <div class="create-classroom-plus-icon">
-              <img src="../assets/img/common/plus.png" />
+              <img src="../../assets/img/common/plus.png" />
             </div>
             교실 만들기
           </div>
-          <!-- </router-link> -->
           <li class="classroom-card" v-for="room in rooms" :key="room.roomId">
             <div class="classroom-card-header">
               <router-link
@@ -54,7 +39,7 @@
                 {{ room.roomName }}
                 <img
                   class="classroom-card-background"
-                  src="../assets/img/roomlist/charisse-kenion-ts-E3IVKv8o-unsplash.jpg"
+                  src="../../assets/img/ClassRoomList/charisse-kenion-ts-E3IVKv8o-unsplash.jpg"
                 />
               </router-link>
               <div
@@ -68,7 +53,7 @@
                 "
                 @click.stop
               >
-                <img src="../assets/img/roomlist/threedot.png" />
+                <img src="../../assets/img/common/threedot.png" />
               </div>
             </div>
           </li>
@@ -128,9 +113,9 @@
 <script>
 import VueContext from 'vue-context';
 import 'vue-context/src/sass/vue-context.scss';
-import handoverModal from '../components/RoomList/handoverModal.vue';
-import createClassRoomModal from '../components/RoomList/createClassRoomModal.vue';
-import smallModal from '../components/common/smallModal.vue';
+import handoverModal from './RoomList/handoverModal.vue';
+import createClassRoomModal from './RoomList/createClassRoomModal.vue';
+import smallModal from '../common/smallModal.vue';
 
 export default {
   name: 'roomList',
@@ -217,5 +202,5 @@ export default {
 </script>
 
 <style scoped>
-@import '../assets/css/ClassRoomList.css';
+@import '../../assets/css/ClassRoomList.css';
 </style>

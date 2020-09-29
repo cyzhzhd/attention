@@ -78,17 +78,17 @@ export default {
     LogIn() {
       this.$auth
         .signInWithEmailAndPassword(this.login.email, this.login.password)
-        .then((credential) => {
+        .then(credential => {
           this.$setUser(credential.user);
 
           this.login.email = '';
           this.login.password = '';
 
           this.$router.push({
-            name: 'ClassRoomList',
+            name: 'MainPage',
           });
         })
-        .catch((error) => {
+        .catch(error => {
           this.errorMessage = '잘못된 아이디 혹은 비밀번호를 입력하셨습니다.';
           console.log(error);
         });
@@ -102,7 +102,7 @@ export default {
       };
       this.$http
         .post('/api/firebase/signup', options)
-        .then((response) => {
+        .then(response => {
           if (response.data.code === 'auth/invalid-password') {
             this.errorMessage = '비밀번호는 6자리 이상 입력해주세요';
           } else if (response.data.code === 'auth/invalid-email') {
@@ -117,7 +117,7 @@ export default {
             this.hasLogInActivated = true;
           }
         })
-        .catch((error) => {
+        .catch(error => {
           console.log(error);
         });
     },

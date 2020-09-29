@@ -1,7 +1,7 @@
 <template>
   <div class="side-navigation-panel">
     <div class="side-navigation-header">
-      <img src="../assets/img/common/attention-logo.png" />
+      <img src="../../assets/img/common/attention-logo.png" />
     </div>
     <div class="side-navigation-body">
       <router-link class="side-navigation-item" to="/">홈</router-link>
