@@ -2,6 +2,7 @@
 /* eslint-disable no-use-before-define */
 import resolutions from './webRTC/resolution';
 import bus from '../../../utils/bus';
+import analyzeLib from './analyze/analyzeLib';
 
 // eslint-disable-next-line no-undef
 // const socket = io('localhost:3000', {
@@ -11,6 +12,8 @@ import bus from '../../../utils/bus';
 const socket = io('13.125.214.253:5000', {
   autoConnect: true,
 }).connect();
+
+
 
 function mediaStreamConstraints(resolution) {
   return {
@@ -65,6 +68,7 @@ const state = {
   userOnline: [],
 };
 
+
 const getters = {
   storedRoom(state) {
     return state.room;
@@ -78,6 +82,13 @@ const mutations = {
     userInfo = { user, sessionId };
   },
   enterRoom(state, payload) {
+    // 여기가 방 만들었을 때 시점
+    // 여기서 비디오 소스 하이재킹해서 분석 시작하면 됨
+    // 개발버젼에서 버튼 생기면, 여기 말고 버튼 눌렀을 때 분석 시작
+    // 배포버젼에서는 선생님이 수업시작 버튼 누르면 분석 시작
+    // console.log(state.localVideo);
+    analyzeLib.getVideoSrc(state.localVideo);
+
     state.room = payload.roomName;
     roomName = payload.roomName;
     socket.emit('create or join', payload.roomName, state.user, payload.roomId);
@@ -118,6 +129,7 @@ const mutations = {
 
   localVideoSetter(state, localVideo) {
     state.localVideo = localVideo;
+    
   },
 
   videoSetter(state, video) {
@@ -137,6 +149,7 @@ const actions = {
       );
 
       state.localVideo.srcObject = localStream;
+      // console.log(state.localVideo);
       // console.log('state.localVideo.style', state.localVideo.style);
       // state.localVideo.style.width = '100%';
       localStream.getTracks()[0].enabled = false;
@@ -240,6 +253,7 @@ socket.on('joined', (room, socketId, clientsInRoom, isScreenSharing, id) => {
     addPC(socketId);
   }
 });
+
 
 socket.on('sessionID', id => {
   sessionId = id;
@@ -599,3 +613,4 @@ export default {
   mutations,
   actions,
 };
+
