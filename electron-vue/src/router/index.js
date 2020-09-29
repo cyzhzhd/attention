@@ -1,10 +1,11 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Login from '../views/Login.vue';
-import RoomList from '../views/RoomList.vue';
-import Room from '../views/Room.vue';
-import AddRoom from '../views/AddRoom.vue';
-import TeamSettings from '../views/TeamSettings.vue';
+import ClassRoomList from '../views/ClassRoomList.vue';
+import ClassRoom from '../views/ClassRoom.vue';
+import Class from '../views/Class.vue';
+import AddClassRoom from '../views/AddClassRoom.vue';
+import ClassRoomSettings from '../views/ClassRoomSettings.vue';
 
 Vue.use(VueRouter);
 
@@ -15,24 +16,29 @@ const routes = [
     component: Login,
   },
   {
-    path: '/roomList',
-    name: 'RoomList',
-    component: RoomList,
+    path: '/classroomList',
+    name: 'ClassRoomList',
+    component: ClassRoomList,
   },
   {
-    path: '/room/:roomId/:roomName',
-    name: 'Room',
-    component: Room,
+    path: '/classroom/:classroomId/:classroomName',
+    name: 'ClassRoom',
+    component: ClassRoom,
   },
   {
-    path: '/add-room',
-    name: 'AddRoom',
-    component: AddRoom,
+    path: '/classroom/:classroomId/:classroomName/:classId',
+    name: 'Class',
+    component: Class,
   },
   {
-    path: '/team-settings/:roomId/:roomName',
-    name: 'TeamSettings',
-    component: TeamSettings,
+    path: '/add-classroom',
+    name: 'AddClassRoom',
+    component: AddClassRoom,
+  },
+  {
+    path: '/classroom-settings/:classroomId/:classroomName',
+    name: 'ClassRoomSettings',
+    component: ClassRoomSettings,
   },
   {
     path: '/about',

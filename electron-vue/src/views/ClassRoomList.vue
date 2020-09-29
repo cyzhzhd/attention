@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="side-navigation-panel">
       <div class="side-navigation-header">
-        <img src="../assets/img/roomlist/attention-logo.png" />
+        <img src="../assets/img/common/attention-logo.png" />
       </div>
       <div class="side-navigation-body">
         <router-link class="side-navigation-item" to="/">홈</router-link>
@@ -23,27 +23,30 @@
       </header>
       <section class="main-panel-contents">
         <ul class="main-panel-classroom-list">
-          <router-link
+          <!-- <router-link
             class="create-classroom-title"
-            :to="{ name: 'AddRoom' }"
+            :to="{ name: 'AddClassRoom' }"
             action
+          > -->
+          <div
+            class="create-classroom-title create-classroom-card"
+            @click="controlModal('addClassRoomModal')"
           >
-            <div class="create-classroom-card">
-              <div class="create-classroom-plus-icon">
-                <img src="../assets/img/roomlist/plus.png" />
-              </div>
-              교실 만들기
+            <div class="create-classroom-plus-icon">
+              <img src="../assets/img/common/plus.png" />
             </div>
-          </router-link>
+            교실 만들기
+          </div>
+          <!-- </router-link> -->
           <li class="classroom-card" v-for="room in rooms" :key="room.roomId">
             <div class="classroom-card-header">
               <router-link
                 class="classroom-card-title"
                 :to="{
-                  name: 'Room',
+                  name: 'ClassRoom',
                   params: {
-                    roomId: room.roomId,
-                    roomName: room.roomName,
+                    classroomId: room.roomId,
+                    classroomName: room.roomName,
                   },
                 }"
                 action
@@ -58,8 +61,8 @@
                 class="classroom-card-more-button"
                 @click.prevent="
                   $refs.menu.open($event, {
-                    roomId: room.roomId,
-                    roomName: room.roomName,
+                    classroomId: room.roomId,
+                    classroomName: room.roomName,
                     host: room.host,
                   })
                 "
@@ -86,14 +89,14 @@
       </template>
     </vue-context>
     <handoverModal
-      v-bind:showModal="modalList.showingHandOverModal"
+      v-bind:showModal="modalList.handOverModal"
       v-bind:roomId="roomId"
-      v-on:closemodal="closeModal('showingHandOverModal')"
+      v-on:closemodal="controlModal('handOverModal')"
     ></handoverModal>
-    <div class="modal-wrapper" v-on:click="closeModal('showingConfirmModal')">
-      <smallModal
-        v-if="modalList.showingConfirmModal"
-        @close="modalList.showingConfirmModal"
+    <div class="modal-wrapper" v-on:click="controlModal('confirmModal')">
+      <small-modal
+        v-if="modalList.confirmModal"
+        @close="modalList.confirmModal"
       >
         <h3 slot="header">방을 삭제하려면 '확인'을 입력해주세요</h3>
 
@@ -110,11 +113,15 @@
           <i
             class="fa fa-times closeModalBtn fa-2x"
             aria-hidden="true"
-            v-on:click="closeModal('showingConfirmModal')"
+            v-on:click="controlModal('confirmModal')"
           ></i>
         </h6>
-      </smallModal>
+      </small-modal>
     </div>
+    <createClassRoomModal
+      v-bind:showingModal="modalList.addClassRoomModal"
+      v-on:closeModal="controlModal"
+    ></createClassRoomModal>
   </div>
 </template>
 
@@ -122,18 +129,20 @@
 import VueContext from 'vue-context';
 import 'vue-context/src/sass/vue-context.scss';
 import handoverModal from '../components/RoomList/handoverModal.vue';
+import createClassRoomModal from '../components/RoomList/createClassRoomModal.vue';
 import smallModal from '../components/common/smallModal.vue';
 
 export default {
   name: 'roomList',
-  components: { VueContext, handoverModal, smallModal },
+  components: { VueContext, handoverModal, smallModal, createClassRoomModal },
 
   data() {
     return {
       uid: this.$user.uid,
       modalList: {
-        showingHandOverModal: false,
-        showingConfirmModal: false,
+        handOverModal: false,
+        confirmModal: false,
+        addClassRoomModal: false,
       },
       rooms: [],
       roomId: '',
@@ -144,18 +153,18 @@ export default {
   methods: {
     manageTeam(room) {
       this.$router.push({
-        name: 'TeamSettings',
-        params: { roomId: room.roomId, roomName: room.roomName },
+        name: 'ClassRoomSettings',
+        params: { roomId: room.classroomId, roomName: room.classroomName },
       });
     },
 
     leaveTeam(room) {
       if (room.host === this.uid) {
-        this.roomId = room.roomId;
-        this.modalList.showingHandOverModal = true;
+        this.roomId = room.classroomId;
+        this.modalList.handOverModal = true;
       } else {
         const options = {
-          roomId: room.roomId,
+          roomId: room.classroomId,
           uid: this.uid,
         };
         this.$http.post('/api/firebase/leaveTeam', options);
@@ -164,14 +173,14 @@ export default {
 
     deleteTeam(room) {
       if (room.host === this.uid) {
-        this.modalList.showingConfirmModal = true;
-        this.roomId = room.roomId;
+        this.modalList.confirmModal = true;
+        this.roomId = room.classroomId;
       }
     },
 
     confirm() {
       if (this.textConfirm === '확인') {
-        this.closeModal('showingConfirmModal');
+        this.controlModal('confirmModal');
 
         const options = {
           roomId: this.roomId,
@@ -180,10 +189,13 @@ export default {
         this.$http.post('/api/firebase/deleteTeam', options);
       }
     },
+    controlModal(modelName) {
+      this.modalList[modelName] = !this.modalList[modelName];
 
-    closeModal(modelName) {
-      this.modalList[modelName] = false;
-      this.textConfirm = '';
+      if (this.modalList[modelName] && modelName === 'confirmModal') {
+        this.modalList[modelName] = false;
+        this.textConfirm = '';
+      }
     },
   },
 
@@ -205,14 +217,5 @@ export default {
 </script>
 
 <style scoped>
-/* @import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css);
-@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-jp.css); */
-@font-face {
-  font-family: 'GmarketSansLight';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansLight.woff')
-    format('woff');
-  font-weight: normal;
-  font-style: normal;
-}
-@import '../assets/css/RoomList.css';
+@import '../assets/css/ClassRoomList.css';
 </style>

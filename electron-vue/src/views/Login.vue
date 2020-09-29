@@ -12,7 +12,10 @@
     </nav>
     <div class="login-form" v-if="hasLogInActivated">
       <h2>Login</h2>
-      <form class="login-form" @submit.prevent="LogIn(login.email, login.password)">
+      <form
+        class="login-form"
+        @submit.prevent="LogIn(login.email, login.password)"
+      >
         <input
           type="email"
           class="login-email"
@@ -25,7 +28,9 @@
           v-model.trim="login.password"
           placeholder="password"
         />
-        <button type="submit" variant="primary" :disabled="!login.email">Login</button>
+        <button type="submit" variant="primary" :disabled="!login.email">
+          Login
+        </button>
       </form>
     </div>
     <div class="signup-form" v-else>
@@ -49,7 +54,9 @@
           v-model.trim="signup.displayName"
           placeholder="displayname"
         />
-        <button type="submit" variant="primary" :disabled="!signup.email">Sign Up</button>
+        <button type="submit" variant="primary" :disabled="!signup.email">
+          Sign Up
+        </button>
       </form>
     </div>
     <p class="error-message">{{ errorMessage }}</p>
@@ -78,7 +85,7 @@ export default {
           this.login.password = '';
 
           this.$router.push({
-            name: 'RoomList',
+            name: 'ClassRoomList',
           });
         })
         .catch((error) => {
