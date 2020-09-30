@@ -85,7 +85,7 @@ export default {
           this.login.password = '';
 
           this.$router.push({
-            name: 'MainPage',
+            name: 'ClassRoomList',
           });
         })
         .catch(error => {

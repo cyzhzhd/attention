@@ -57,8 +57,8 @@
 </template>
 
 <script>
-import mediumModal from '../../common/mediumModal.vue';
-import smallModal from '../../common/smallModal.vue';
+import mediumModal from '../common/mediumModal.vue';
+import smallModal from '../common/smallModal.vue';
 
 export default {
   components: {

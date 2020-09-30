@@ -1,10 +1,10 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Login from '../views/Login.vue';
-import MainPage from '../views/MainPage.vue';
-// import ClassRoomList from '../views/ClassRoomList.vue';
-// import ClassRoom from '../views/ClassRoom.vue';
-// import Class from '../views/Class.vue';
+// import MainPage from '../views/MainPage.vue';
+import ClassRoomList from '../views/ClassRoomList.vue';
+import ClassRoom from '../views/ClassRoom.vue';
+import Class from '../views/Class.vue';
 import AddClassRoom from '../views/AddClassRoom.vue';
 import ClassRoomSettings from '../views/ClassRoomSettings.vue';
 
@@ -17,26 +17,26 @@ const routes = [
     component: Login,
   },
 
+  // {
+  //   path: '/mainPage',
+  //   name: 'MainPage',
+  //   component: MainPage,
+  // },
   {
-    path: '/mainPage',
-    name: 'MainPage',
-    component: MainPage,
+    path: '/classroomList',
+    name: 'ClassRoomList',
+    component: ClassRoomList,
   },
-  // {
-  //   path: '/classroomList',
-  //   name: 'ClassRoomList',
-  //   component: ClassRoomList,
-  // },
-  // {
-  //   path: '/classroom/:classroomId/:classroomName',
-  //   name: 'ClassRoom',
-  //   component: ClassRoom,
-  // },
-  // {
-  //   path: '/classroom/:classroomId/:classroomName/:classId',
-  //   name: 'Class',
-  //   component: Class,
-  // },
+  {
+    path: '/classroom/:classroomId/:classroomName',
+    name: 'ClassRoom',
+    component: ClassRoom,
+  },
+  {
+    path: '/classroom/:classroomId/:classroomName/:classId',
+    name: 'Class',
+    component: Class,
+  },
   {
     path: '/add-classroom',
     name: 'AddClassRoom',

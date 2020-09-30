@@ -1,28 +1,28 @@
 <template>
-  <div>
+  <div class="wrapper">
+    <side-navigation-panel></side-navigation-panel>
     <div class="main-panel">
       <header class="main-panel-header">
         <div class="main-panel-header-title">교실 목록</div>
         <div class="main-panel-header-icon">
-          <img src="../../assets/img/ClassRoomList/blackboard.png" />
+          <img src="../assets/img/ClassRoomList/blackboard.png" />
         </div>
       </header>
       <section class="main-panel-contents">
         <ul class="main-panel-classroom-list">
-          <!-- <router-link
+          <router-link
             class="create-classroom-title"
             :to="{ name: 'AddClassRoom' }"
             action
-          > -->
-          <div
-            class="create-classroom-title create-classroom-card"
-            @click="controlModal('addClassRoomModal')"
           >
-            <div class="create-classroom-plus-icon">
-              <img src="../../assets/img/common/plus.png" />
+            <div class="create-classroom-card">
+              <div class="create-classroom-plus-icon">
+                <img src="../assets/img/common/plus.png" />
+              </div>
+              교실 만들기
             </div>
-            교실 만들기
-          </div>
+          </router-link>
+
           <li class="classroom-card" v-for="room in rooms" :key="room.roomId">
             <div class="classroom-card-header">
               <router-link
@@ -39,7 +39,7 @@
                 {{ room.roomName }}
                 <img
                   class="classroom-card-background"
-                  src="../../assets/img/ClassRoomList/charisse-kenion-ts-E3IVKv8o-unsplash.jpg"
+                  src="../assets/img/ClassRoomList/charisse-kenion-ts-E3IVKv8o-unsplash.jpg"
                 />
               </router-link>
               <div
@@ -53,7 +53,7 @@
                 "
                 @click.stop
               >
-                <img src="../../assets/img/common/threedot.png" />
+                <img src="../assets/img/common/threedot.png" />
               </div>
             </div>
           </li>
@@ -113,13 +113,20 @@
 <script>
 import VueContext from 'vue-context';
 import 'vue-context/src/sass/vue-context.scss';
-import handoverModal from './RoomList/handoverModal.vue';
-import createClassRoomModal from './RoomList/createClassRoomModal.vue';
-import smallModal from '../common/smallModal.vue';
+import SideNavigationPanel from '../components/common/SideNavigationPanel.vue';
+import handoverModal from '../components/ClassRoomList/handoverModal.vue';
+import createClassRoomModal from '../components/ClassRoomList/createClassRoomModal.vue';
+import smallModal from '../components/common/smallModal.vue';
 
 export default {
   name: 'roomList',
-  components: { VueContext, handoverModal, smallModal, createClassRoomModal },
+  components: {
+    VueContext,
+    handoverModal,
+    smallModal,
+    createClassRoomModal,
+    SideNavigationPanel,
+  },
 
   data() {
     return {
@@ -189,9 +196,9 @@ export default {
     this.$firebase
       .database()
       .ref(`/users/${this.uid}/favRooms/`)
-      .on('value', snapshot => {
+      .on('value', (snapshot) => {
         this.rooms = [];
-        snapshot.forEach(doc => {
+        snapshot.forEach((doc) => {
           const item = doc.val().roomDetail;
           item.roomId = doc.key;
           this.rooms.push(item);
@@ -202,5 +209,5 @@ export default {
 </script>
 
 <style scoped>
-@import '../../assets/css/ClassRoomList.css';
+@import '../assets/css/ClassRoomList.css';
 </style>
