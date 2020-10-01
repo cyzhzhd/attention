@@ -32,6 +32,7 @@
                   params: {
                     classroomId: room._id,
                     classroomName: room.name,
+                    classId: room.session,
                   },
                 }"
                 action
@@ -213,11 +214,20 @@ export default {
         const classInfo = await this.$http.get('/api/class', options);
         this.classRooms.push(classInfo.data);
       });
+
+      const { classes } = userInfo.data;
+      classes.forEach(async joinedClass => {
+        options.params = {
+          class: joinedClass,
+        };
+        const classInfo = await this.$http.get('/api/class', options);
+        this.classRooms.push(classInfo.data);
+      });
       console.log('room = ', this.classRooms);
     },
   },
 
-  created() {
+  mounted() {
     this.getClassRoomList();
   },
 };

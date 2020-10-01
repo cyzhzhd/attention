@@ -8,7 +8,15 @@
       </header>
       <div class="main-panel-contents">
         <div class="main-panel-class-list">
-          <router-link :to="{ name: 'AddClass' }" action>
+          <router-link
+            :to="{
+              name: 'AddClass',
+              params: {
+                classroomId,
+              },
+            }"
+            action
+          >
             <div class="create-class-item">
               <div class="create-classroom-plus-icon">
                 <img src="../assets/img/common/plus.png" />
@@ -23,18 +31,21 @@
             <div class="create-classroom-title">수업 만들기</div>
           </div> -->
           <div class="class-list-header">
+            <div class="class-list-header-item">수업</div>
             <div class="class-list-header-item">수업시간</div>
-            <div class="class-list-header-item">과목</div>
             <div class="class-list-header-item">선생님</div>
           </div>
 
           <div class="class-item">
             <div class="class-item-header">
               <div class="class-item-teacher-profile"></div>
-              <div class="class-item-header-item">9:00</div>
-              <div class="class-item-header-item">국어</div>
+              <div class="class-item-header-item">{{ className }}</div>
+              <div class="class-item-header-item">{{ startDate }}</div>
+              <div class="class-item-header-item">
+                {{ startTime }} ~ {{ endTime }}
+              </div>
               <div class="class-item-header-item-teacher-name">
-                이지은 선생님
+                {{ classInfo.teacherName }} 선생님
               </div>
             </div>
             <router-link
@@ -53,7 +64,6 @@
                 class="class-item-preview"
               />
             </router-link>
-
             <div class="class-item-class-start-button" role="button">
               강의 시작
             </div>
@@ -74,30 +84,51 @@ export default {
   data() {
     return {
       classroomId: this.$route.params.classroomId,
-      classRoomName: this.$route.params.classRoomName,
-      classId: 'asdasd',
+      classroomName: this.$route.params.classroomName,
+      classId: this.$route.params.classId,
+      classInfo: '',
+      startDate: '',
+      startTime: '',
+      endDate: '',
+      endTime: '',
+      className: '',
     };
   },
   methods: {
-    // async getClassList() {
-    //   console.log('jwt = ', this.$jwt);
-    //   const options = {
-    //     headers: {
-    //       Authorization: `Bearer ${this.$jwt}`,
-    //     },
-    //   };
-    //   const userInfo = await this.$http.get('/api/user', options);
-    //   const { ownClasses } = userInfo.data;
-    //   this.classRooms = [];
-    //   ownClasses.forEach(async ownClass => {
-    //     options.params = {
-    //       class: ownClass,
-    //     };
-    //     const classInfo = await this.$http.get('/api/class', options);
-    //     this.classRooms.push(classInfo.data);
-    //   });
-    //   console.log('room = ', this.classRooms);
-    // },
+    async getClassList() {
+      console.log('jwt = ', this.$jwt);
+      const options = {
+        headers: {
+          Authorization: `Bearer ${this.$jwt}`,
+        },
+        params: {
+          class: this.classroomId,
+          session: this.classId,
+        },
+      };
+      const info = await this.$http.get('/api/session', options);
+      this.classInfo = info.data;
+      this.className = info.data.name;
+      const startDate = this.getTime(info.data.scheduledStartTime);
+      this.startDate = startDate.date;
+      this.startTime = startDate.time;
+
+      const endDate = this.getTime(info.data.scheduledEndTime);
+      this.endDate = endDate.date;
+      this.endTime = endDate.time;
+    },
+
+    getTime(day) {
+      console.log(day);
+      const dates = day.split('-');
+      const date = `${dates[1]}월 ${dates[2].slice(0, 2)}일`;
+      const times = dates[2].slice(3).split(':');
+      const time = `${times[0]}시 ${times[1]}분`;
+      return { date, time };
+    },
+  },
+  mounted() {
+    this.getClassList();
   },
 };
 </script>

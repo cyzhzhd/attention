@@ -29,17 +29,18 @@ export default {
     createSession() {
       const options = {
         name: this.sessionName,
-        startTime: `${this.startTime}:00+09:00`,
-        endTime: `${this.endTime}:00+09:00`,
+        class: this.$route.params.classroomId,
+        scheduledStartTime: `${this.startTime}:00+09:00`,
+        scheduledEndTime: `${this.endTime}:00+09:00`,
       };
-      // const headers = {
-      //   headers: {
-      //     Authorization: `Bearer ${this.$jwt}`,
-      //   },
-      // };
+      const headers = {
+        headers: {
+          Authorization: `Bearer ${this.$jwt}`,
+        },
+      };
       console.log(options);
-      // this.$http.post('/api/class', options, headers);
-      // this.$router.go(-1);
+      this.$http.post('/api/session', options, headers);
+      this.$router.go(-1);
     },
   },
 };

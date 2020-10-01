@@ -12,7 +12,7 @@
         Create Room
       </button>
     </form>
-    <form @submit.prevent="addFavRoom">
+    <form @submit.prevent="addClassRoom">
       <input v-model.trim="roomCodeAdd" placeholder="Enter Room code" />
       <button type="submit" variant="primary" :disabled="!roomCodeAdd">
         Add Room
@@ -48,13 +48,16 @@ export default {
       this.$router.go(-1);
     },
 
-    addFavRoom() {
+    addClassRoom() {
       const options = {
-        uid: this.$user.uid,
-        userName: this.$user.displayName,
-        roomId: this.roomCodeAdd,
+        class: this.roomCodeAdd,
       };
-      this.$http.post('/api/firebase/addFavRoom', options);
+      const headers = {
+        headers: {
+          Authorization: `Bearer ${this.$jwt}`,
+        },
+      };
+      this.$http.post('/api/user/class', options, headers);
 
       this.$router.go(-1);
     },

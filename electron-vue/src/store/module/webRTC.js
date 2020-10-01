@@ -268,6 +268,7 @@ function sendMessage(message) {
 }
 
 socket.on('sendUserList', userlist => {
+  console.log('sendUserList');
   if (userlist.length === 1) {
     startClass();
     console.log('start', userlist);

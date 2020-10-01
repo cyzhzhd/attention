@@ -22,7 +22,7 @@ const routes = [
     component: ClassRoomList,
   },
   {
-    path: '/classroom/:classroomId/:classroomName',
+    path: '/classroom/:classroomId/:classroomName/:classId',
     name: 'ClassRoom',
     component: ClassRoom,
   },
@@ -37,7 +37,7 @@ const routes = [
     component: AddClassRoom,
   },
   {
-    path: '/add-class',
+    path: '/add-class/:classroomId',
     name: 'AddClass',
     component: AddClass,
   },
