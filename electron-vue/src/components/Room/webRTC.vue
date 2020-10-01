@@ -22,7 +22,8 @@ import { mapActions } from 'vuex';
 export default {
   name: 'WebRTC',
   methods: {
-    ...mapActions('webRTC', ['SetUser', 'LocalVideoSetter', 'VideoSetter']),
+    // ...mapActions('webRTC', ['SetUser', 'LocalVideoSetter', 'VideoSetter']),
+    ...mapActions('webRTC', ['SetUser', 'VideoSetter']),
   },
   // created() {
   //   bus.$on('test', () => {
@@ -30,9 +31,12 @@ export default {
   //   });
   // },
   mounted() {
-    this.SetUser(this.$user);
-    this.LocalVideoSetter(this.$refs.localVideo);
-    this.VideoSetter(this.$refs.videos);
+    this.SetUser(this.$userId);
+    const params = {
+      localVideo: this.$refs.localVideo,
+      videos: this.$refs.videos,
+    };
+    this.VideoSetter(params);
   },
 };
 </script>

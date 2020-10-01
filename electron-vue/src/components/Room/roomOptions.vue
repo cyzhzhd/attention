@@ -135,8 +135,7 @@ export default {
 
     leaveRoom() {
       this.$router.go(-1);
-      console.log('vue에서 roomId', this.roomId);
-      this.LeaveRoom({ roomName: this.roomName, roomId: this.roomId });
+      this.LeaveRoom();
     },
 
     ...mapActions('webRTC', [

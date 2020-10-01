@@ -27,7 +27,7 @@ const routes = [
     component: ClassRoom,
   },
   {
-    path: '/classroom/:classroomId/:classroomName/:classId',
+    path: '/classroom/:classroomId/:classId',
     name: 'Class',
     component: Class,
   },

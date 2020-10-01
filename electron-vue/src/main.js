@@ -13,6 +13,10 @@ Vue.prototype.$setJWT = jwt => {
   Vue.prototype.$jwt = jwt;
 };
 
+Vue.prototype.$setUserId = id => {
+  Vue.prototype.$userId = id;
+};
+
 new Vue({
   router,
   store,

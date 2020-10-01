@@ -23,7 +23,7 @@
             </div>
           </router-link>
 
-          <li class="classroom-card" v-for="room in rooms" :key="room._id">
+          <li class="classroom-card" v-for="room in classRooms" :key="room._id">
             <div class="classroom-card-header">
               <router-link
                 class="classroom-card-title"
@@ -75,7 +75,7 @@
     </vue-context>
     <handoverModal
       v-bind:showModal="modalList.handOverModal"
-      v-bind:roomId="roomId"
+      v-bind:classRoomId="classRoomId"
       v-on:closemodal="controlModal('handOverModal')"
     ></handoverModal>
     <div class="modal-wrapper" v-on:click="controlModal('confirmModal')">
@@ -135,8 +135,8 @@ export default {
         confirmModal: false,
         addClassRoomModal: false,
       },
-      rooms: [],
-      roomId: '',
+      classRooms: [],
+      classRoomId: '',
       textConfirm: '',
     };
   },
@@ -145,17 +145,17 @@ export default {
     manageClassRoom(room) {
       this.$router.push({
         name: 'ClassRoomSettings',
-        params: { roomId: room.classroomId, roomName: room.classroomName },
+        params: { classRoomId: room.classroomId, roomName: room.classroomName },
       });
     },
 
     //   leaveTeam(room) {
     //     if (room.host === this.uid) {
-    //       this.roomId = room.classroomId;
+    //       this.classRoomId = room.classroomId;
     //       this.modalList.handOverModal = true;
     //     } else {
     //       const options = {
-    //         roomId: room.classroomId,
+    //         classRoomId: room.classroomId,
     //         uid: this.uid,
     //       };
     //       this.$http.post('/api/firebase/leaveTeam', options);
@@ -164,7 +164,7 @@ export default {
 
     deleteClassRoom(room) {
       this.modalList.confirmModal = true;
-      this.roomId = room.classroomId;
+      this.classRoomId = room.classroomId;
     },
 
     confirm() {
@@ -177,12 +177,12 @@ export default {
           },
           params: {
             // class로 바꿀 예정
-            id: this.roomId,
+            id: this.classRoomId,
           },
         };
-        console.log(this.roomId);
+        console.log(this.classRoomId);
         this.$http.delete('/api/class', options);
-        this.getClassList();
+        this.getClassRoomList();
       }
     },
     controlModal(modelName) {
@@ -194,7 +194,7 @@ export default {
       }
     },
 
-    async getClassList() {
+    async getClassRoomList() {
       console.log('jwt = ', this.$jwt);
       const options = {
         headers: {
@@ -202,21 +202,23 @@ export default {
         },
       };
       const userInfo = await this.$http.get('/api/user', options);
+      const { _id } = userInfo.data;
+      this.$setUserId(_id);
       const { ownClasses } = userInfo.data;
-      this.rooms = [];
+      this.classRooms = [];
       ownClasses.forEach(async ownClass => {
         options.params = {
           class: ownClass,
         };
         const classInfo = await this.$http.get('/api/class', options);
-        this.rooms.push(classInfo.data);
+        this.classRooms.push(classInfo.data);
       });
-      console.log('room = ', this.rooms);
+      console.log('room = ', this.classRooms);
     },
   },
 
   created() {
-    this.getClassList();
+    this.getClassRoomList();
   },
 };
 </script>

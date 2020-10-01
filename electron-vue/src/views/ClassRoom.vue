@@ -41,6 +41,10 @@
               class="classroom-card-title"
               :to="{
                 name: 'Class',
+                params: {
+                  classroomId: classroomId,
+                  classId: classId,
+                },
               }"
               action
             >
@@ -66,6 +70,34 @@ import SideNavigationPanel from '../components/common/SideNavigationPanel.vue';
 export default {
   components: {
     SideNavigationPanel,
+  },
+  data() {
+    return {
+      classroomId: this.$route.params.classroomId,
+      classRoomName: this.$route.params.classRoomName,
+      classId: 'asdasd',
+    };
+  },
+  methods: {
+    // async getClassList() {
+    //   console.log('jwt = ', this.$jwt);
+    //   const options = {
+    //     headers: {
+    //       Authorization: `Bearer ${this.$jwt}`,
+    //     },
+    //   };
+    //   const userInfo = await this.$http.get('/api/user', options);
+    //   const { ownClasses } = userInfo.data;
+    //   this.classRooms = [];
+    //   ownClasses.forEach(async ownClass => {
+    //     options.params = {
+    //       class: ownClass,
+    //     };
+    //     const classInfo = await this.$http.get('/api/class', options);
+    //     this.classRooms.push(classInfo.data);
+    //   });
+    //   console.log('room = ', this.classRooms);
+    // },
   },
 };
 </script>

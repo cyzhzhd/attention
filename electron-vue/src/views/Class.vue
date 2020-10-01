@@ -27,14 +27,18 @@ export default {
   },
   data() {
     return {
-      roomId: this.$route.params.roomId,
-      roomName: this.$route.params.roomName,
+      classroomId: this.$route.params.classroomId,
+      classId: this.$route.params.classId,
     };
   },
   methods: {
     enterRoom() {
       console.log('vue에서 roomId', this.roomId);
-      this.EnterRoom({ roomName: this.roomName, roomId: this.roomId });
+      this.EnterRoom({
+        classroomId: this.classroomId,
+        classId: this.classId,
+        jwt: this.$jwt,
+      });
     },
     ...mapActions('webRTC', ['EnterRoom']),
   },

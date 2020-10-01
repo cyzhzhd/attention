@@ -9,10 +9,14 @@ import analyzeLib from './analyze/analyzeLib';
 // const socket = io('localhost:3000', {
 //   autoConnect: true,
 // }).connect();
+
 // eslint-disable-next-line no-undef
-const socket = io('13.125.214.253:5000', {
-  autoConnect: true,
-}).connect();
+const socket = io(
+  'backendLB-d5c9491c188b429e.elb.ap-northeast-2.amazonaws.com:3000',
+  {
+    autoConnect: true,
+  },
+).connect();
 
 function mediaStreamConstraints(resolution) {
   return {
@@ -42,7 +46,7 @@ let isStarted = false;
 let isChannelReady = false;
 let currentResolution = 'START';
 
-let connectedUsers = {};
+let connectedUsers = [];
 const sendingTracks = [];
 let remoteStreams = {};
 let screenTrack = null;
@@ -53,25 +57,26 @@ let ScreenSharing = false;
 let localStream;
 let sessionId;
 let userInfo;
-let roomName;
 let interval;
 
 let isVideoMuted = true;
 let isAudioMuted = true;
 
 const state = {
-  room: '',
+  classroomId: '',
+  classId: '',
+  jwt: '',
   localVideo: '',
   tempButton1: '',
   tempButton2: '',
   videos: '',
-  user: {},
+  myId: '',
   userOnline: [],
 };
 
 const getters = {
   storedRoom(state) {
-    return state.room;
+    return state.classroomId;
   },
   storedLocalVideo(state) {
     return state.localVideo;
@@ -79,10 +84,10 @@ const getters = {
 };
 
 const mutations = {
-  setUser(state, user) {
-    state.user = user;
-    state.userOnline.push(user);
-    userInfo = { user, sessionId };
+  setUser(state, id) {
+    state.myId = id;
+    // state.userOnline.push(user);
+    // userInfo = { user, sessionId };
   },
   enterRoom(state, payload) {
     // 여기가 방 만들었을 때 시점
@@ -92,18 +97,29 @@ const mutations = {
     // console.log(state.localVideo);
     analyzeLib.getVideoSrc(state.localVideo);
 
-    state.room = payload.roomName;
-    roomName = payload.roomName;
-    socket.emit('create or join', payload.roomName, state.user, payload.roomId);
-    console.log(`${payload.roomName}을 생성 또는 ${payload.roomName}에 참가`);
+    state.classroomId = payload.classroomId;
+    state.classId = payload.classId;
+    state.jwt = payload.jwt;
+
+    const options = {
+      token: state.jwt,
+      class: state.classroomId,
+      session: state.classId,
+    };
+    socket.emit('joinSession', options);
+    console.log('enter room payload', payload);
 
     // signal to server every 2 sec for keeping connection
-    interval = setInterval(() => socket.emit('ImOnline', state.room), 2000);
+    // interval = setInterval(() => socket.emit('ImOnline', state.classroomId), 2000);
   },
-  leaveRoom(state, payload) {
-    console.log('js에서 roomId', payload.roomId);
-    socket.emit('leave room', payload.roomName, payload.roomId);
-    console.log(`${payload.roomName}을 떠남`);
+  leaveRoom(state) {
+    const options = {
+      token: state.jwt,
+      class: state.classroomId,
+      session: state.classId,
+    };
+    socket.emit('leaveSession', options);
+    console.log(`${options}을 떠남`);
 
     disconnectWebRTC();
   },
@@ -129,13 +145,9 @@ const mutations = {
       addPC(targetUser.sessionId);
     }
   },
-
-  localVideoSetter(state, localVideo) {
-    state.localVideo = localVideo;
-  },
-
-  videoSetter(state, video) {
-    state.videos = video;
+  videoSetter(state, payload) {
+    state.videos = payload.videos;
+    state.localVideo = payload.localVideo;
   },
   buttonSetter1(state, button) {
     state.tempButton1 = button;
@@ -152,8 +164,8 @@ const mutations = {
 };
 
 const actions = {
-  SetUser({ commit }, user) {
-    commit('setUser', user);
+  SetUser({ commit }, id) {
+    commit('setUser', id);
   },
   async EnterRoom({ commit }, payload) {
     try {
@@ -173,8 +185,8 @@ const actions = {
     }
     commit('enterRoom', payload);
   },
-  LeaveRoom({ commit }, payload) {
-    commit('leaveRoom', payload);
+  LeaveRoom({ commit }) {
+    commit('leaveRoom');
   },
 
   async ShareScreen() {
@@ -217,7 +229,7 @@ const actions = {
     //     }
     //   });
 
-    socket.emit('screenSharing', state.room, sessionId);
+    socket.emit('screenSharing', state.classroomId, sessionId);
   },
 
   ConnectWithTheUser({ commit }, targetUser) {
@@ -229,10 +241,6 @@ const actions = {
     console.log('ConnectWithTheUser - userInfo = ', targetUser);
     commit('disconnectWithTheUser', targetUser);
   },
-
-  LocalVideoSetter({ commit }, localVideo) {
-    commit('localVideoSetter', localVideo);
-  },
   ButtonSetter1({ commit }, button) {
     commit('buttonSetter1', button);
   },
@@ -240,8 +248,8 @@ const actions = {
     commit('buttonSetter2', button);
   },
 
-  VideoSetter({ commit }, video) {
-    commit('videoSetter', video);
+  VideoSetter({ commit }, payload) {
+    commit('videoSetter', payload);
   },
 
   MuteVideo() {
@@ -256,7 +264,66 @@ const actions = {
 
 function sendMessage(message) {
   // console.log('Client sending message: ', message);
-  socket.emit('message', message);
+  socket.emit('sendSignal', message);
+}
+
+socket.on('sendUserList', userlist => {
+  if (userlist.length === 1) {
+    startClass();
+    console.log('start', userlist);
+    return;
+  }
+  manageUserlist(userlist);
+});
+
+function startClass() {
+  isChannelReady = true;
+  isStarted = true;
+}
+
+function findJoiningUser(userlist) {
+  let joiningUser;
+  userlist.every(newUser => {
+    return connectedUsers.every(existingUser => {
+      if (newUser.user === existingUser.user) return true;
+
+      joiningUser = newUser;
+      return false;
+    });
+  });
+
+  return joiningUser;
+}
+
+function addUser(userlist) {
+  const joiningUser = findJoiningUser(userlist);
+  console.log(joiningUser);
+  connectedUsers.push(joiningUser);
+  addPC(joiningUser);
+}
+
+function joiningClass(userlist) {
+  userlist.forEach(ul => {
+    if (ul.user !== state.myId) {
+      connectedUsers.push(ul);
+    }
+  });
+  isStarted = true;
+
+  console.log('creating peer connection');
+  createPeerConnection();
+}
+
+function manageUserlist(userlist) {
+  console.log('userList', userlist);
+
+  if (!isChannelReady) {
+    // new users
+    joiningClass(userlist);
+  } else {
+    // existing users
+    addUser(userlist);
+  }
 }
 
 socket.on('created', (room, clientsInRoom) => {
@@ -381,7 +448,6 @@ socket.on('message', message => {
 
 // RTC part
 function createPeerConnection() {
-  console.log('roomName=', roomName);
   console.log('connected Users =', connectedUsers);
   const keys = Object.keys(connectedUsers);
   keys.map(user => {
@@ -411,7 +477,6 @@ async function addingListenerOnPC(userId, isOfferer) {
         candidate: event.candidate.candidate,
         sendTo: userId,
         userInfo,
-        room: roomName,
       });
     } else {
       console.log('End of candidates.');
@@ -487,7 +552,6 @@ async function addingListenerOnPC(userId, isOfferer) {
           sendTo: userId,
           userInfo,
           sdp: offer,
-          room: roomName,
         });
 
         console.log('offer created for a user: ', connectedUsers[userId]);
@@ -560,7 +624,6 @@ async function makeAnswer(sendFrom) {
       sendTo: sendFrom,
       userInfo,
       sdp: sessionDescription,
-      room: roomName,
     });
   } catch (error) {
     console.trace(`Failed to create session description: ${error.toString()}`);
@@ -578,7 +641,7 @@ function substitueTrack(track) {
       .filter(tracks => tracks.track.kind === 'video')
       .forEach(tracks => tracks.replaceTrack(localStream.getTracks()[1]));
     ScreenSharing = false;
-    socket.emit('endScreenSharing', state.room, sessionId);
+    socket.emit('endScreenSharing', state.classroomId, sessionId);
   });
 }
 
@@ -640,14 +703,13 @@ function resetVariables() {
   isTrackAdded = {};
 
   localStream = null;
-  roomName = null;
   isVideoMuted = true;
   isAudioMuted = true;
 
   while (state.videos.lastElementChild) {
     state.videos.removeChild(state.videos.lastElementChild);
   }
-  state.room = null;
+  state.classroomId = null;
   state.localVideo = null;
   state.videos = null;
   state.userOnline = [];
