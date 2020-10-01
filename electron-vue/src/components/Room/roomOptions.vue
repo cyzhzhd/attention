@@ -64,10 +64,10 @@
       v-bind:showingModal="modalList.showingSettingModal"
       v-on:closeModal="controlModal"
     ></settings>
-    <chat
+    <!-- <chat
       v-bind:showingModal="modalList.showingChatModal"
       v-on:closeModal="controlModal"
-    ></chat>
+    ></chat> -->
     <screen-sharing
       v-bind:showingModal="modalList.showingScreenSharingModal"
       v-on:closeModal="controlModal"
@@ -79,7 +79,7 @@
 import { mapGetters, mapActions } from 'vuex';
 import smallModal from '../common/smallModal.vue';
 import settings from './roomOptions/mainSettings.vue';
-import chat from './roomOptions/chat.vue';
+// import chat from './roomOptions/chat.vue';
 import screenSharing from './roomOptions/screenSharing.vue';
 import bus from '../../../utils/bus';
 
@@ -88,7 +88,7 @@ export default {
   components: {
     smallModal,
     settings,
-    chat,
+    // chat,
     screenSharing,
   },
   data() {

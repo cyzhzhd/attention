@@ -87,27 +87,26 @@ export default {
     ...mapActions('webRTC', ['ConnectWithTheUser', 'DisconnectWithTheUser']),
   },
   created() {
-    this.$firebase
-      .database()
-      .ref(`/rooms/${this.roomId}/userlist`)
-      .on('value', snapshot => {
-        const userlist = [];
-        snapshot.forEach(doc => {
-          userlist.push(doc.val());
-        });
-        this.totalUser = userlist;
-      });
-
-    this.$firebase
-      .database()
-      .ref(`/rooms/${this.roomId}/userOnline`)
-      .on('value', snapshot => {
-        const userlist = [];
-        snapshot.forEach(doc => {
-          userlist.push(doc.val());
-        });
-        this.logInUser = userlist;
-      });
+    // this.$firebase
+    //   .database()
+    //   .ref(`/rooms/${this.roomId}/userlist`)
+    //   .on('value', snapshot => {
+    //     const userlist = [];
+    //     snapshot.forEach(doc => {
+    //       userlist.push(doc.val());
+    //     });
+    //     this.totalUser = userlist;
+    //   });
+    // this.$firebase
+    //   .database()
+    //   .ref(`/rooms/${this.roomId}/userOnline`)
+    //   .on('value', snapshot => {
+    //     const userlist = [];
+    //     snapshot.forEach(doc => {
+    //       userlist.push(doc.val());
+    //     });
+    //     this.logInUser = userlist;
+    //   });
   },
 };
 </script>

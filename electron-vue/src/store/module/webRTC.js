@@ -14,8 +14,6 @@ const socket = io('13.125.214.253:5000', {
   autoConnect: true,
 }).connect();
 
-
-
 function mediaStreamConstraints(resolution) {
   return {
     video: resolution,
@@ -70,7 +68,6 @@ const state = {
   user: {},
   userOnline: [],
 };
-
 
 const getters = {
   storedRoom(state) {
@@ -135,7 +132,6 @@ const mutations = {
 
   localVideoSetter(state, localVideo) {
     state.localVideo = localVideo;
-    
   },
 
   videoSetter(state, video) {
@@ -310,7 +306,6 @@ socket.on('joined', (room, socketId, clientsInRoom, isScreenSharing, id) => {
   }
 });
 
-
 socket.on('sessionID', id => {
   sessionId = id;
 });
@@ -342,10 +337,6 @@ socket.on('noSignal', payload => {
   mutations.leaveRoom({}, payload);
   alert('연결이 끊겼습니다. 방을 나갔다 다시 들어와주세요.');
 });
-
-// socket.on('log', array => {
-//   console.log(array);
-// });
 
 socket.on('message', message => {
   console.log('message =', message);
@@ -669,4 +660,3 @@ export default {
   mutations,
   actions,
 };
-

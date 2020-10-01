@@ -5,8 +5,10 @@
       <a @click="$router.go(-1)">(back)</a>
     </h2>
     <form @submit.prevent="createRoom">
-      <input v-model.trim="roomNameCreate" placeholder="Enter Room Name" />
-      <button type="submit" variant="primary" :disabled="!roomNameCreate">
+      <input v-model.trim="roomName" placeholder="Enter Room Name" />
+      <input v-model.trim="tags" placeholder="Enter tags" />
+      <input v-model.trim="classType" placeholder="choose class type" />
+      <button type="submit" variant="primary" :disabled="!roomName">
         Create Room
       </button>
     </form>
@@ -24,18 +26,25 @@ export default {
   name: 'AddBoard',
   data() {
     return {
-      roomNameCreate: '',
+      tags: '',
+      roomName: '',
+      classType: '',
       roomCodeAdd: '',
     };
   },
   methods: {
     createRoom() {
       const options = {
-        roomName: this.roomNameCreate,
-        userName: this.$user.displayName,
-        host: this.$user.uid,
+        name: this.roomName,
+        tags: this.tags,
+        classType: this.classType,
       };
-      this.$http.post('/api/firebase/createRoom', options);
+      const headers = {
+        headers: {
+          Authorization: `Bearer ${this.$jwt}`,
+        },
+      };
+      this.$http.post('/api/class', options, headers);
       this.$router.go(-1);
     },
 

@@ -9,6 +9,10 @@ import store from './store';
 Vue.config.productionTip = false;
 Vue.prototype.$http = axios;
 
+Vue.prototype.$setJWT = jwt => {
+  Vue.prototype.$jwt = jwt;
+};
+
 new Vue({
   router,
   store,

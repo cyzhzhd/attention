@@ -1,11 +1,11 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Login from '../views/Login.vue';
-// import MainPage from '../views/MainPage.vue';
 import ClassRoomList from '../views/ClassRoomList.vue';
 import ClassRoom from '../views/ClassRoom.vue';
 import Class from '../views/Class.vue';
 import AddClassRoom from '../views/AddClassRoom.vue';
+import AddClass from '../views/AddClass.vue';
 import ClassRoomSettings from '../views/ClassRoomSettings.vue';
 
 Vue.use(VueRouter);
@@ -16,12 +16,6 @@ const routes = [
     name: 'Login',
     component: Login,
   },
-
-  // {
-  //   path: '/mainPage',
-  //   name: 'MainPage',
-  //   component: MainPage,
-  // },
   {
     path: '/classroomList',
     name: 'ClassRoomList',
@@ -41,6 +35,11 @@ const routes = [
     path: '/add-classroom',
     name: 'AddClassRoom',
     component: AddClassRoom,
+  },
+  {
+    path: '/add-class',
+    name: 'AddClass',
+    component: AddClass,
   },
   {
     path: '/classroom-settings/:classroomId/:classroomName',

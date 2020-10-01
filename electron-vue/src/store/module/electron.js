@@ -56,6 +56,8 @@ function captureScreens() {
         p.appendChild(textNode);
         div.appendChild(canvas);
         div.appendChild(p);
+
+        div.classList.add('screen');
         state.canvas.appendChild(div);
       });
     });

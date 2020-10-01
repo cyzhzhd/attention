@@ -7,13 +7,15 @@
           <i class="fa fa-times" aria-hidden="true" v-on:click="closeModal"></i>
         </div>
       </h3>
-      <h4 slot="body">
+      <h4 class="body" slot="body">
         <div ref="screenNames" id="screenNames"></div>
         <div ref="screenInfo" id="screenInfo"></div>
         <div ref="thumbnail" class="thumbnail"></div>
         <div ref="screenVideos" id="screenVideos"></div>
       </h4>
-      <h4 slot="footer"></h4>
+      <h4 slot="footer">
+        <button class="share-button">공유하기</button>
+      </h4>
     </largeModal>
   </div>
 </template>
@@ -64,8 +66,12 @@ export default {
   grid-template-columns: repeat(auto-fill, minmax(250px, auto));
 
   gap: 5%;
-  height: 634px;
+  height: 560px;
   overflow-y: auto;
+}
+.body {
+  border: 1px solid gray;
+  padding: 3px;
 }
 .header {
   display: flex;
@@ -73,5 +79,13 @@ export default {
 }
 .modal-title {
   flex: 1;
+}
+
+.share-button {
+  background: #12ac85;
+  padding: 5px;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: white;
 }
 </style>

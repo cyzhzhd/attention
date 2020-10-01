@@ -8,12 +8,20 @@
       </header>
       <div class="main-panel-contents">
         <div class="main-panel-class-list">
-          <div class="create-class-item">
+          <router-link :to="{ name: 'AddClass' }" action>
+            <div class="create-class-item">
+              <div class="create-classroom-plus-icon">
+                <img src="../assets/img/common/plus.png" />
+              </div>
+              <div class="create-classroom-title">수업 만들기</div>
+            </div>
+          </router-link>
+          <!-- <div class="create-class-item">
             <div class="create-classroom-plus-icon">
               <img src="../assets/img/common/plus.png" />
             </div>
             <div class="create-classroom-title">수업 만들기</div>
-          </div>
+          </div> -->
           <div class="class-list-header">
             <div class="class-list-header-item">수업시간</div>
             <div class="class-list-header-item">과목</div>
@@ -29,10 +37,19 @@
                 이지은 선생님
               </div>
             </div>
-            <img
-              src="../assets/img/ClassRoom/test.png"
-              class="class-item-preview"
-            />
+            <router-link
+              class="classroom-card-title"
+              :to="{
+                name: 'Class',
+              }"
+              action
+            >
+              <img
+                src="../assets/img/ClassRoom/test.png"
+                class="class-item-preview"
+              />
+            </router-link>
+
             <div class="class-item-class-start-button" role="button">
               강의 시작
             </div>

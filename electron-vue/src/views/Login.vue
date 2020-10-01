@@ -76,10 +76,15 @@ export default {
   },
   methods: {
     LogIn() {
-      this.$auth
-        .signInWithEmailAndPassword(this.login.email, this.login.password)
-        .then(credential => {
-          this.$setUser(credential.user);
+      const options = {
+        email: this.login.email,
+        password: this.login.password,
+      };
+      this.$http
+        .post('/api/user/login', options)
+        .then(response => {
+          console.log(response);
+          this.$setJWT(response.data);
 
           this.login.email = '';
           this.login.password = '';
@@ -102,7 +107,7 @@ export default {
         isTeacher: 1,
       };
       this.$http
-        .post('/user/account', options)
+        .post('/api/user/account', options)
         .then(response => {
           console.log(response);
           // if (response.data.code === 'auth/invalid-password') {
@@ -110,13 +115,12 @@ export default {
           // } else if (response.data.code === 'auth/invalid-email') {
           //   this.errorMessage = '정확한 이메일 주소를 입력해주세요.';
           // } else {
-          //   console.log(response);
-          //   this.login.email = this.signup.email;
-          //   this.signup.email = '';
-          //   this.signup.password = '';
-          //   this.signup.displayName = '';
-          //   this.errorMessage = '';
-          //   this.hasLogInActivated = true;
+          this.login.email = this.signup.email;
+          this.signup.email = '';
+          this.signup.password = '';
+          this.signup.displayName = '';
+          this.errorMessage = '';
+          this.hasLogInActivated = true;
           // }
         })
         .catch(error => {

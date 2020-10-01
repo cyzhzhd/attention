@@ -23,20 +23,20 @@
             </div>
           </router-link>
 
-          <li class="classroom-card" v-for="room in rooms" :key="room.roomId">
+          <li class="classroom-card" v-for="room in rooms" :key="room._id">
             <div class="classroom-card-header">
               <router-link
                 class="classroom-card-title"
                 :to="{
                   name: 'ClassRoom',
                   params: {
-                    classroomId: room.roomId,
-                    classroomName: room.roomName,
+                    classroomId: room._id,
+                    classroomName: room.name,
                   },
                 }"
                 action
               >
-                {{ room.roomName }}
+                {{ room.name }}
                 <img
                   class="classroom-card-background"
                   src="../assets/img/ClassRoomList/charisse-kenion-ts-E3IVKv8o-unsplash.jpg"
@@ -46,9 +46,9 @@
                 class="classroom-card-more-button"
                 @click.prevent="
                   $refs.menu.open($event, {
-                    classroomId: room.roomId,
-                    classroomName: room.roomName,
-                    host: room.host,
+                    classroomId: room._id,
+                    classroomName: room.name,
+                    host: room.teacherName,
                   })
                 "
                 @click.stop
@@ -63,13 +63,13 @@
     <vue-context ref="menu">
       <template slot-scope="child">
         <li>
-          <a @click.prevent="manageTeam(child.data)">팀 관리</a>
+          <a @click.prevent="manageClassRoom(child.data)">팀 관리</a>
         </li>
         <li>
           <a @click.prevent="leaveTeam(child.data)">팀 나가기</a>
         </li>
         <li>
-          <a @click.prevent="deleteTeam(child.data)">팀 삭제</a>
+          <a @click.prevent="deleteClassRoom(child.data)">팀 삭제</a>
         </li>
       </template>
     </vue-context>
@@ -130,7 +130,6 @@ export default {
 
   data() {
     return {
-      uid: this.$user.uid,
       modalList: {
         handOverModal: false,
         confirmModal: false,
@@ -143,31 +142,29 @@ export default {
   },
 
   methods: {
-    manageTeam(room) {
+    manageClassRoom(room) {
       this.$router.push({
         name: 'ClassRoomSettings',
         params: { roomId: room.classroomId, roomName: room.classroomName },
       });
     },
 
-    leaveTeam(room) {
-      if (room.host === this.uid) {
-        this.roomId = room.classroomId;
-        this.modalList.handOverModal = true;
-      } else {
-        const options = {
-          roomId: room.classroomId,
-          uid: this.uid,
-        };
-        this.$http.post('/api/firebase/leaveTeam', options);
-      }
-    },
+    //   leaveTeam(room) {
+    //     if (room.host === this.uid) {
+    //       this.roomId = room.classroomId;
+    //       this.modalList.handOverModal = true;
+    //     } else {
+    //       const options = {
+    //         roomId: room.classroomId,
+    //         uid: this.uid,
+    //       };
+    //       this.$http.post('/api/firebase/leaveTeam', options);
+    //     }
+    //   },
 
-    deleteTeam(room) {
-      if (room.host === this.uid) {
-        this.modalList.confirmModal = true;
-        this.roomId = room.classroomId;
-      }
+    deleteClassRoom(room) {
+      this.modalList.confirmModal = true;
+      this.roomId = room.classroomId;
     },
 
     confirm() {
@@ -175,10 +172,17 @@ export default {
         this.controlModal('confirmModal');
 
         const options = {
-          roomId: this.roomId,
-          uid: this.uid,
+          headers: {
+            Authorization: `Bearer ${this.$jwt}`,
+          },
+          params: {
+            // class로 바꿀 예정
+            id: this.roomId,
+          },
         };
-        this.$http.post('/api/firebase/deleteTeam', options);
+        console.log(this.roomId);
+        this.$http.delete('/api/class', options);
+        this.getClassList();
       }
     },
     controlModal(modelName) {
@@ -189,21 +193,30 @@ export default {
         this.textConfirm = '';
       }
     },
+
+    async getClassList() {
+      console.log('jwt = ', this.$jwt);
+      const options = {
+        headers: {
+          Authorization: `Bearer ${this.$jwt}`,
+        },
+      };
+      const userInfo = await this.$http.get('/api/user', options);
+      const { ownClasses } = userInfo.data;
+      this.rooms = [];
+      ownClasses.forEach(async ownClass => {
+        options.params = {
+          class: ownClass,
+        };
+        const classInfo = await this.$http.get('/api/class', options);
+        this.rooms.push(classInfo.data);
+      });
+      console.log('room = ', this.rooms);
+    },
   },
 
   created() {
-    console.log('uid = ', this.uid);
-    this.$firebase
-      .database()
-      .ref(`/users/${this.uid}/favRooms/`)
-      .on('value', (snapshot) => {
-        this.rooms = [];
-        snapshot.forEach((doc) => {
-          const item = doc.val().roomDetail;
-          item.roomId = doc.key;
-          this.rooms.push(item);
-        });
-      });
+    this.getClassList();
   },
 };
 </script>
