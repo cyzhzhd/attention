@@ -12,18 +12,18 @@
           <ul class="msg-container">
             <li
               v-for="message in messages"
-              v-bind:key="message.key"
+              v-bind:key="message.message"
               class="msg-history"
             >
-              <div class="bot-msg" v-if="message.sender === 'bot'">
-                <p>{{ message.sentAt }}</p>
+              <div class="bot-msg" v-if="message.name === 'bot'">
+                <!-- <p>{{ message.sentAt }}</p> -->
                 <p>{{ message.message }}</p>
               </div>
               <div v-else>
-                <div v-if="message.sender === user.displayName">
+                <div v-if="message.name === name">
                   <div class="sent-msg">
                     <div class="sent-msg-info">
-                      <p>{{ message.sentAt }}</p>
+                      <!-- <p>{{ message.sentAt }}</p> -->
                     </div>
                     <div class="sent-msg-text">
                       <p>{{ message.message }}</p>
@@ -38,8 +38,8 @@
                         src="https://ptetutorials.com/images/user-profile.png"
                         alt="sunil"
                       />
-                      <p class="sender">{{ message.sender }}</p>
-                      <p class="received-msg-sentAt">{{ message.sentAt }}</p>
+                      <p class="sender">{{ message.name }}</p>
+                      <!-- <p class="received-msg-sentAt">{{ message.sentAt }}</p> -->
                     </div>
                     <div class="received-msg-text">
                       <p>{{ message.message }}</p>
@@ -53,13 +53,13 @@
         <div class="type-msg">
           <div class="input-msg-write">
             <input
-              @keyup.enter="sendMessage"
+              @keyup.enter="sendChat"
               v-model="message"
               type="text"
               class="write-msg"
               placeholder="Type a message"
             />
-            <button class="send-button" @click="sendMessage">전송</button>
+            <button class="send-button" @click="sendChat">전송</button>
           </div>
         </div>
       </h4>
@@ -69,7 +69,9 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
 import mediumModal from '../../common/mediumModal.vue';
+import bus from '../../../../utils/bus';
 
 export default {
   name: 'chat',
@@ -79,50 +81,20 @@ export default {
   },
   data() {
     return {
-      user: {
-        displayName: this.$user.displayName,
-      },
+      name: this.$user.name,
       roomId: this.$route.params.roomId,
       message: null,
-      messages: [],
+      messages: [
+        { name: 'bot', message: `${this.$user.name}이 로그인했습니다.` },
+      ],
     };
   },
   methods: {
-    // net::ERR_EMPTY_RESPONSE 발생
-    sendMessage() {
-      if (!this.message) return;
-      const options = {
-        roomId: this.roomId,
-        displayName: this.user.displayName,
-        message: this.message,
-      };
-      this.$http.post('/api/firebase/message/', options);
-
+    sendChat() {
+      this.SendChat(this.message);
       this.message = null;
     },
-
-    fetchMessages() {
-      this.$firebase
-        .database()
-        .ref(`/messageHub/${this.roomId}/messages`)
-        .on('value', snapshot => {
-          this.messages = [];
-          snapshot.forEach(doc => {
-            const item = doc.val();
-            item.key = doc.key;
-
-            const time = new Date(item.sentAt);
-            item.sentAt = time.toLocaleTimeString(navigator.language, {
-              hour: '2-digit',
-              minute: '2-digit',
-            });
-            this.messages.push(item);
-          });
-        });
-    },
-
     scrollToEnd() {
-      // 부드럽게 맨 밑으로
       // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
       const content = this.$el.getElementsByClassName('msg-container')[0];
 
@@ -136,10 +108,14 @@ export default {
     closeModal() {
       this.$emit('closeModal', 'showingChatModal');
     },
+
+    ...mapActions('webRTC', ['SendChat']),
   },
 
-  created() {
-    this.fetchMessages();
+  mounted() {
+    bus.$on('onMessage', (name, message) => {
+      console.log('got message!', name, message);
+    });
   },
   updated() {
     this.$nextTick(() => this.scrollToEnd());

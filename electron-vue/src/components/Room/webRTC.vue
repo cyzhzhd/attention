@@ -31,7 +31,8 @@ export default {
   //   });
   // },
   mounted() {
-    this.SetUser(this.$userId);
+    const { _id } = this.$user;
+    this.SetUser(_id);
     const params = {
       localVideo: this.$refs.localVideo,
       videos: this.$refs.videos,

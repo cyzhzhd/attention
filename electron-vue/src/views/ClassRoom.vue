@@ -24,49 +24,48 @@
               <div class="create-classroom-title">수업 만들기</div>
             </div>
           </router-link>
-          <!-- <div class="create-class-item">
-            <div class="create-classroom-plus-icon">
-              <img src="../assets/img/common/plus.png" />
-            </div>
-            <div class="create-classroom-title">수업 만들기</div>
-          </div> -->
           <div class="class-list-header">
             <div class="class-list-header-item">수업</div>
             <div class="class-list-header-item">수업시간</div>
             <div class="class-list-header-item">선생님</div>
           </div>
 
-          <div class="class-item">
-            <div class="class-item-header">
-              <div class="class-item-teacher-profile"></div>
-              <div class="class-item-header-item">{{ className }}</div>
-              <div class="class-item-header-item">{{ startDate }}</div>
-              <div class="class-item-header-item">
-                {{ startTime }} ~ {{ endTime }}
+          <section class="class-ready" v-if="isClassReady">
+            <div class="class-item">
+              <div class="class-item-header">
+                <div class="class-item-teacher-profile"></div>
+                <div class="class-item-header-item">{{ className }}</div>
+                <div class="class-item-header-item">{{ startDate }}</div>
+                <div class="class-item-header-item">
+                  {{ startTime }} ~ {{ endTime }}
+                </div>
+                <div class="class-item-header-item-teacher-name">
+                  {{ classInfo.teacherName }} 선생님
+                </div>
               </div>
-              <div class="class-item-header-item-teacher-name">
-                {{ classInfo.teacherName }} 선생님
-              </div>
+              <router-link
+                class="classroom-card-title"
+                :to="{
+                  name: 'Class',
+                  params: {
+                    classroomId: classroomId,
+                    classId: classId,
+                  },
+                }"
+                action
+              >
+                <img
+                  src="../assets/img/ClassRoom/test.png"
+                  class="class-item-preview"
+                />
+              </router-link>
             </div>
-            <router-link
-              class="classroom-card-title"
-              :to="{
-                name: 'Class',
-                params: {
-                  classroomId: classroomId,
-                  classId: classId,
-                },
-              }"
-              action
-            >
-              <img
-                src="../assets/img/ClassRoom/test.png"
-                class="class-item-preview"
-              />
-            </router-link>
-            <div class="class-item-class-start-button" role="button">
-              강의 시작
-            </div>
+          </section>
+          <section v-else>
+            class not ready
+          </section>
+          <div class="class-item-class-start-button" role="button">
+            강의 시작
           </div>
         </div>
       </div>
@@ -78,6 +77,7 @@
 import SideNavigationPanel from '../components/common/SideNavigationPanel.vue';
 
 export default {
+  name: 'ClassRoom',
   components: {
     SideNavigationPanel,
   },
@@ -92,6 +92,7 @@ export default {
       endDate: '',
       endTime: '',
       className: '',
+      isClassReady: true,
     };
   },
   methods: {
@@ -128,7 +129,11 @@ export default {
     },
   },
   mounted() {
-    this.getClassList();
+    if (this.classId === 'notReady') {
+      this.isClassReady = false;
+    } else {
+      this.getClassList();
+    }
   },
 };
 </script>

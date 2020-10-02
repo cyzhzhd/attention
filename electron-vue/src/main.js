@@ -13,8 +13,8 @@ Vue.prototype.$setJWT = jwt => {
   Vue.prototype.$jwt = jwt;
 };
 
-Vue.prototype.$setUserId = id => {
-  Vue.prototype.$userId = id;
+Vue.prototype.$setUser = id => {
+  Vue.prototype.$user = id;
 };
 
 new Vue({

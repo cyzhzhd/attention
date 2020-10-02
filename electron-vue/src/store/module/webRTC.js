@@ -67,23 +67,22 @@ const mutations = {
     webRTC.disconnectWebRTC();
   },
 
-  // connectWithTheUser(state, targetUser) {
-  //   if (connectedUsers[targetUser.sessionId].connectionState === 'connected') {
-  //     alert(`you are already connected with ${targetUser.displayName}`);
-  //   } else {
-  //     addPC(targetUser.sessionId, true);
-  //   }
-  // },
+  connectWithTheUser(state, targetUser) {
+    webRTC.connectWithTheUser(targetUser);
+    // if (connectedUsers[targetUser.sessionId].connectionState === 'connected') {
+    //   alert(`you are already connected with ${targetUser.displayName}`);
+    // } else {
+    //   addPC(targetUser.sessionId, true);
+    // }
+  },
 
-  // disconnectWithTheUser(state, targetUser) {
-  //   if (connectedUsers[targetUser.sessionId].connectionState === 'connected') {
-  //     connectedUsers[targetUser.sessionId].close();
-  //     removeVideo(targetUser.sessionId);
-  //     socket.emit('disconnectRequest', targetUser.sessionId);
+  sendChat(state, message) {
+    webRTC.sendChat(message);
+  },
 
-  //     addPC(targetUser.sessionId);
-  //   }
-  // },
+  disconnectWithTheUser(state, targetUser) {
+    webRTC.disconnectWithTheUser(targetUser);
+  },
   videoSetter(state, payload) {
     state.videos = payload.videos;
     state.localVideo = payload.localVideo;
@@ -106,13 +105,20 @@ const actions = {
   SetUser({ commit }, id) {
     commit('setUser', id);
   },
+
   async EnterRoom({ commit }, payload) {
     const localStream = await webRTC.getUserMedia();
     state.localVideo.srcObject = localStream;
     commit('enterRoom', payload);
   },
+
   LeaveRoom({ commit }) {
     commit('leaveRoom');
+  },
+
+  SendChat({ commit }, message) {
+    console.log(message);
+    commit('sendChat', message);
   },
 
   async ShareScreen() {
@@ -127,22 +133,6 @@ const actions = {
     // socket.emit('screenSharing', state.classroomId, sessionId);
   },
 
-  // ConnectWithTheUser({ commit }, targetUser) {
-  //   console.log('ConnectWithTheUser - userInfo = ', targetUser);
-  //   commit('connectWithTheUser', targetUser);
-  // },
-
-  // DisconnectWithTheUser({ commit }, targetUser) {
-  //   console.log('ConnectWithTheUser - userInfo = ', targetUser);
-  //   commit('disconnectWithTheUser', targetUser);
-  // },
-  ButtonSetter1({ commit }, button) {
-    commit('buttonSetter1', button);
-  },
-  ButtonSetter2({ commit }, button) {
-    commit('buttonSetter2', button);
-  },
-
   VideoSetter({ commit }, payload) {
     commit('videoSetter', payload);
   },
@@ -152,6 +142,20 @@ const actions = {
   },
   MuteAudio() {
     webRTC.muteAudio();
+  },
+
+  ConnectWithTheUser({ commit }, targetUser) {
+    commit('connectWithTheUser', targetUser);
+  },
+
+  DisconnectWithTheUser({ commit }, targetUser) {
+    commit('disconnectWithTheUser', targetUser);
+  },
+  ButtonSetter1({ commit }, button) {
+    commit('buttonSetter1', button);
+  },
+  ButtonSetter2({ commit }, button) {
+    commit('buttonSetter2', button);
   },
 };
 

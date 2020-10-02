@@ -178,7 +178,7 @@ export default {
           },
           params: {
             // class로 바꿀 예정
-            id: this.classRoomId,
+            class: this.classRoomId,
           },
         };
         console.log(this.classRoomId);
@@ -195,6 +195,19 @@ export default {
       }
     },
 
+    addListOnClassRoom(classList, options, route) {
+      classList.forEach(async joinedClass => {
+        const tempOption = options;
+        tempOption.params = {
+          class: joinedClass,
+        };
+        const classInfo = await this.$http.get(`/api/${route}`, tempOption);
+        if (classInfo.data.session === null)
+          classInfo.data.session = 'notReady';
+        this.classRooms.push(classInfo.data);
+      });
+    },
+
     async getClassRoomList() {
       console.log('jwt = ', this.$jwt);
       const options = {
@@ -203,26 +216,13 @@ export default {
         },
       };
       const userInfo = await this.$http.get('/api/user', options);
-      const { _id } = userInfo.data;
-      this.$setUserId(_id);
+      this.$setUser(userInfo.data);
       const { ownClasses } = userInfo.data;
       this.classRooms = [];
-      ownClasses.forEach(async ownClass => {
-        options.params = {
-          class: ownClass,
-        };
-        const classInfo = await this.$http.get('/api/class', options);
-        this.classRooms.push(classInfo.data);
-      });
+      this.addListOnClassRoom(ownClasses, options, 'class');
 
       const { classes } = userInfo.data;
-      classes.forEach(async joinedClass => {
-        options.params = {
-          class: joinedClass,
-        };
-        const classInfo = await this.$http.get('/api/class', options);
-        this.classRooms.push(classInfo.data);
-      });
+      this.addListOnClassRoom(classes, options, 'class');
       console.log('room = ', this.classRooms);
     },
   },

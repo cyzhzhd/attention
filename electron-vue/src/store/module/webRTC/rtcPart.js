@@ -1,6 +1,6 @@
 /* eslint-disable no-use-before-define */
 import resolutions from './resolution';
-// import bus from '../../../../utils/bus';
+import bus from '../../../../utils/bus';
 
 // eslint-disable-next-line no-undef
 // const socket = io('localhost:3000', {
@@ -8,12 +8,10 @@ import resolutions from './resolution';
 // }).connect();
 
 // eslint-disable-next-line no-undef
-const socket = io(
-  'backendLB-d5c9491c188b429e.elb.ap-northeast-2.amazonaws.com:3000',
-  {
-    autoConnect: true,
-  },
-).connect();
+const socket = io('3.35.25.72:3000', {
+  autoConnect: true,
+  transports: ['websocket'],
+}).connect();
 
 let isStarted = false;
 let isChannelReady = false;
@@ -75,11 +73,12 @@ async function getUserMedia() {
   return localStream;
 }
 
-function sendMessage(message) {
+function sendMessage(type, message) {
   message.token = state.jwt;
   message.class = state.classroomId;
   message.session = state.classId;
-  socket.emit('sendSignal', message);
+  console.log(type, message);
+  socket.emit(type, message);
 }
 
 function startClass(userlist) {
@@ -180,10 +179,6 @@ function createPeerConnection() {
   });
 }
 
-function addPC(user, isOfferer = false) {
-  console.log(isOfferer);
-}
-
 function makeOffer(user) {
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
   user.rtc.addEventListener('negotiationneeded', async () => {
@@ -191,7 +186,7 @@ function makeOffer(user) {
       console.log('offering sdp');
       const offer = await user.rtc.createOffer();
       user.rtc.setLocalDescription(offer);
-      sendMessage({
+      sendMessage('sendSignal', {
         sendTo: user.socket,
         content: {
           type: 'offer',
@@ -258,7 +253,7 @@ function setOnIceCandidate(user) {
   user.rtc.addEventListener('icecandidate', event => {
     // console.log('icecandidate event: ', event);
     if (event.candidate) {
-      sendMessage({
+      sendMessage('sendSignal', {
         sendTo: user.socket,
         content: {
           type: 'candidate',
@@ -340,7 +335,7 @@ async function makeAnswer(sentFrom) {
     sentFrom.rtc.setLocalDescription(sessionDescription);
 
     console.log('makeAnswer ', sessionDescription);
-    sendMessage({
+    sendMessage('sendSignal', {
       sendTo: sentFrom.socket,
       content: {
         type: 'answer',
@@ -366,6 +361,43 @@ async function makeAnswer(sentFrom) {
 //     // socket.emit('endScreenSharing', state.classroomId, sessionId);
 //   });
 // }
+
+function connectWithTheUser(targetUser) {
+  if (targetUser.rtc.connectionState === 'connected') {
+    alert(`you are already connected with ${targetUser.name}`);
+  } else {
+    targetUser.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
+    addingListenerOnPC(targetUser, true);
+  }
+}
+
+function disconnectWithTheUser(targetUser) {
+  if (targetUser.user === state.myId) {
+    alert('this is you');
+    return;
+  }
+  if (targetUser.rtc.connectionState === 'connected') {
+    targetUser.rtc.close();
+    removeVideo(targetUser.user);
+    sendMessage('sendSignal', {
+      sendTo: targetUser.socket,
+      content: 'disconnectWithTheUser',
+    });
+
+    targetUser.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
+    addingListenerOnPC(targetUser);
+  }
+}
+
+function sendChat(message) {
+  console.log('sendChat', message);
+  sendMessage('sendChat', {
+    content: {
+      type: 'message',
+      message,
+    },
+  });
+}
 
 function removeVideo(targetSessionId) {
   const childVideosNodeList = state.videos.childNodes;
@@ -433,6 +465,7 @@ function resetVariables() {
 // communication with signaling server
 socket.on('sendUserList', userlist => {
   console.log('sendUserList');
+  bus.$emit('userlist-update', userlist);
   if (userlist.length === 1 && !isStarted) {
     startClass(userlist);
     return;
@@ -443,35 +476,44 @@ socket.on('sendUserList', userlist => {
 socket.on('deliverSignal', message => {
   console.log('message =', message);
   const { content } = message;
+  const sentFrom = findUserById(message.user);
   if (content.type === 'offer') {
-    const sentFrom = findUserById(message.user);
     console.log('got offer from =', sentFrom);
     sentFrom.rtc.setRemoteDescription(new RTCSessionDescription(content.sdp));
     addTrackOnPC(sentFrom);
     console.log('answer 만드는 중');
     makeAnswer(sentFrom);
   } else if (content.type === 'answer' && isStarted) {
-    const sentFrom = findUserById(message.user);
     console.log('got answer from: ', sentFrom);
     sentFrom.rtc.setRemoteDescription(new RTCSessionDescription(content.sdp));
   } else if (content.type === 'candidate' && isStarted) {
-    const sentFrom = findUserById(message.user);
     console.log('got candidate from: ', sentFrom);
     const candidate = new RTCIceCandidate({
       sdpMLineIndex: content.label,
       candidate: content.candidate,
     });
     sentFrom.rtc.addIceCandidate(candidate);
+  } else if (content === 'disconnectWithTheUser') {
+    removeVideo(sentFrom.user);
+    sentFrom.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
+    addingListenerOnPC(sentFrom);
   }
 });
 
-socket.on('disconnectRequest', fromUser => {
-  removeVideo(fromUser);
-  addPC(fromUser);
+socket.on('deliverChat', message => {
+  const { content } = message;
+  console.log('got message', message.name, content.message);
+  bus.$emit('onMessage', message.name, content.message);
 });
+
+// socket.on('disconnectRequest', fromUser => {
+//   removeVideo(fromUser);
+//   addPC(fromUser);
+// });
 
 socket.on('deliverDisconnection ', () => {
   //   mutations.leaveRoom();
+  console.log('got deliverDisconnection');
   alert('연결이 끊겼습니다. 방을 나갔다 다시 들어와주세요.');
 });
 
@@ -493,6 +535,9 @@ export default {
   emitEvent,
   disconnectWebRTC,
   getUserMedia,
+  sendChat,
+  connectWithTheUser,
+  disconnectWithTheUser,
   muteVideo,
   muteAudio,
 };

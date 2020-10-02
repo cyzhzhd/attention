@@ -13,7 +13,7 @@
         <li
           class="userlist-onlie"
           v-for="userInfo in logInUser"
-          v-bind:key="userInfo.uid"
+          v-bind:key="userInfo._id"
         >
           <div @click.prevent="$refs.menu.open($event, userInfo)" @click.stop>
             <figure
@@ -23,7 +23,7 @@
                   'url(' + require('../../assets/img/room/profile.png') + ')',
               }"
             ></figure>
-            {{ userInfo.displayName }}
+            {{ userInfo.name }}
           </div>
         </li>
       </ul>
@@ -54,6 +54,7 @@
 import VueContext from 'vue-context';
 import { mapActions } from 'vuex';
 import 'vue-context/src/sass/vue-context.scss';
+import bus from '../../../utils/bus';
 
 export default {
   name: 'userlist',
@@ -87,6 +88,12 @@ export default {
     ...mapActions('webRTC', ['ConnectWithTheUser', 'DisconnectWithTheUser']),
   },
   created() {
+    // bus이용해서 바뀔때마다 업데이트?
+    bus.$on('userlist-update', userlist => {
+      console.log(userlist);
+      this.logInUser = userlist;
+    });
+
     // this.$firebase
     //   .database()
     //   .ref(`/rooms/${this.roomId}/userlist`)

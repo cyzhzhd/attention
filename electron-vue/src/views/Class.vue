@@ -12,13 +12,13 @@
 
 <script>
 import { mapActions } from 'vuex';
-// import chat from '../components/Room/chat.vue';
+// import chat from '../components/Room/roomOptions/chat.vue';
 import WebRtc from '../components/Room/webRTC.vue';
 import userList from '../components/Room/userlist.vue';
 import roomOptions from '../components/Room/roomOptions.vue';
 
 export default {
-  name: 'room',
+  name: 'Class',
   components: {
     // chat,
     WebRtc,
