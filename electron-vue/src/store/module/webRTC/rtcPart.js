@@ -392,10 +392,7 @@ function disconnectWithTheUser(targetUser) {
 function sendChat(message) {
   console.log('sendChat', message);
   sendMessage('sendChat', {
-    content: {
-      type: 'message',
-      message,
-    },
+    content: message
   });
 }
 
@@ -502,8 +499,8 @@ socket.on('deliverSignal', message => {
 
 socket.on('deliverChat', message => {
   const { content } = message;
-  console.log('got message', message.name, content.message);
-  bus.$emit('onMessage', message.name, content.message);
+  console.log('got message', message.name, content);
+  bus.$emit('onMessage', message.name, content);
 });
 
 // socket.on('disconnectRequest', fromUser => {
@@ -511,7 +508,7 @@ socket.on('deliverChat', message => {
 //   addPC(fromUser);
 // });
 
-socket.on('deliverDisconnection ', () => {
+socket.on('deliverDisconnection', () => {
   //   mutations.leaveRoom();
   console.log('got deliverDisconnection');
   alert('연결이 끊겼습니다. 방을 나갔다 다시 들어와주세요.');
