@@ -8,7 +8,7 @@ import bus from '../../../../utils/bus';
 // }).connect();
 
 // eslint-disable-next-line no-undef
-const socket = io('3.35.25.72:3000', {
+const socket = io('https://be.swm183.com:3000', {
   autoConnect: true,
   transports: ['websocket'],
 }).connect();
