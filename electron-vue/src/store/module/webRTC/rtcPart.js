@@ -77,7 +77,6 @@ function sendMessage(type, message) {
   message.token = state.jwt;
   message.class = state.classroomId;
   message.session = state.classId;
-  console.log(type, message);
   socket.emit(type, message);
 }
 
@@ -90,7 +89,8 @@ function startClass(userlist) {
 function findJoiningUser(userlist) {
   let joiningUser;
   userlist.forEach(newUser => {
-    if (findUserById(newUser.user) === null) joiningUser = newUser;
+    if (findUser(user => user.user === newUser.user) === null)
+      joiningUser = newUser;
   });
 
   return joiningUser;
@@ -113,16 +113,16 @@ function findLeavingUser(userlist) {
   return { leavingUser, index };
 }
 
-function findUserById(userId) {
-  let sentFrom = null;
+function findUser(pred) {
+  let theUser = null;
   connectedUsers.some(user => {
-    if (user.user === userId) {
-      sentFrom = user;
+    if (pred(user)) {
+      theUser = user;
       return true;
     }
     return false;
   });
-  return sentFrom;
+  return theUser;
 }
 
 function addUser(userlist) {
@@ -161,7 +161,7 @@ function manageUserlist(userlist) {
       // existing users
       addUser(userlist);
     }
-  } else if (userlist.length < connectedUsers.length) {
+  } else {
     // user left
     console.log('user left');
     removeUser(userlist);
@@ -227,7 +227,7 @@ function setOnTrackEvent(user) {
         div.appendChild(video);
 
         const p = document.createElement('p');
-        const foundUser = findUserById(user.user);
+        const foundUser = findUser(val => val.user === user.user);
         const textNode = document.createTextNode(foundUser.name);
         p.appendChild(textNode);
         div.appendChild(p);
@@ -347,20 +347,26 @@ async function makeAnswer(sentFrom) {
   }
 }
 
-// function substitueTrack(track) {
-//   sendingTracks
-//     .filter(tracks => tracks.track.kind === 'video')
-//     .forEach(tracks => tracks.replaceTrack(track));
-//   ScreenSharing = true;
+function substitueTrack(track) {
+  sendingTracks
+    .filter(tracks => tracks.track.kind === 'video')
+    .forEach(tracks => tracks.replaceTrack(track));
+  ScreenSharing = true;
 
-//   track.addEventListener('ended', () => {
-//     sendingTracks
-//       .filter(tracks => tracks.track.kind === 'video')
-//       .forEach(tracks => tracks.replaceTrack(localStream.getTracks()[1]));
-//     ScreenSharing = false;
-//     // socket.emit('endScreenSharing', state.classroomId, sessionId);
-//   });
-// }
+  track.addEventListener('ended', () => {
+    sendingTracks
+      .filter(tracks => tracks.track.kind === 'video')
+      .forEach(tracks => tracks.replaceTrack(localStream.getTracks()[1]));
+    ScreenSharing = false;
+    // socket.emit('endScreenSharing', state.classroomId, sessionId);
+  });
+}
+
+function ShareScreen(screenStream) {
+  const screenTrack = screenStream.getTracks();
+  sendMessage('shareScreen', {});
+  substitueTrack(screenTrack[0]);
+}
 
 function connectWithTheUser(targetUser) {
   if (targetUser.rtc.connectionState === 'connected') {
@@ -390,12 +396,8 @@ function disconnectWithTheUser(targetUser) {
 }
 
 function sendChat(message) {
-  console.log('sendChat', message);
   sendMessage('sendChat', {
-    content: {
-      type: 'message',
-      message,
-    },
+    content: message,
   });
 }
 
@@ -433,7 +435,6 @@ function muteVideo() {
     localStream.getTracks()[1].enabled = true;
   }
   isVideoMuted = !isVideoMuted;
-  // bus.$emit('test');
 }
 
 function muteAudio() {
@@ -460,23 +461,33 @@ function resetVariables() {
   state.classroomId = null;
   state.localVideo = null;
   state.videos = null;
+  bus.$off('onDeliverDisconnection');
+  console.log('reset connectedUsers', connectedUsers);
 }
 
 // communication with signaling server
 socket.on('sendUserList', userlist => {
   console.log('sendUserList');
   bus.$emit('userlist-update', userlist);
+  console.log('길이 비교', userlist.length, connectedUsers.length);
+  console.log(connectedUsers);
   if (userlist.length === 1 && !isStarted) {
     startClass(userlist);
     return;
   }
-  manageUserlist(userlist);
+  if (userlist.length !== connectedUsers.length) {
+    manageUserlist(userlist);
+  } else {
+    console.log('screen sharing', userlist);
+    const sharingUser = findUser(user => user.isSharingScreen === true);
+    console.log(sharingUser);
+  }
 });
 
 socket.on('deliverSignal', message => {
   console.log('message =', message);
   const { content } = message;
-  const sentFrom = findUserById(message.user);
+  const sentFrom = findUser(user => user.user === message.user);
   if (content.type === 'offer') {
     console.log('got offer from =', sentFrom);
     sentFrom.rtc.setRemoteDescription(new RTCSessionDescription(content.sdp));
@@ -501,9 +512,7 @@ socket.on('deliverSignal', message => {
 });
 
 socket.on('deliverChat', message => {
-  const { content } = message;
-  console.log('got message', message.name, content.message);
-  bus.$emit('onMessage', message.name, content.message);
+  bus.$emit('onMessage', message.name, message.content);
 });
 
 // socket.on('disconnectRequest', fromUser => {
@@ -511,9 +520,9 @@ socket.on('deliverChat', message => {
 //   addPC(fromUser);
 // });
 
-socket.on('deliverDisconnection ', () => {
-  //   mutations.leaveRoom();
+socket.on('deliverDisconnection', () => {
   console.log('got deliverDisconnection');
+  bus.$emit('onDeliverDisconnection');
   alert('연결이 끊겼습니다. 방을 나갔다 다시 들어와주세요.');
 });
 
@@ -538,6 +547,7 @@ export default {
   sendChat,
   connectWithTheUser,
   disconnectWithTheUser,
+  ShareScreen,
   muteVideo,
   muteAudio,
 };

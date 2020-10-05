@@ -16,6 +16,7 @@ import { mapActions } from 'vuex';
 import WebRtc from '../components/Room/webRTC.vue';
 import userList from '../components/Room/userlist.vue';
 import roomOptions from '../components/Room/roomOptions.vue';
+import bus from '../../utils/bus';
 
 export default {
   name: 'Class',
@@ -44,6 +45,10 @@ export default {
   },
   mounted() {
     this.enterRoom();
+
+    bus.$on('onDeliverDisconnection', () => {
+      this.$router.go(-1);
+    });
   },
 };
 </script>

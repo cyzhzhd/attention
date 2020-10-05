@@ -84,9 +84,7 @@ export default {
       name: this.$user.name,
       roomId: this.$route.params.roomId,
       message: null,
-      messages: [
-        { name: 'bot', message: `${this.$user.name}이 로그인했습니다.` },
-      ],
+      messages: [],
     };
   },
   methods: {
@@ -113,8 +111,11 @@ export default {
   },
 
   mounted() {
+    this.messages = [
+      { name: 'bot', message: `${this.$user.name}이 로그인했습니다.` },
+    ];
     bus.$on('onMessage', (name, message) => {
-      console.log('got message!', name, message);
+      this.messages.push({ name, message });
     });
   },
   updated() {

@@ -10,7 +10,7 @@
       <h4 class="body" slot="body">
         <div ref="screenNames" id="screenNames"></div>
         <div ref="screenInfo" id="screenInfo"></div>
-        <div ref="thumbnail" class="thumbnail"></div>
+        <div ref="canvas" class="canvas"></div>
         <div ref="screenVideos" id="screenVideos"></div>
       </h4>
       <h4 slot="footer">
@@ -42,9 +42,9 @@ export default {
     bus.$on('screenSharing', () => {
       this.$nextTick(() => {
         const payload = {
+          canvas: this.$refs.canvas,
           screenNames: this.$refs.screenNames,
           screenInfo: this.$refs.screenInfo,
-          canvas: this.$refs.thumbnail,
           screenVideos: this.$refs.screenVideos,
           captureScreens: this.$refs.captureScreens,
         };
@@ -52,16 +52,19 @@ export default {
         this.CaptureScreens();
       });
     });
+
+    bus.$on('closeModal', () => this.closeModal());
   },
 
   beforeDestroy() {
     bus.$off('screenSharing');
+    bus.$off('closeModal');
   },
 };
 </script>
 
 <style>
-.thumbnail {
+.canvas {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, auto));
 
@@ -69,6 +72,12 @@ export default {
   height: 560px;
   overflow-y: auto;
 }
+
+.canvas div:hover {
+  background: gray;
+  cursor: pointer;
+}
+
 .body {
   border: 1px solid gray;
   padding: 3px;

@@ -1,3 +1,4 @@
+import bus from '../../../utils/bus';
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
 /* eslint-disable no-use-before-define */
 import analyzeLib from './analyze/analyzeLib';
@@ -47,13 +48,16 @@ const mutations = {
       session: state.classId,
     };
     webRTC.emitEvent('joinSession', options);
-    console.log('enter room payload', payload);
 
     // signal to server every 2 sec for keeping connection
     interval = setInterval(
       () => webRTC.emitEvent('pingSession', options),
       2000,
     );
+    bus.$on('onDeliverDisconnection', () => {
+      clearInterval(interval);
+      webRTC.disconnectWebRTC();
+    });
   },
   leaveRoom(state) {
     const options = {
@@ -69,11 +73,6 @@ const mutations = {
 
   connectWithTheUser(state, targetUser) {
     webRTC.connectWithTheUser(targetUser);
-    // if (connectedUsers[targetUser.sessionId].connectionState === 'connected') {
-    //   alert(`you are already connected with ${targetUser.displayName}`);
-    // } else {
-    //   addPC(targetUser.sessionId, true);
-    // }
   },
 
   sendChat(state, message) {
@@ -117,7 +116,6 @@ const actions = {
   },
 
   SendChat({ commit }, message) {
-    console.log(message);
     commit('sendChat', message);
   },
 
