@@ -43,25 +43,24 @@ export default {
 
 <style>
 .webRTC {
-  width: 85vw;
+  /* width: 89.5vw; */
   height: 93vh;
 }
 .videos {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr;
+  margin-top: 20px;
   /* grid-template-rows: 1fr 1fr; */
   /* justify-items: center; */
   /* grid-template-rows: 1fr 1fr 1fr; */
   /* grid-template-columns: repeat(auto-fit, minmax(480px, auto)); */
   /* grid-template-rows: repeat(auto-fit, minmax(360px, 750px)); */
   /* max-height: 750px; */
-
-  margin-top: 20px;
 }
 .videos video {
   width: 99%;
-  /* max-height: 750px; */
-  max-height: 43vh;
+  max-height: 750px;
+  /* max-height: 30vh; */
 }
 .videos div p {
   color: black;

@@ -202,6 +202,44 @@ function makeOffer(user) {
   });
 }
 
+function mangeVideoHeight(divs, height) {
+  divs.forEach(div => {
+    const video = div.childNodes[0];
+    video.style.maxHeight = height;
+  });
+  console.log(height);
+  // console.log(state.videos.getElements('video'));
+  // state.videos.getElements('video').style.maxHeight = height;
+}
+
+function manageVideoLayout() {
+  console.log('---------------------------------------');
+  const divs = state.videos.childNodes;
+  console.log(divs);
+  const { length } = divs;
+  if (length === 1) {
+    state.videos.style.gridTemplateColumns = '1fr';
+    mangeVideoHeight(divs, '750px');
+  } else if (length <= 2) {
+    console.log('2이하');
+    state.videos.style.gridTemplateColumns = '1fr 1fr';
+    mangeVideoHeight(divs, '65vh');
+  } else if (length <= 4) {
+    console.log('4이하');
+    state.videos.style.gridTemplateColumns = '1fr 1fr';
+    mangeVideoHeight(divs, '43vh');
+  } else if (length <= 6) {
+    console.log('6이하');
+    state.videos.style.gridTemplateColumns = '1fr 1fr 1fr';
+    mangeVideoHeight(divs, '43vh');
+  } else if (length <= 9) {
+    state.videos.style.gridTemplateColumns = '1fr 1fr 1fr';
+    mangeVideoHeight(divs, '27vh');
+  }
+  console.log(length);
+  console.log(state.videos);
+}
+
 function setOnTrackEvent(user) {
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/track_event
   user.rtc.addEventListener('track', event => {
@@ -233,6 +271,7 @@ function setOnTrackEvent(user) {
         div.appendChild(p);
 
         state.videos.appendChild(div);
+        manageVideoLayout();
       }
     }
   });
@@ -410,6 +449,7 @@ function removeVideo(targetSessionId) {
       break;
     }
   }
+  manageVideoLayout();
 
   // adjustResolution();
 

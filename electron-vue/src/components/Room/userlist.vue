@@ -107,11 +107,18 @@ export default {
   /* display: flex; */
   background-color: #e4f6f1;
   min-height: 100%;
+  /* min-height: 91vh; */
+  /* height: 100vh; */
+  /* height: 500px; */
+  /* overflow-y: auto; */
 }
 .userlist {
   position: absolute;
+  /* min-height: 60vh; */
+  height: 82.5vh;
   width: 100px;
   margin-top: 10px;
+  /* overflow-y: auto; */
   overflow-y: auto;
 }
 
