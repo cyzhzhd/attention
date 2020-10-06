@@ -121,6 +121,11 @@ export default {
         modelName === 'showingScreenSharingModal'
       ) {
         bus.$emit('screenSharing');
+      } else if (
+        this.modalList[modelName] &&
+        modelName === 'showingChatModal'
+      ) {
+        bus.$emit('openChat');
       }
     },
 

@@ -97,6 +97,7 @@ export default {
 
   beforeDestroy() {
     bus.$off('userlist-update');
+    this.logInUser = [];
   },
 };
 </script>
