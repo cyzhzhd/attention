@@ -98,6 +98,7 @@ function getDisplay(div) {
 
 ipcRenderer.on('close-sharing-panel', () => {
   bus.$emit('change-screen-to-localstream');
+  webRTC.sendMessage('stopShareScreen', {});
   console.log(screensharingTrack);
   screensharingTrack.stop();
   screensharingTrack = null;

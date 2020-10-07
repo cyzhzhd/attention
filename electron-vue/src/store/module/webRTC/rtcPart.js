@@ -17,6 +17,7 @@ let isStarted = false;
 let isChannelReady = false;
 let currentResolution = 'START';
 let ScreenSharing;
+let screenSharingUser;
 
 let connectedUsers = [];
 const sendingTracks = [];
@@ -161,10 +162,13 @@ function manageUserlist(userlist) {
       // existing users
       addUser(userlist);
     }
-  } else {
+  } else if (userlist.length < connectedUsers.length) {
     // user left
     console.log('user left');
     removeUser(userlist);
+  } else {
+    // screen sharing
+    console.log('stop screen sharing');
   }
 }
 
@@ -499,7 +503,7 @@ function resetVariables() {
 }
 
 // communication with signaling server
-socket.on('sendUserList', userlist => {
+socket.on('deliverUserList', userlist => {
   console.log('sendUserList');
   bus.$emit('userlist-update', userlist);
   if (userlist.length === 1 && !isStarted) {
@@ -538,7 +542,21 @@ socket.on('deliverSignal', message => {
 
 socket.on('deliverScreenSharingUser', id => {
   console.log(id);
+  const user = findUser(val => val.user === id);
+  console.log(user);
+  if (user && user.isSharingScreen) {
+    // startSharingScreen
+    screenSharingUser = user;
+    console.log(id);
+  } else {
+    console.log(id);
+
+    screenSharingUser = null;
+  }
+  console.log(screenSharingUser);
 });
+
+socket.on('');
 socket.on('deliverChat', message => {
   bus.$emit('onMessage', message.name, message.content);
 });
@@ -577,6 +595,7 @@ export default {
   disconnectWebRTC,
   getUserMedia,
   sendChat,
+  sendMessage,
   connectWithTheUser,
   disconnectWithTheUser,
   ShareScreen,
