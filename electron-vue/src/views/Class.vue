@@ -34,7 +34,6 @@ export default {
   },
   methods: {
     enterRoom() {
-      console.log('vue에서 roomId', this.roomId);
       this.EnterRoom({
         classroomId: this.classroomId,
         classId: this.classId,

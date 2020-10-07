@@ -1,8 +1,10 @@
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
 /* eslint-disable no-use-before-define */
-import { desktopCapturer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+// import { desktopCapturer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { ipcRenderer, desktopCapturer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 import webRTC from './webRTC/rtcPart';
-import bus from '../../../utils/bus';
+
+let screensharingStream;
 
 const state = {
   screenNames: null,
@@ -83,20 +85,21 @@ function getDisplay(div) {
       },
     })
     .then(stream => {
-      webRTC.ShareScreen(stream);
-      bus.$emit('closeModal');
-      //   const video = document.createElement('video');
-      //   state.screenVideos.appendChild(video);
-      //   video.srcObject = stream;
-      //   video.onloadeddata = () => {
-      //     video.play();
-      //   };
+      screensharingStream = stream;
+      webRTC.ShareScreen(screensharingStream);
+      ipcRenderer.send('open-new-window-for-screensharing');
     })
     .catch(error => {
       console.error(error);
     });
 }
 
+ipcRenderer.on('close-sharing-panel', () => {
+  console.log('got close-sharing-panel');
+  const tracks = screensharingStream.getTracks();
+  tracks.forEach(track => track.stop());
+  screensharingStream = null;
+});
 export default {
   namespaced: true,
   state,

@@ -579,6 +579,10 @@ socket.on('camSharingMode', id => {
   console.log(id);
 });
 
+bus.$on('stopSharing', () => {
+  console.log('stopSharing!');
+});
+
 export default {
   initRTCPART,
   emitEvent,

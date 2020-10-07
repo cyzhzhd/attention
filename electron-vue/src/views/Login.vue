@@ -94,7 +94,8 @@ export default {
           });
         })
         .catch(error => {
-          this.errorMessage = '잘못된 아이디 혹은 비밀번호를 입력하셨습니다.';
+          this.errorMessage = error.response;
+          // this.errorMessage = '잘못된 아이디 혹은 비밀번호를 입력하셨습니다.';
           console.log(error);
         });
     },
@@ -124,7 +125,9 @@ export default {
           // }
         })
         .catch(error => {
-          console.log(error);
+          this.errorMessage = error.response;
+          console.log(error.response);
+          console.error(error);
         });
     },
 
