@@ -43,11 +43,14 @@ export default {
 .webRTC {
   height: 93vh;
   display: grid;
-  grid-template-rows: 70% 30%;
-  grid-template-areas: 'teacher', 'videos';
+  /* grid-template-rows: 70% 30%; */
+  /* grid-template-areas: 'teacher', 'videos'; */
+  grid-template-columns: 80% 20%;
+  grid-template-areas: 'teacher videos';
 }
 .teacher {
   grid-area: 'teacher';
+  align-self: center;
 }
 .teacher video {
   width: 100%;
@@ -57,13 +60,16 @@ export default {
 .videos {
   grid-area: 'videos';
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  /* align-items: center; */
+  justify-content: center;
   /* grid-template-columns: 1fr; */
-  margin-top: 20px;
+  margin-top: 15px;
 }
 .videos video {
   /* width: 99%; */
-  max-height: 24.5vh;
+  max-height: 21vh;
+  /* padding: 0 5px; */
 }
 .videos div p {
   color: black;
