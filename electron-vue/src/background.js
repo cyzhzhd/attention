@@ -95,8 +95,8 @@ ipcMain.on('open-new-window-for-screensharing', () => {
       : `file://${__dirname}/index.html#createRoom`;
 
   sharingPanel = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 600,
+    height: 400,
     frame: false,
     webPreferences: {
       nodeIntegration: true,
@@ -104,7 +104,6 @@ ipcMain.on('open-new-window-for-screensharing', () => {
     },
   });
   // sharingPanel.setMenuBarVisibility(false);
-  console.log(sharingPanel);
 
   sharingPanel.on('close', () => {
     sharingPanel = null;

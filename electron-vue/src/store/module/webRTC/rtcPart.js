@@ -386,25 +386,17 @@ async function makeAnswer(sentFrom) {
   }
 }
 
-function substitueTrack(track) {
+function substitueTrack(track, bool) {
   sendingTracks
     .filter(tracks => tracks.track.kind === 'video')
     .forEach(tracks => tracks.replaceTrack(track));
-  ScreenSharing = true;
-
-  track.addEventListener('ended', () => {
-    sendingTracks
-      .filter(tracks => tracks.track.kind === 'video')
-      .forEach(tracks => tracks.replaceTrack(localStream.getTracks()[1]));
-    ScreenSharing = false;
-    // socket.emit('endScreenSharing', state.classroomId, sessionId);
-  });
+  ScreenSharing = bool;
 }
 
-function ShareScreen(screenStream) {
-  const screenTrack = screenStream.getTracks();
+function ShareScreen(track) {
+  // const screenTrack = screenStream.getTracks();
   sendMessage('shareScreen', {});
-  substitueTrack(screenTrack[0]);
+  substitueTrack(track, true);
 }
 
 function connectWithTheUser(targetUser) {
@@ -502,6 +494,7 @@ function resetVariables() {
   state.localVideo = null;
   state.videos = null;
   bus.$off('onDeliverDisconnection');
+  bus.$off('change-screen-to-localstream');
   console.log('reset connectedUsers', connectedUsers);
 }
 
@@ -509,19 +502,11 @@ function resetVariables() {
 socket.on('sendUserList', userlist => {
   console.log('sendUserList');
   bus.$emit('userlist-update', userlist);
-  console.log('길이 비교', userlist.length, connectedUsers.length);
-  console.log(connectedUsers);
   if (userlist.length === 1 && !isStarted) {
     startClass(userlist);
     return;
   }
-  if (userlist.length !== connectedUsers.length) {
-    manageUserlist(userlist);
-  } else {
-    console.log('screen sharing', userlist);
-    const sharingUser = findUser(user => user.isSharingScreen === true);
-    console.log(sharingUser);
-  }
+  manageUserlist(userlist);
 });
 
 socket.on('deliverSignal', message => {
@@ -551,6 +536,9 @@ socket.on('deliverSignal', message => {
   }
 });
 
+socket.on('deliverScreenSharingUser', id => {
+  console.log(id);
+});
 socket.on('deliverChat', message => {
   bus.$emit('onMessage', message.name, message.content);
 });
@@ -579,8 +567,8 @@ socket.on('camSharingMode', id => {
   console.log(id);
 });
 
-bus.$on('stopSharing', () => {
-  console.log('stopSharing!');
+bus.$on('change-screen-to-localstream', () => {
+  substitueTrack(localStream.getTracks()[1], false);
 });
 
 export default {
