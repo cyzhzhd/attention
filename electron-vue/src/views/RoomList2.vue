@@ -154,7 +154,10 @@ export default {
           roomId: room.roomId,
           uid: this.uid,
         };
-        this.$http.post('/api/firebase/leaveTeam', options);
+        this.$http.post(
+          'https://be.swm183.com:3000/api/firebase/leaveTeam',
+          options,
+        );
       }
     },
 
@@ -173,7 +176,10 @@ export default {
           roomId: this.roomId,
           uid: this.uid,
         };
-        this.$http.post('/api/firebase/deleteTeam', options);
+        this.$http.post(
+          'https://be.swm183.com:3000/api/firebase/deleteTeam',
+          options,
+        );
       }
     },
 

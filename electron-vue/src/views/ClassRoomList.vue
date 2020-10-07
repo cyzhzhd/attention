@@ -159,7 +159,7 @@ export default {
     //         classRoomId: room.classroomId,
     //         uid: this.uid,
     //       };
-    //       this.$http.post('/api/firebase/leaveTeam', options);
+    //       this.$http.post('https://be.swm183.com:3000/api/firebase/leaveTeam', options);
     //     }
     //   },
 
@@ -182,7 +182,7 @@ export default {
           },
         };
         console.log(this.classRoomId);
-        this.$http.delete('/api/class', options);
+        this.$http.delete('https://be.swm183.com:3000/api/class', options);
         this.getClassRoomList();
       }
     },
@@ -201,7 +201,10 @@ export default {
         tempOption.params = {
           class: joinedClass,
         };
-        const classInfo = await this.$http.get(`/api/${route}`, tempOption);
+        const classInfo = await this.$http.get(
+          `https://be.swm183.com:3000/api/${route}`,
+          tempOption,
+        );
         if (classInfo.data.session === null)
           classInfo.data.session = 'notReady';
         this.classRooms.push(classInfo.data);
@@ -215,7 +218,10 @@ export default {
           Authorization: `Bearer ${this.$jwt}`,
         },
       };
-      const userInfo = await this.$http.get('/api/user', options);
+      const userInfo = await this.$http.get(
+        'https://be.swm183.com:3000/api/user',
+        options,
+      );
       this.$setUser(userInfo.data);
       const { ownClasses } = userInfo.data;
       this.classRooms = [];

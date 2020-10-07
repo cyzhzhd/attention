@@ -81,7 +81,7 @@ export default {
         password: this.login.password,
       };
       this.$http
-        .post('/api/user/login', options)
+        .post('https://be.swm183.com:3000/user/login', options)
         .then(response => {
           console.log(response);
           this.$setJWT(response.data);
@@ -108,7 +108,7 @@ export default {
         isTeacher: 1,
       };
       this.$http
-        .post('/api/user/account', options)
+        .post('https://be.swm183.com:3000/user/account', options)
         .then(response => {
           console.log(response);
           // if (response.data.code === 'auth/invalid-password') {

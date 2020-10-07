@@ -107,7 +107,10 @@ export default {
           session: this.classId,
         },
       };
-      const info = await this.$http.get('/api/session', options);
+      const info = await this.$http.get(
+        'https://be.swm183.com:3000/api/session',
+        options,
+      );
       this.classInfo = info.data;
       this.className = info.data.name;
       const startDate = this.getTime(info.data.scheduledStartTime);
