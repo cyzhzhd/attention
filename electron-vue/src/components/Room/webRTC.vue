@@ -56,8 +56,9 @@ export default {
 
 .videos {
   grid-area: 'videos';
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  align-items: center;
+  /* grid-template-columns: 1fr; */
   margin-top: 20px;
 }
 .videos video {
