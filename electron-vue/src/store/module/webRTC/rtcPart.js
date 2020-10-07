@@ -153,6 +153,7 @@ function joiningClass(userlist) {
 function manageUserlist(userlist) {
   console.log('userList', userlist);
 
+  console.log('숫자 비교', userlist.length, connectedUsers.length);
   if (userlist.length > connectedUsers.length) {
     // user joined
     if (!isChannelReady) {
@@ -168,7 +169,22 @@ function manageUserlist(userlist) {
     removeUser(userlist);
   } else {
     // screen sharing
-    console.log('stop screen sharing');
+    const isSomeoneSharingScreen = userlist.some(user => {
+      if (user.isSharingScreen === true) {
+        screenSharingUser = user;
+        return true;
+      }
+      return false;
+    });
+
+    if (!isSomeoneSharingScreen) {
+      console.log(screenSharingUser);
+      screenSharingUser = null;
+      // change layout
+    } else {
+      console.log(screenSharingUser);
+      // change layout
+    }
   }
 }
 
@@ -217,31 +233,35 @@ function mangeVideoHeight(divs, height) {
 }
 
 function manageVideoLayout() {
-  console.log('---------------------------------------');
-  const divs = state.videos.childNodes;
-  console.log(divs);
-  const { length } = divs;
-  if (length === 1) {
-    state.videos.style.gridTemplateColumns = '1fr';
-    mangeVideoHeight(divs, '750px');
-  } else if (length <= 2) {
-    console.log('2이하');
-    state.videos.style.gridTemplateColumns = '1fr 1fr';
-    mangeVideoHeight(divs, '65vh');
-  } else if (length <= 4) {
-    console.log('4이하');
-    state.videos.style.gridTemplateColumns = '1fr 1fr';
-    mangeVideoHeight(divs, '43vh');
-  } else if (length <= 6) {
-    console.log('6이하');
-    state.videos.style.gridTemplateColumns = '1fr 1fr 1fr';
-    mangeVideoHeight(divs, '43vh');
-  } else if (length <= 9) {
-    state.videos.style.gridTemplateColumns = '1fr 1fr 1fr';
-    mangeVideoHeight(divs, '27vh');
+  if (screenSharingUser) {
+    console.log('need layout for screenSharing ');
+  } else {
+    console.log('---------------------------------------');
+    const divs = state.videos.childNodes;
+    console.log(divs);
+    const { length } = divs;
+    if (length === 1) {
+      state.videos.style.gridTemplateColumns = '1fr';
+      mangeVideoHeight(divs, '750px');
+    } else if (length <= 2) {
+      console.log('2이하');
+      state.videos.style.gridTemplateColumns = '1fr 1fr';
+      mangeVideoHeight(divs, '65vh');
+    } else if (length <= 4) {
+      console.log('4이하');
+      state.videos.style.gridTemplateColumns = '1fr 1fr';
+      mangeVideoHeight(divs, '43vh');
+    } else if (length <= 6) {
+      console.log('6이하');
+      state.videos.style.gridTemplateColumns = '1fr 1fr 1fr';
+      mangeVideoHeight(divs, '43vh');
+    } else if (length <= 9) {
+      state.videos.style.gridTemplateColumns = '1fr 1fr 1fr';
+      mangeVideoHeight(divs, '27vh');
+    }
+    console.log(length);
+    console.log(state.videos);
   }
-  console.log(length);
-  console.log(state.videos);
 }
 
 function setOnTrackEvent(user) {
@@ -257,25 +277,30 @@ function setOnTrackEvent(user) {
         }
       });
       if (!hasAdded) {
-        const div = document.createElement('div');
-        div.id = user.user;
-
-        const video = document.createElement('video');
+        console.log('비디오 추가할때', user);
         const src = event.streams[0];
+        let video;
+        if (user.isTeacher) {
+          video = state.teacherVideo;
+          video.controls = true;
+        } else {
+          const div = document.createElement('div');
+          div.id = user.user;
+          video = document.createElement('video');
+          div.appendChild(video);
+          const p = document.createElement('p');
+          const foundUser = findUser(val => val.user === user.user);
+          const textNode = document.createTextNode(foundUser.name);
+          p.appendChild(textNode);
+          div.appendChild(p);
+
+          state.videos.appendChild(div);
+          manageVideoLayout();
+        }
         video.srcObject = src;
         video.autoplay = true;
         video.playsinline = true;
         video.userId = user.user;
-        div.appendChild(video);
-
-        const p = document.createElement('p');
-        const foundUser = findUser(val => val.user === user.user);
-        const textNode = document.createTextNode(foundUser.name);
-        p.appendChild(textNode);
-        div.appendChild(p);
-
-        state.videos.appendChild(div);
-        manageVideoLayout();
       }
     }
   });
@@ -540,31 +565,25 @@ socket.on('deliverSignal', message => {
   }
 });
 
-socket.on('deliverScreenSharingUser', id => {
-  console.log(id);
-  const user = findUser(val => val.user === id);
-  console.log(user);
-  if (user && user.isSharingScreen) {
-    // startSharingScreen
-    screenSharingUser = user;
-    console.log(id);
-  } else {
-    console.log(id);
+// socket.on('deliverScreenSharingUser', id => {
+//   console.log(id);
+//   const user = findUser(val => val.user === id);
+//   console.log(user);
+//   if (user && user.isSharingScreen) {
+//     // startSharingScreen
+//     screenSharingUser = user;
+//     console.log(id);
+//   } else {
+//     console.log(id);
 
-    screenSharingUser = null;
-  }
-  console.log(screenSharingUser);
-});
+//     screenSharingUser = null;
+//   }
+//   console.log(screenSharingUser);
+// });
 
-socket.on('');
 socket.on('deliverChat', message => {
   bus.$emit('onMessage', message.name, message.content);
 });
-
-// socket.on('disconnectRequest', fromUser => {
-//   removeVideo(fromUser);
-//   addPC(fromUser);
-// });
 
 socket.on('deliverDisconnection', () => {
   console.log('got deliverDisconnection');

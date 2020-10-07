@@ -78,10 +78,10 @@ function getDisplay(div) {
         mandatory: {
           chromeMediaSource: 'desktop',
           chromeMediaSourceId: div.detail.id,
-          minWidth: 640,
-          maxWidth: 640,
-          minHeight: 320,
-          maxHeight: 320,
+          minWidth: 1920,
+          maxWidth: 1920,
+          minHeight: 1080,
+          maxHeight: 1080,
         },
       },
     })

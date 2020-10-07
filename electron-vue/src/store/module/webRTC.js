@@ -11,9 +11,10 @@ const state = {
   classId: '',
   jwt: '',
   localVideo: '',
+  videos: '',
+  teacherVideo: '',
   tempButton1: '',
   tempButton2: '',
-  videos: '',
   myId: '',
 };
 
@@ -85,6 +86,7 @@ const mutations = {
   videoSetter(state, payload) {
     state.videos = payload.videos;
     state.localVideo = payload.localVideo;
+    state.teacherVideo = payload.teacherVideo;
   },
   buttonSetter1(state, button) {
     state.tempButton1 = button;
@@ -119,17 +121,17 @@ const actions = {
     commit('sendChat', message);
   },
 
-  async ShareScreen() {
-    // on chrome
-    const screenStream = await navigator.mediaDevices.getDisplayMedia({
-      cursor: true,
-    });
-    console.log(screenStream);
-    // screenTrack = screenStream.getTracks();
-    // substitueTrack(screenTrack[0]);
+  // async ShareScreen() {
+  //   // on chrome
+  //   const screenStream = await navigator.mediaDevices.getDisplayMedia({
+  //     cursor: true,
+  //   });
+  //   console.log(screenStream);
+  //   // screenTrack = screenStream.getTracks();
+  //   // substitueTrack(screenTrack[0]);
 
-    // socket.emit('screenSharing', state.classroomId, sessionId);
-  },
+  //   // socket.emit('screenSharing', state.classroomId, sessionId);
+  // },
 
   VideoSetter({ commit }, payload) {
     commit('videoSetter', payload);
