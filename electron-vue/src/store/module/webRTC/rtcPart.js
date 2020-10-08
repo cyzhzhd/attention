@@ -11,11 +11,12 @@ const socket = io('https://be.swm183.com:3000', {
 let isStarted = false;
 let isChannelReady = false;
 let currentResolution = 'START';
-let ScreenSharing;
+let isScreenSharing;
 let screenSharingUser;
+let screenSharingTrack;
 
 let connectedUsers = [];
-const sendingTracks = [];
+let sendingTracks = [];
 
 let localStream;
 let isVideoMuted = true;
@@ -122,8 +123,10 @@ function findUser(pred) {
 
 function addUser(userlist) {
   const joiningUser = findJoiningUser(userlist);
-  connectedUsers.push(joiningUser);
   joiningUser.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
+  connectedUsers.push(joiningUser);
+  console.log('joiningUser', joiningUser);
+  console.log('addUser', connectedUsers);
   addingListenerOnPC(joiningUser);
 }
 
@@ -148,6 +151,7 @@ function manageUserlist(userlist) {
   console.log('userList', userlist);
 
   console.log('숫자 비교', userlist.length, connectedUsers.length);
+  console.log(isChannelReady);
   if (userlist.length > connectedUsers.length) {
     // user joined
     if (!isChannelReady) {
@@ -337,8 +341,8 @@ function addTrackOnPC(user) {
     localStream.getTracks().forEach(track => {
       sendingTracks.push(user.rtc.addTrack(track, localStream));
       console.log('track added sendingTracks', sendingTracks);
-      if (ScreenSharing) {
-        // substitueTrack(screenTrack[0]);
+      if (isScreenSharing) {
+        substitueTrack(screenSharingTrack, true);
       }
     });
   }
@@ -413,11 +417,11 @@ function substitueTrack(track, bool) {
   sendingTracks
     .filter(tracks => tracks.track.kind === 'video')
     .forEach(tracks => tracks.replaceTrack(track));
-  ScreenSharing = bool;
+  isScreenSharing = bool;
 }
 
 function ShareScreen(track) {
-  // const screenTrack = screenStream.getTracks();
+  screenSharingTrack = track;
   sendMessage('shareScreen', {});
   substitueTrack(track, true);
 }
@@ -508,11 +512,17 @@ function resetVariables() {
 
   isStarted = false;
   isChannelReady = false;
+  currentResolution = 'START';
+  isScreenSharing = null;
+  screenSharingUser = null;
+  screenSharingTrack = null;
+
   connectedUsers = [];
+  sendingTracks = [];
   localStream = null;
   isVideoMuted = true;
   isAudioMuted = true;
-  ScreenSharing = false;
+
   state.classroomId = null;
   state.localVideo = null;
   state.videos = null;
@@ -559,22 +569,6 @@ socket.on('deliverSignal', message => {
   }
 });
 
-// socket.on('deliverScreenSharingUser', id => {
-//   console.log(id);
-//   const user = findUser(val => val.user === id);
-//   console.log(user);
-//   if (user && user.isSharingScreen) {
-//     // startSharingScreen
-//     screenSharingUser = user;
-//     console.log(id);
-//   } else {
-//     console.log(id);
-
-//     screenSharingUser = null;
-//   }
-//   console.log(screenSharingUser);
-// });
-
 socket.on('deliverChat', message => {
   bus.$emit('onMessage', message.name, message.content);
 });
@@ -600,6 +594,7 @@ socket.on('camSharingMode', id => {
 
 bus.$on('change-screen-to-localstream', () => {
   substitueTrack(localStream.getTracks()[1], false);
+  screenSharingTrack = null;
 });
 
 export default {
