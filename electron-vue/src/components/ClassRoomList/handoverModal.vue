@@ -109,7 +109,7 @@ export default {
         userName: this.chosenUser.userName,
       };
       this.$http.post(
-        'https://be.swm183.com:3000/api/firebase/delegateHost',
+        'https://be.swm183.com:3000/firebase/delegateHost',
         options,
       );
     },
@@ -118,10 +118,7 @@ export default {
         roomId: this.roomId,
         uid: this.$user.uid,
       };
-      this.$http.post(
-        'https://be.swm183.com:3000/api/firebase/leaveTeam',
-        options,
-      );
+      this.$http.post('https://be.swm183.com:3000/firebase/leaveTeam', options);
     },
     showUserList() {
       this.$firebase

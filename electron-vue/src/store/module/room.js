@@ -28,7 +28,7 @@ const mutations = {
       password,
       displayName,
     };
-    axios.post('https://be.swm183.com:3000/api/firebase/signup', options);
+    axios.post('https://be.swm183.com:3000/firebase/signup', options);
   },
 };
 

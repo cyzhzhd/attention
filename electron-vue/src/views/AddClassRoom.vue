@@ -44,7 +44,7 @@ export default {
           Authorization: `Bearer ${this.$jwt}`,
         },
       };
-      this.$http.post('https://be.swm183.com:3000/api/class', options, headers);
+      this.$http.post('https://be.swm183.com:3000/class', options, headers);
       this.$router.go(-1);
     },
 
@@ -58,7 +58,7 @@ export default {
         },
       };
       this.$http.post(
-        'https://be.swm183.com:3000/api/user/class',
+        'https://be.swm183.com:3000/user/class',
         options,
         headers,
       );

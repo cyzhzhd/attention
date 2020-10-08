@@ -108,7 +108,7 @@ export default {
         },
       };
       const info = await this.$http.get(
-        'https://be.swm183.com:3000/api/session',
+        'https://be.swm183.com:3000/session',
         options,
       );
       this.classInfo = info.data;

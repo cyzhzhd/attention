@@ -155,7 +155,7 @@ export default {
           uid: this.uid,
         };
         this.$http.post(
-          'https://be.swm183.com:3000/api/firebase/leaveTeam',
+          'https://be.swm183.com:3000/firebase/leaveTeam',
           options,
         );
       }
@@ -177,7 +177,7 @@ export default {
           uid: this.uid,
         };
         this.$http.post(
-          'https://be.swm183.com:3000/api/firebase/deleteTeam',
+          'https://be.swm183.com:3000/firebase/deleteTeam',
           options,
         );
       }

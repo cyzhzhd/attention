@@ -46,7 +46,10 @@ export default {
           roomId: room.roomId,
           uid: this.uid,
         };
-        this.$http.post('/api/firebase/leaveTeam', options);
+        this.$http.post(
+          'https://be.swm183.com:3000/firebase/leaveTeam',
+          options,
+        );
       }
     },
 
@@ -60,5 +63,4 @@ export default {
 };
 </script>
 
-<style>
-</style>
+<style></style>

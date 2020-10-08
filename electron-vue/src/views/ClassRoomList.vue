@@ -159,7 +159,7 @@ export default {
     //         classRoomId: room.classroomId,
     //         uid: this.uid,
     //       };
-    //       this.$http.post('https://be.swm183.com:3000/api/firebase/leaveTeam', options);
+    //       this.$http.post('https://be.swm183.com:3000/firebase/leaveTeam', options);
     //     }
     //   },
 
@@ -182,7 +182,7 @@ export default {
           },
         };
         console.log(this.classRoomId);
-        this.$http.delete('https://be.swm183.com:3000/api/class', options);
+        this.$http.delete('https://be.swm183.com:3000/class', options);
         this.getClassRoomList();
       }
     },
@@ -202,7 +202,7 @@ export default {
           class: joinedClass,
         };
         const classInfo = await this.$http.get(
-          `https://be.swm183.com:3000/api/${route}`,
+          `https://be.swm183.com:3000/${route}`,
           tempOption,
         );
         if (classInfo.data.session === null)
@@ -219,7 +219,7 @@ export default {
         },
       };
       const userInfo = await this.$http.get(
-        'https://be.swm183.com:3000/api/user',
+        'https://be.swm183.com:3000/user',
         options,
       );
       this.$setUser(userInfo.data);

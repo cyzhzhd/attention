@@ -39,11 +39,7 @@ export default {
         },
       };
       console.log(options);
-      this.$http.post(
-        'https://be.swm183.com:3000/api/session',
-        options,
-        headers,
-      );
+      this.$http.post('https://be.swm183.com:3000/session', options, headers);
       this.$router.go(-1);
     },
   },
