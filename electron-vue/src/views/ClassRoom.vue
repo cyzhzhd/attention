@@ -9,6 +9,7 @@
       <div class="main-panel-contents">
         <div class="main-panel-class-list">
           <router-link
+            v-if="this.$user._id === teacher"
             :to="{
               name: 'AddClass',
               params: {
@@ -86,6 +87,7 @@ export default {
       classroomId: this.$route.params.classroomId,
       classroomName: this.$route.params.classroomName,
       classId: this.$route.params.classId,
+      teacher: this.$route.params.teacher,
       classInfo: '',
       startDate: '',
       startTime: '',
@@ -112,6 +114,7 @@ export default {
         options,
       );
       this.classInfo = info.data;
+      console.log(this.classInfo);
       this.className = info.data.name;
       const startDate = this.getTime(info.data.scheduledStartTime);
       this.startDate = startDate.date;

@@ -19,7 +19,12 @@
               <div class="create-classroom-plus-icon">
                 <img src="../assets/img/common/plus.png" />
               </div>
-              교실 만들기
+              <p v-if="this.$user.isTeacher">
+                교실 만들기
+              </p>
+              <p v-else>
+                교실 추가하기
+              </p>
             </div>
           </router-link>
 
@@ -33,6 +38,7 @@
                     classroomId: room._id,
                     classroomName: room.name,
                     classId: room.session,
+                    teacher: room.teacher,
                   },
                 }"
                 action
@@ -171,6 +177,7 @@ export default {
     confirm() {
       if (this.textConfirm === '확인') {
         this.controlModal('confirmModal');
+        console.log(this.classroomId);
 
         const options = {
           headers: {

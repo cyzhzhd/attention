@@ -49,11 +49,24 @@
           placeholder="password"
         />
         <input
+          type="password-check"
+          class="signup-password-check"
+          v-model.trim="signup.passwordCheck"
+          placeholder="password-check"
+        />
+        <input
           type="text"
           class="signup-displayname"
           v-model.trim="signup.displayName"
           placeholder="displayname"
         />
+        <form>
+          가입 유형
+          <select name="dropdown2" v-model="signup.type">
+            <option value="학생" selected>학생</option>
+            <option value="선생님">선생님</option>
+          </select>
+        </form>
         <button type="submit" variant="primary" :disabled="!signup.email">
           Sign Up
         </button>
@@ -69,7 +82,13 @@ export default {
   data() {
     return {
       login: { email: '', password: '' },
-      signup: { email: '', password: '', displayName: '' },
+      signup: {
+        email: '',
+        password: '',
+        passwordCheck: '',
+        displayName: '',
+        type: '학생',
+      },
       errorMessage: '',
       hasLogInActivated: true,
     };
@@ -101,34 +120,41 @@ export default {
     },
 
     SignUp() {
-      const options = {
-        email: this.signup.email,
-        password: this.signup.password,
-        name: this.signup.displayName,
-        isTeacher: 1,
-      };
-      this.$http
-        .post('https://be.swm183.com:3000/user/account', options)
-        .then(response => {
-          console.log(response);
-          // if (response.data.code === 'auth/invalid-password') {
-          //   this.errorMessage = '비밀번호는 6자리 이상 입력해주세요';
-          // } else if (response.data.code === 'auth/invalid-email') {
-          //   this.errorMessage = '정확한 이메일 주소를 입력해주세요.';
-          // } else {
-          this.login.email = this.signup.email;
-          this.signup.email = '';
-          this.signup.password = '';
-          this.signup.displayName = '';
-          this.errorMessage = '';
-          this.hasLogInActivated = true;
-          // }
-        })
-        .catch(error => {
-          this.errorMessage = error.response;
-          console.log(error.response);
-          console.error(error);
-        });
+      const isPasswordSame = this.signup.password === this.signup.passwordCheck;
+      if (isPasswordSame) {
+        const isTeacher = this.signup.type === '학생' ? 0 : 1;
+        const options = {
+          email: this.signup.email,
+          password: this.signup.password,
+          name: this.signup.displayName,
+          isTeacher,
+        };
+        this.$http
+          .post('https://be.swm183.com:3000/user/account', options)
+          .then(response => {
+            console.log(response);
+            // if (response.data.code === 'auth/invalid-password') {
+            //   this.errorMessage = '비밀번호는 6자리 이상 입력해주세요';
+            // } else if (response.data.code === 'auth/invalid-email') {
+            //   this.errorMessage = '정확한 이메일 주소를 입력해주세요.';
+            // } else {
+            this.login.email = this.signup.email;
+            this.signup.email = '';
+            this.signup.password = '';
+            this.signup.passwordCheck = '';
+            this.signup.displayName = '';
+            this.errorMessage = '';
+            this.hasLogInActivated = true;
+            // }
+          })
+          .catch(error => {
+            this.errorMessage = error.response;
+            console.log(error.response);
+            console.error(error);
+          });
+      } else {
+        this.errorMessage = '비밀번호를 다시 확인해주세요.';
+      }
     },
 
     activeLogIn() {

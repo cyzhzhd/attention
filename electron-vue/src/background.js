@@ -92,7 +92,7 @@ ipcMain.on('open-new-window-for-screensharing', () => {
   const modalPath =
     process.env.NODE_ENV === 'development'
       ? 'http://localhost:8080/#/ScreenSharingControlPanel'
-      : `file://${__dirname}/index.html#createRoom`;
+      : `file://${__dirname}/index.html#ScreenSharingControlPanel`;
 
   sharingPanel = new BrowserWindow({
     width: 600,

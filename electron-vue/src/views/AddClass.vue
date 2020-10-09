@@ -26,7 +26,7 @@ export default {
     };
   },
   methods: {
-    createSession() {
+    async createSession() {
       const options = {
         name: this.sessionName,
         class: this.$route.params.classroomId,
@@ -39,7 +39,11 @@ export default {
         },
       };
       console.log(options);
-      this.$http.post('https://be.swm183.com:3000/session', options, headers);
+      await this.$http.post(
+        'https://be.swm183.com:3000/session',
+        options,
+        headers,
+      );
       this.$router.go(-1);
     },
   },
