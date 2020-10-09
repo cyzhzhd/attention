@@ -6,6 +6,8 @@ import webRTC from './webRTC/rtcPart';
 
 let interval;
 
+let analyzeStopFlag = true;
+
 const state = {
   classroomId: '',
   classId: '',
@@ -32,12 +34,6 @@ const mutations = {
     state.myId = id;
   },
   enterRoom(state, payload) {
-    // 여기가 방 만들었을 때 시점
-    // 여기서 비디오 소스 하이재킹해서 분석 시작하면 됨
-    // 개발버젼에서 버튼 생기면, 여기 말고 버튼 눌렀을 때 분석 시작
-    // 배포버젼에서는 선생님이 수업시작 버튼 누르면 분석 시작
-    // console.log(state.localVideo);
-    analyzeLib.getVideoSrc(state.localVideo);
 
     state.classroomId = payload.classroomId;
     state.classId = payload.classId;
@@ -90,15 +86,9 @@ const mutations = {
   },
   buttonSetter1(state, button) {
     state.tempButton1 = button;
-    state.tempButton1.addEventListener('click', () => {
-      console.log('button clicked!');
-    });
   },
   buttonSetter2(state, button) {
     state.tempButton2 = button;
-    state.tempButton2.addEventListener('click', () => {
-      console.log('button clicked2!');
-    });
   },
 };
 
@@ -110,6 +100,7 @@ const actions = {
   async EnterRoom({ commit }, payload) {
     const localStream = await webRTC.getUserMedia();
     state.localVideo.srcObject = localStream;
+    analyzeLib.getVideoSrc(state.localVideo);
     commit('enterRoom', payload);
   },
 
@@ -153,9 +144,18 @@ const actions = {
   },
   ButtonSetter1({ commit }, button) {
     commit('buttonSetter1', button);
+    state.tempButton1.addEventListener('click', () => {
+      analyzeStopFlag = !analyzeStopFlag;
+      analyzeLib.startAnalyze(analyzeStopFlag);
+      if (!analyzeStopFlag) console.log('잠시 후 집중력 분석 시작');
+      else if (analyzeStopFlag) console.log('집중력 분석 중단');
+    });
   },
   ButtonSetter2({ commit }, button) {
     commit('buttonSetter2', button);
+    state.tempButton2.addEventListener('click', () => {
+      console.log('button clicked2!');
+    });
   },
 };
 
