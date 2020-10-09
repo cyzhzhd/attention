@@ -77,6 +77,7 @@ function sendMessage(type, message) {
 }
 
 function startClass(userlist) {
+  console.log('start Class?');
   isChannelReady = true;
   isStarted = true;
   connectedUsers.push(...userlist);
@@ -529,13 +530,16 @@ function resetVariables() {
   bus.$off('onDeliverDisconnection');
   bus.$off('change-screen-to-localstream');
   console.log('reset connectedUsers', connectedUsers);
+  console.log(isChannelReady);
 }
 
 // communication with signaling server
 socket.on('deliverUserList', userlist => {
-  console.log('sendUserList');
+  console.log('sendUserList', userlist);
+  console.log(connectedUsers);
   bus.$emit('userlist-update', userlist);
   if (userlist.length === 1 && !isStarted) {
+    console.log('start class?');
     startClass(userlist);
     return;
   }
