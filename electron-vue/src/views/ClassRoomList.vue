@@ -19,7 +19,7 @@
               <div class="create-classroom-plus-icon">
                 <img src="../assets/img/common/plus.png" />
               </div>
-              <p v-if="this.$user.isTeacher">
+              <p v-if="$store.state.user.isTeacher">
                 교실 만들기
               </p>
               <p v-else>
@@ -28,7 +28,7 @@
             </div>
           </router-link>
 
-          <li class="classroom-card" v-for="room in classRooms" :key="room._id">
+          <li class="classroom-card" v-for="room in $store.state.classroom" :key="room._id">
             <div class="classroom-card-header">
               <router-link
                 class="classroom-card-title"
@@ -174,7 +174,7 @@ export default {
       this.classRoomId = room.classroomId;
     },
 
-    confirm() {
+    async confirm() {
       if (this.textConfirm === '확인') {
         this.controlModal('confirmModal');
         console.log(this.classroomId);
@@ -189,7 +189,7 @@ export default {
           },
         };
         console.log(this.classRoomId);
-        this.$http.delete('https://be.swm183.com:3000/class', options);
+        await this.$http.delete('https://be.swm183.com:3000/class', options);
         this.getClassRoomList();
       }
     },
@@ -202,45 +202,47 @@ export default {
       }
     },
 
-    addListOnClassRoom(classList, options, route) {
+    addListOnClassRoom(classList) {
       classList.forEach(async joinedClass => {
-        const tempOption = options;
-        tempOption.params = {
-          class: joinedClass,
-        };
-        const classInfo = await this.$http.get(
-          `https://be.swm183.com:3000/${route}`,
-          tempOption,
-        );
-        if (classInfo.data.session === null)
-          classInfo.data.session = 'notReady';
-        this.classRooms.push(classInfo.data);
+        const options = {
+            class:joinedClass,
+        }
+        const data = await this.$store.dispatch('FETCH_CLASS_INFO', options);
+        console.log(data);
+        // const tempOption = options;
+        // tempOption.params = {
+        //   class: joinedClass,
+        // };
+        // const classInfo = await this.$http.get(
+        //   `https://be.swm183.com:3000/${route}`,
+        //   tempOption,
+        // );
+        // if (classInfo.data.session === null)
+        //   classInfo.data.session = 'notReady';
+        // this.classRooms.push(classInfo.data);
       });
     },
 
-    async getClassRoomList() {
-      console.log('jwt = ', this.$jwt);
-      const options = {
-        headers: {
-          Authorization: `Bearer ${this.$jwt}`,
-        },
-      };
-      const userInfo = await this.$http.get(
-        'https://be.swm183.com:3000/user',
-        options,
-      );
-      this.$setUser(userInfo.data);
-      const { ownClasses } = userInfo.data;
+    getClassRoomList() {
+      // console.log('jwt = ', this.$jwt);
+      // const options = {
+      //   headers: {
+      //     Authorization: `Bearer ${this.$store.state.jwt}`,
+      //   },
+      // };
+      console.log(this.$store.state.user);
+      const { ownClasses } = this.$store.state.user;
       this.classRooms = [];
-      this.addListOnClassRoom(ownClasses, options, 'class');
+      this.addListOnClassRoom(ownClasses);
 
-      const { classes } = userInfo.data;
-      this.addListOnClassRoom(classes, options, 'class');
+      const { classes } = this.$store.state.user;
+      this.addListOnClassRoom(classes);
       console.log('room = ', this.classRooms);
     },
   },
 
   mounted() {
+    console.log('mounted', this.$store.state.classroom);
     this.getClassRoomList();
   },
 };
