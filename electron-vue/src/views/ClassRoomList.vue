@@ -210,10 +210,12 @@ export default {
 
       const { classes } = this.$store.state.user;
       this.addListOnClassRoom(classes);
+      console.log(this.$store.state.classroom);
     },
   },
 
-  mounted() {
+  created() {
+    console.log('object');
     this.getClassRoomList();
   },
 };

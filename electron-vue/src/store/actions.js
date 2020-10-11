@@ -7,6 +7,7 @@ import {
   addClassroom,
   deleteClassroom,
   fetchClassInfo,
+  createClass,
 } from '../api';
 
 function setError(commit, error) {
@@ -64,6 +65,11 @@ export default {
   },
   FETCH_CLASS_LIST({ state }, options) {
     return fetchClassInfo(state.jwt, options)
+      .then(({ data }) => data)
+      .catch(error => console.error(error));
+  },
+  CREATE_CLASS({ state }, options) {
+    return createClass(state.jwt, options)
       .then(({ data }) => data)
       .catch(error => console.error(error));
   },

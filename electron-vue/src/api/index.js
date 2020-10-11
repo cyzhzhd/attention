@@ -45,6 +45,10 @@ function fetchClassInfo(jwt, options) {
   return axios.get(`${config.baseUrl}/session`, setHeader(jwt, options));
 }
 
+function createClass(jwt, options) {
+  return axios.post(`${config.baseUrl}/session`, options, setHeader(jwt));
+}
+
 export {
   fetchJWT,
   fetchUserInfo,
@@ -54,4 +58,5 @@ export {
   addClassroom,
   deleteClassroom,
   fetchClassInfo,
+  createClass,
 };
