@@ -123,7 +123,13 @@ export default {
       return { date, time };
     },
   },
-  mounted() {
+  async mounted() {
+    const options = {
+       class: this.classroomId,
+    }
+    const data = await this.$store.dispatch('FETCH_CLASS_ROOM_INFO', options);
+    this.classId = data.session;
+    console.log(data);
     if (this.classId === 'notReady') {
       this.isClassReady = false;
     } else {
