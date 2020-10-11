@@ -1,5 +1,5 @@
 export default {
-  classroom: ['asd'],
+  classroom: [],
   jwt: '',
   errorMessage: '',
   user: '',

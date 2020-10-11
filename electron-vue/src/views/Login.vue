@@ -122,7 +122,6 @@ export default {
           isTeacher,
         };
 
-        // 성공했을 때 data retrun 있으면 좋을듯.
         const data = await this.$store.dispatch('SIGN_UP_USER', options);
         if(data) {
           this.login.email = this.signup.email;

@@ -142,7 +142,6 @@ export default {
         confirmModal: false,
         addClassRoomModal: false,
       },
-      classRooms: [],
       classRoomId: '',
       textConfirm: '',
     };
@@ -177,22 +176,14 @@ export default {
     async confirm() {
       if (this.textConfirm === '확인') {
         this.controlModal('confirmModal');
-        console.log(this.classroomId);
-
         const options = {
-          headers: {
-            Authorization: `Bearer ${this.$jwt}`,
-          },
-          params: {
-            // class로 바꿀 예정
             class: this.classRoomId,
-          },
         };
-        console.log(this.classRoomId);
-        await this.$http.delete('https://be.swm183.com:3000/class', options);
+        await this.$store.dispatch('DELETE_CLASSROOM', options);
         this.getClassRoomList();
       }
     },
+
     controlModal(modelName) {
       this.modalList[modelName] = !this.modalList[modelName];
 
@@ -207,42 +198,22 @@ export default {
         const options = {
             class:joinedClass,
         }
-        const data = await this.$store.dispatch('FETCH_CLASS_INFO', options);
-        console.log(data);
-        // const tempOption = options;
-        // tempOption.params = {
-        //   class: joinedClass,
-        // };
-        // const classInfo = await this.$http.get(
-        //   `https://be.swm183.com:3000/${route}`,
-        //   tempOption,
-        // );
-        // if (classInfo.data.session === null)
-        //   classInfo.data.session = 'notReady';
-        // this.classRooms.push(classInfo.data);
+        await this.$store.dispatch('FETCH_CLASS_ROOM_INFO', options);
       });
     },
 
-    getClassRoomList() {
-      // console.log('jwt = ', this.$jwt);
-      // const options = {
-      //   headers: {
-      //     Authorization: `Bearer ${this.$store.state.jwt}`,
-      //   },
-      // };
-      console.log(this.$store.state.user);
+    async getClassRoomList() {
+      this.$store.state.classroom = [];
+      await this.$store.dispatch("FETCH_USER_INFO");
       const { ownClasses } = this.$store.state.user;
-      this.classRooms = [];
       this.addListOnClassRoom(ownClasses);
 
       const { classes } = this.$store.state.user;
       this.addListOnClassRoom(classes);
-      console.log('room = ', this.classRooms);
     },
   },
 
   mounted() {
-    console.log('mounted', this.$store.state.classroom);
     this.getClassRoomList();
   },
 };

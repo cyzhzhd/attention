@@ -1,3 +1,4 @@
+/* eslint no-param-reassign: "error" */
 export default {
   SET_JWT(state, jwt) {
     state.jwt = jwt;
@@ -18,9 +19,7 @@ export default {
     state.user = userInfo;
   },
   SET_CLASSROOM_LIST(state, classInfo) {
-    console.log(state);
-    console.log(classInfo);
-    console.log(state.classroom);
+    if (classInfo.session === null) classInfo.session = 'notReady';
     state.classroom.push(classInfo);
   },
 };

@@ -87,7 +87,7 @@ export default {
   },
   data() {
     return {
-      name: this.$user.name,
+      name: this.$store.state.user.name,
       roomId: this.$route.params.roomId,
       message: null,
       messages: [],
@@ -119,7 +119,7 @@ export default {
 
   mounted() {
     this.messages = [
-      { name: 'bot', message: `${this.$user.name}이 로그인했습니다.` },
+      { name: 'bot', message: `${this.$store.state.user.name}이 로그인했습니다.` },
     ];
     bus.$on('onMessage', (name, message) => {
       this.messages.push({ name, message });

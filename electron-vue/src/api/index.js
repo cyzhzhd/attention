@@ -25,9 +25,33 @@ function signUpUser(options) {
   return axios.post(`${config.baseUrl}/user/account`, options);
 }
 
-function fetchClassInfo(jwt, options) {
+function fetchClassroomInfo(jwt, options) {
   return axios.get(`${config.baseUrl}/class`, setHeader(jwt, options));
 }
 
-export { fetchJWT, fetchUserInfo, signUpUser, fetchClassInfo };
-// export { fetchJWT, getItem, postItem, postItemJWT, deleteItem };
+function createClassroom(jwt, options) {
+  return axios.post(`${config.baseUrl}/class`, options, setHeader(jwt));
+}
+
+function addClassroom(jwt, options) {
+  return axios.post(`${config.baseUrl}/user/class`, options, setHeader(jwt));
+}
+
+function deleteClassroom(jwt, options) {
+  return axios.delete(`${config.baseUrl}/class`, setHeader(jwt, options));
+}
+
+function fetchClassInfo(jwt, options) {
+  return axios.get(`${config.baseUrl}/session`, setHeader(jwt, options));
+}
+
+export {
+  fetchJWT,
+  fetchUserInfo,
+  signUpUser,
+  fetchClassroomInfo,
+  createClassroom,
+  addClassroom,
+  deleteClassroom,
+  fetchClassInfo,
+};
