@@ -4,15 +4,11 @@
       <div class="modal-wrapper">
         <div class="modal-container" @click.stop>
           <div class="modal-header">
-            <slot name="header">
-              default header
-            </slot>
+            <slot name="header"> default header </slot>
           </div>
 
           <div class="modal-body">
-            <slot name="body">
-              default body
-            </slot>
+            <slot name="body"> default body </slot>
           </div>
 
           <div class="modal-footer">
@@ -28,7 +24,7 @@
 export default {};
 </script>
 
-<style>
+<style scoped>
 .modal-mask {
   position: fixed;
   z-index: 9998;
@@ -47,8 +43,8 @@ export default {};
 }
 
 .modal-container {
-  width: 650px;
-  height: 400px;
+  width: 700px;
+  height: 700px;
   margin: 0px auto;
   padding: 20px 30px;
   background-color: #fff;

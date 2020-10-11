@@ -1,19 +1,39 @@
 <template>
-  <div>
-    <div class="user-list">
-      Total User
-      <ul>
-        <li v-for="userInfo in totalUser" v-bind:key="userInfo.uid">
-          {{ userInfo.userName }}
+  <div class="userlist-vue">
+    <div class="online-total">
+      <p class="button" @click.prevent="activeTotalUserList">
+        <a href="#">all</a>
+      </p>
+      <p class="button" @click.prevent="activeOnlineUserList">
+        <a href="#">online</a>
+      </p>
+    </div>
+    <div class="userlist">
+      <ul v-if="hasOnlineActive">
+        <li
+          class="userlist-onlie"
+          v-for="userInfo in logInUser"
+          v-bind:key="userInfo._id"
+        >
+          <div @click.prevent="$refs.menu.open($event, userInfo)" @click.stop>
+            <figure
+              class="userlist-profile"
+              :style="{
+                backgroundImage:
+                  'url(' + require('../../assets/img/room/profile.png') + ')',
+              }"
+            ></figure>
+            {{ userInfo.name }}
+          </div>
         </li>
       </ul>
-      <br />
-      Online
-      <ul>
-        <li v-for="userInfo in logInUser" v-bind:key="userInfo.uid">
-          <p @contextmenu.prevent="$refs.menu.open($event, userInfo)">
-            {{ userInfo.displayName }}
-          </p>
+      <ul v-else>
+        <li
+          class="userlist-total"
+          v-for="userInfo in totalUser"
+          v-bind:key="userInfo.uid"
+        >
+          {{ userInfo.userName }}
         </li>
       </ul>
     </div>
@@ -34,9 +54,10 @@
 import VueContext from 'vue-context';
 import { mapActions } from 'vuex';
 import 'vue-context/src/sass/vue-context.scss';
+import bus from '../../../utils/bus';
 
 export default {
-  name: 'USERLIST',
+  name: 'userlist',
 
   components: { VueContext },
 
@@ -45,6 +66,7 @@ export default {
       roomId: this.$route.params.roomId,
       logInUser: [],
       totalUser: [],
+      hasOnlineActive: true,
     };
   },
   methods: {
@@ -56,32 +78,91 @@ export default {
       console.log('disconnect with ', data);
       this.DisconnectWithTheUser(data);
     },
+
+    activeOnlineUserList() {
+      this.hasOnlineActive = true;
+    },
+    activeTotalUserList() {
+      this.hasOnlineActive = false;
+    },
     ...mapActions('webRTC', ['ConnectWithTheUser', 'DisconnectWithTheUser']),
   },
   created() {
-    this.$firebase
-      .database()
-      .ref(`/rooms/${this.roomId}/userlist`)
-      .on('value', snapshot => {
-        const userlist = [];
-        snapshot.forEach(doc => {
-          userlist.push(doc.val());
-        });
-        this.totalUser = userlist;
-      });
+    // bus이용해서 바뀔때마다 업데이트?
+    bus.$on('userlist-update', userlist => {
+      console.log(userlist);
+      this.logInUser = userlist;
+    });
+  },
 
-    this.$firebase
-      .database()
-      .ref(`/rooms/${this.roomId}/userOnline`)
-      .on('value', snapshot => {
-        const userlist = [];
-        snapshot.forEach(doc => {
-          userlist.push(doc.val());
-        });
-        this.logInUser = userlist;
-      });
+  beforeDestroy() {
+    bus.$off('userlist-update');
+    this.logInUser = [];
   },
 };
 </script>
 
-<style></style>
+<style>
+.userlist-vue {
+  /* display: flex; */
+  background-color: #e4f6f1;
+  min-height: 100%;
+  /* min-height: 91vh; */
+  /* height: 100vh; */
+  /* height: 500px; */
+  /* overflow-y: auto; */
+}
+.userlist {
+  position: absolute;
+  /* min-height: 60vh; */
+  height: 82.5vh;
+  width: 100px;
+  margin-top: 10px;
+  /* overflow-y: auto; */
+  overflow-y: auto;
+}
+
+.userlist-profile {
+  display: flex;
+  flex-direction: column;
+  margin: 0.7rem;
+  border-radius: 5rem;
+  background: white;
+
+  height: 0;
+  padding-bottom: 80%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+.userlist-onlie {
+  cursor: pointer;
+}
+.userlist-total {
+  /* padding-top: 0.5rem; */
+  padding-bottom: 0.5rem;
+  cursor: pointer;
+}
+.online-total {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-top: 20px;
+  height: 70px;
+}
+.button {
+  background-color: #c9caca;
+
+  height: 30px;
+  border-radius: 8px;
+  width: 80px;
+  font-size: 0.8rem;
+}
+.button a {
+  text-decoration: none;
+  margin-top: 7px;
+  color: black;
+}</style
+>>

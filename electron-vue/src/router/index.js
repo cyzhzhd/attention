@@ -1,10 +1,13 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Login from '../views/Login.vue';
-import RoomList from '../views/RoomList.vue';
-import Room from '../views/Room.vue';
-import AddRoom from '../views/AddRoom.vue';
-import TeamSettings from '../views/TeamSettings.vue';
+import ClassRoomList from '../views/ClassRoomList.vue';
+import ClassRoom from '../views/ClassRoom.vue';
+import Class from '../views/Class.vue';
+import AddClassRoom from '../views/AddClassRoom.vue';
+import AddClass from '../views/AddClass.vue';
+import ClassRoomSettings from '../views/ClassRoomSettings.vue';
+import ScreenSharingControlPanel from '../views/ScreenSharingControlPanel.vue';
 
 Vue.use(VueRouter);
 
@@ -15,38 +18,44 @@ const routes = [
     component: Login,
   },
   {
-    path: '/roomList',
-    name: 'RoomList',
-    component: RoomList,
+    path: '/classroomList',
+    name: 'ClassRoomList',
+    component: ClassRoomList,
   },
   {
-    path: '/room/:roomId/:roomName',
-    name: 'Room',
-    component: Room,
+    path: '/classroom/:classroomId/:classroomName/:classId',
+    name: 'ClassRoom',
+    component: ClassRoom,
   },
   {
-    path: '/add-room',
-    name: 'AddRoom',
-    component: AddRoom,
+    path: '/classroom/:classroomId/:classId',
+    name: 'Class',
+    component: Class,
   },
   {
-    path: '/team-settings/:roomId/:roomName',
-    name: 'TeamSettings',
-    component: TeamSettings,
+    path: '/add-classroom',
+    name: 'AddClassRoom',
+    component: AddClassRoom,
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ '../views/About.vue'),
+    path: '/add-class/:classroomId',
+    name: 'AddClass',
+    component: AddClass,
+  },
+  {
+    path: '/classroom-settings/:classroomId/:classroomName',
+    name: 'ClassRoomSettings',
+    component: ClassRoomSettings,
+  },
+  {
+    path: '/ScreenSharingControlPanel',
+    name: 'ScreenSharingControlPanel',
+    component: ScreenSharingControlPanel,
   },
 ];
 
 const router = new VueRouter({
-  mode: 'history',
+  mode: process.env.IS_ELECTRON ? 'hash' : 'history',
   base: process.env.BASE_URL,
   routes,
 });

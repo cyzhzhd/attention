@@ -1,0 +1,95 @@
+.enter-modal-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.close-button {
+  width: 15px;
+  height: 15px;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  opacity: 0.7;
+}
+
+.add-header-wrapper {
+  margin: 10px;
+  text-align: center;
+  /* padding: 24px 0; */
+  margin-bottom: 30px;
+  font-family: 'GmarketSansLight';
+  font-weight: bold;
+  font-size: 24px;
+  line-height: 36px;
+  color: #00d39d;
+  border-bottom: 9px solid #00d39d;
+}
+
+.contents {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.input-wrapper {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.input-wrapper + .input-wrapper {
+  margin-top: 55px;
+}
+
+.input-label {
+  width: 50px;
+  font-weight: 500;
+  font-size: 24px;
+  text-align: center;
+  color: #666666;
+}
+
+.input {
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  width: 200px;
+  height: 43px;
+  margin-left: 20px;
+  font-weight: 500;
+  font-size: 24px;
+  text-align: center;
+  color: #666666;
+  border: 1px solid #666666;
+}
+
+.input::placeholder {
+  font-size: 24px;
+  text-align: center;
+  color: #666666;
+}
+
+.input:focus {
+  outline: none;
+  border: 1px solid #00d39d;
+}
+
+.enter-button {
+  width: 150px;
+  height: 45px;
+  display: flex;
+  margin-top: 20px;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #00d39d;
+  border-radius: 30px;
+  color: #00d39d;
+  font-size: 20px;
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+}
+
+.enter-button:hover {
+  background-color: #00d39d;
+  color: #fff;
+}

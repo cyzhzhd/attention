@@ -1,7 +1,7 @@
-import { app, protocol, BrowserWindow } from 'electron';
+import { app, protocol, BrowserWindow, ipcMain } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
-
+// const isDevelopment = process.env.NODE_ENV !== 'production';
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -24,7 +24,6 @@ async function createWindow() {
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
     },
   });
-
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
@@ -33,6 +32,7 @@ async function createWindow() {
     createProtocol('app');
     // Load the index.html when not in development
     win.loadURL('app://./index.html');
+    win.webContents.openDevTools();
   }
 
   win.on('closed', () => {
@@ -86,3 +86,36 @@ if (isDevelopment) {
     });
   }
 }
+
+let sharingPanel;
+ipcMain.on('open-new-window-for-screensharing', () => {
+  const modalPath =
+    process.env.NODE_ENV === 'development'
+      ? 'http://localhost:8080/#/ScreenSharingControlPanel'
+      : `file://${__dirname}/index.html#ScreenSharingControlPanel`;
+
+  sharingPanel = new BrowserWindow({
+    width: 600,
+    height: 400,
+    frame: false,
+    webPreferences: {
+      nodeIntegration: true,
+      enableRemoteModule: true,
+    },
+  });
+  // sharingPanel.setMenuBarVisibility(false);
+
+  sharingPanel.on('close', () => {
+    sharingPanel = null;
+  });
+
+  sharingPanel.loadURL(modalPath);
+  sharingPanel.webContents.openDevTools();
+  win.minimize();
+});
+
+ipcMain.on('close-sharing-panel', () => {
+  console.log('close-sharing-panel');
+  win.webContents.send('close-sharing-panel');
+  win.maximize();
+});

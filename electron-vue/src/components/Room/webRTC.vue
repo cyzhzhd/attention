@@ -1,20 +1,20 @@
 <template>
   <div class="webRTC">
-    <div>
-      <span class="mute-video-button" @click.prevent="muteVideo">
-        <i class="fa fa-video-camera fa-2x" v-if="!isVideoMuted" aria-hidden="true"></i>
-        <i class="fa fa-pause fa-2x" v-if="isVideoMuted" aria-hidden="true"></i>
-      </span>
-      <span class="mute-audio-button" @click.prevent="muteAudio">
-        <i class="fa fa-microphone fa-2x" v-if="!isAudioMuted" aria-hidden="true"></i>
-        <i class="fa fa-microphone-slash fa-2x" v-if="isAudioMuted" aria-hidden="true"></i>
-      </span>
+    <div class="teacher">
+      <video ref="teacherVideo"></video>
     </div>
-    <div>
-      <video ref="localVideo" autoplay muted playsinline></video>
-      <p>Me</p>
+    <div ref="videos" class="videos">
+      <div>
+        <video
+          ref="localVideo"
+          class="localVideo"
+          autoplay
+          muted
+          playsinline
+        ></video>
+        <p>Me</p>
+      </div>
     </div>
-    <div ref="videos" class="remote-streams"></div>
   </div>
 </template>
 
@@ -23,46 +23,55 @@ import { mapActions } from 'vuex';
 
 export default {
   name: 'WebRTC',
-  data() {
-    return {
-      isVideoMuted: true,
-      isAudioMuted: true,
-    };
-  },
-
   methods: {
-    muteVideo() {
-      this.isVideoMuted = !this.isVideoMuted;
-      this.MuteVideo();
-    },
-    muteAudio() {
-      this.isAudioMuted = !this.isAudioMuted;
-      this.MuteAudio();
-    },
-    ...mapActions('webRTC', [
-      'SetUser',
-      'LocalVideoSetter',
-      'VideoSetter',
-      'MuteVideo',
-      'MuteAudio',
-    ]),
+    ...mapActions('webRTC', ['SetUser', 'VideoSetter']),
   },
   mounted() {
-    this.SetUser(this.$user);
-    this.LocalVideoSetter(this.$refs.localVideo);
-    this.VideoSetter(this.$refs.videos);
+    const { _id } = this.$store.state.user;
+    this.SetUser(_id);
+    const params = {
+      localVideo: this.$refs.localVideo,
+      videos: this.$refs.videos,
+      teacherVideo: this.$refs.teacherVideo,
+    };
+    this.VideoSetter(params);
   },
 };
 </script>
 
 <style>
-.mute-video-button {
-  margin-right: 30px;
+.webRTC {
+  height: 93vh;
+  display: grid;
+  /* grid-template-rows: 70% 30%; */
+  /* grid-template-areas: 'teacher', 'videos'; */
+  grid-template-columns: 80% 20%;
+  grid-template-areas: 'teacher videos';
 }
-.remote-streams div {
-  margin: 30px;
+.teacher {
+  grid-area: 'teacher';
+  align-self: center;
 }
-.remote-streams div p {
+.teacher video {
+  width: 100%;
+  max-height: 67vh;
+}
+
+.videos {
+  grid-area: 'videos';
+  display: flex;
+  flex-direction: column;
+  /* align-items: center; */
+  justify-content: center;
+  /* grid-template-columns: 1fr; */
+  margin-top: 15px;
+}
+.videos video {
+  /* width: 99%; */
+  max-height: 21vh;
+  /* padding: 0 5px; */
+}
+.videos div p {
   color: black;
 }
 </style>

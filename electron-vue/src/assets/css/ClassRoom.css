@@ -1,0 +1,284 @@
+/* html body {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+.wrapper {
+  width: 1400px;
+  height: 100vh;
+  margin: 0 auto;
+  display: flex;
+  overflow: hidden;
+} */
+
+.side-navigation-panel {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.secondary-view-panel {
+  width: 320px;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.secondary-view-panel-box-wrapper {
+  width: 100%;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.secondary-view-panel-box-title {
+  font-family: Gmarket Sans;
+  font-weight: bold;
+  font-size: 36px;
+  color: #00d39d;
+  margin-bottom: 20px;
+}
+
+.secondary-view-panel-box-contents {
+  width: 100%;
+  height: 400px;
+  background-color: #c4c4c4;
+  border-radius: 33px;
+}
+
+.side-navigation-header {
+  padding: 24px 32px;
+  width: 100%;
+}
+
+.side-navigation-header > img {
+  width: 100%;
+}
+
+.side-navigation-body {
+  min-width: 0;
+  flex: 1;
+  padding: 0 24px;
+}
+
+.side-navigation-item {
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-weight: 400;
+  font-size: 36px;
+  padding: 0 32px;
+  transition: background-color 100ms ease-in;
+  color: #666666;
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+.side-navigation-item:hover {
+  background-color: #e4f7f1;
+}
+
+.side-navigation-item + .side-navigation-item {
+  margin-top: 4px;
+}
+
+.side-navigation-footer {
+  display: flex;
+  align-items: center;
+  padding: 24px 32px;
+}
+
+.current-user-profile {
+  width: 62px;
+  height: 62px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background-color: #e4f7f1;
+}
+
+.current-user-name {
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-weight: 400;
+  font-size: 24px;
+  color: #666666;
+}
+
+.main-panel {
+  min-width: 0;
+  flex: 1;
+  background-color: #e4f7f1;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-panel-header {
+  width: 100%;
+  height: 140px;
+  border-bottom: 5px solid #ffffff;
+  display: flex;
+  align-items: center;
+  padding: 0 62px;
+}
+
+.main-panel-header-title {
+  min-width: 0;
+  flex: 1;
+  font-family: Gmarket Sans;
+  font-weight: bold;
+  font-size: 36px;
+
+  color: #00d39d;
+}
+
+.main-panel-header-class-name {
+  font-family: Gmarket Sans;
+  font-weight: bold;
+  font-size: 36px;
+
+  color: #00d39d;
+}
+
+.main-panel-header-icon > img {
+  width: 80px;
+}
+
+.main-panel-contents {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  height: calc(100% - 140px);
+}
+
+.main-panel-class-list {
+  width: 500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 42px 0;
+}
+
+.create-class-item {
+  width: 400px;
+  height: 250px;
+  overflow: hidden;
+  border: 3px solid #00d39d;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: transform 300ms ease-in;
+}
+
+.create-class-item:hover {
+  transform: translateY(-10px);
+}
+
+.create-classroom-plus-icon {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 32px;
+}
+
+.create-classroom-plus-icon > img {
+  width: 50px;
+  height: 50px;
+}
+
+.create-classroom-title {
+  font-family: Gmarket Sans;
+  font-weight: bold;
+  font-size: 36px;
+  color: #666666;
+}
+
+.class-list-header {
+  display: flex;
+  width: 100%;
+  margin-top: 42px;
+  margin-bottom: 12px;
+}
+
+.class-list-header-item {
+  flex: 1;
+  font-family: Gmarket Sans;
+  font-weight: bold;
+  font-size: 24px;
+  line-height: 62px;
+  text-align: center;
+  color: #12ac85;
+}
+
+.class-item {
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.class-item-header {
+  display: flex;
+  width: 100%;
+  height: 62px;
+  align-items: center;
+}
+
+.class-item-teacher-profile {
+  position: absolute;
+  width: 62px;
+  height: 62px;
+  top: 0;
+  left: -62px;
+  border-radius: 50%;
+  background-color: #c4c4c4;
+  z-index: 1;
+}
+
+.class-item-header-item {
+  flex: 1;
+  font-family: Gmarket Sans;
+  font-weight: bold;
+  font-size: 24px;
+  text-align: center;
+  letter-spacing: 0.31em;
+
+  color: #666666;
+}
+
+.class-item-header-item-teacher-name {
+  flex: 1;
+  font-family: Gmarket Sans;
+  font-size: 24px;
+  text-align: center;
+
+  color: #666666;
+}
+
+.class-item-preview {
+  width: 440px;
+  height: 250px;
+}
+
+.class-item-class-start-button {
+  width: 200px;
+  height: 52px;
+  margin-top: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #00d39d;
+  border-radius: 30px;
+  color: #00d39d;
+  background-color: white;
+}
+
+.class-item-class-start-button:hover {
+  background-color: #00d39d;
+  color: #fff;
+}
