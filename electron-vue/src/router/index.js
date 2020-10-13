@@ -8,6 +8,7 @@ import AddClassRoom from '../views/AddClassRoom.vue';
 import AddClass from '../views/AddClass.vue';
 import ClassRoomSettings from '../views/ClassRoomSettings.vue';
 import ScreenSharingControlPanel from '../views/ScreenSharingControlPanel.vue';
+import Dashboard from '../views/Dashboard.vue';
 
 Vue.use(VueRouter);
 
@@ -23,19 +24,14 @@ const routes = [
     component: ClassRoomList,
   },
   {
-    path: '/classroom/:classroomId/:classroomName/:classId',
-    name: 'ClassRoom',
-    component: ClassRoom,
-  },
-  {
-    path: '/classroom/:classroomId/:classId',
-    name: 'Class',
-    component: Class,
-  },
-  {
     path: '/add-classroom',
     name: 'AddClassRoom',
     component: AddClassRoom,
+  },
+  {
+    path: '/classroom/:classroomId/:classroomName/:classId',
+    name: 'ClassRoom',
+    component: ClassRoom,
   },
   {
     path: '/add-class/:classroomId',
@@ -46,6 +42,16 @@ const routes = [
     path: '/classroom-settings/:classroomId/:classroomName',
     name: 'ClassRoomSettings',
     component: ClassRoomSettings,
+  },
+  {
+    path: '/classroom/:classroomId/:classroomName/dashboard',
+    name: 'Dashboard',
+    component: Dashboard,
+  },
+  {
+    path: '/classroom/:classroomId/:classId',
+    name: 'Class',
+    component: Class,
   },
   {
     path: '/ScreenSharingControlPanel',

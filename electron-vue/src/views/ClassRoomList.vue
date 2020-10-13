@@ -1,6 +1,10 @@
 <template>
   <div class="wrapper">
-    <side-navigation-panel></side-navigation-panel>
+    <side-navigation-panel>
+      <div slot="section">
+        <router-link class="side-navigation-item" to="/">홈</router-link>
+      </div>
+    </side-navigation-panel>
     <div class="main-panel">
       <header class="main-panel-header">
         <div class="main-panel-header-title">교실 목록</div>

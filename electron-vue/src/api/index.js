@@ -49,6 +49,13 @@ function createClass(jwt, options) {
   return axios.post(`${config.baseUrl}/session`, options, setHeader(jwt));
 }
 
+function fetchConcentration(jwt, url, options) {
+  return axios.get(
+    `${config.baseUrl}/concentration/${url}`,
+    setHeader(jwt, options),
+  );
+}
+
 export {
   fetchJWT,
   fetchUserInfo,
@@ -59,4 +66,5 @@ export {
   deleteClassroom,
   fetchClassInfo,
   createClass,
+  fetchConcentration,
 };

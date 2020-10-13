@@ -1,6 +1,15 @@
 <template>
   <div class="wrapper">
-    <side-navigation-panel></side-navigation-panel>
+    <side-navigation-panel>
+      <div slot="section">
+        <router-link class="side-navigation-item" to="/">홈</router-link>
+        <router-link class="side-navigation-item" to="/ClassRoomList">교실 목록</router-link>
+        <router-link class="side-navigation-item" :to="{name: 'Dashboard', param: {
+          classroomId,
+          classroomName
+        }}" >대시 보드</router-link>
+      </div>
+    </side-navigation-panel>
     <div class="main-panel">
       <header class="main-panel-header">
         <div class="main-panel-header-title">수업 목록</div>
@@ -129,7 +138,6 @@ export default {
     }
     const data = await this.$store.dispatch('FETCH_CLASS_ROOM_INFO', options);
     this.classId = data.session;
-    console.log(data);
     if (this.classId === 'notReady') {
       this.isClassReady = false;
     } else {
