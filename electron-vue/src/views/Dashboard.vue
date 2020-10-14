@@ -1,28 +1,38 @@
 <template>
-  <div>
-    <div>
-      <ul>
-        <li v-for="student in studentList" v-bind:key="student.user">
-          <div @click="displayUserChart(student)">
-          {{ student.name }}
-          </div>
-        </li>
-      </ul>
-    </div>
-    <div>
-      <div class="CCTButtons">
-        <div @click="displaySelectedData('focusPoint')">Focus Point</div>
-        <div @click="displaySelectedData('absence')">Absence</div>
-        <div @click="displaySelectedData('sleep')">Sleep</div>
-        <div @click="displaySelectedData('turnHead')">TurnHead</div>
+  <div class="wrapper">
+    <side-navigation-panel>
+      <div slot="section">
+        <router-link class="side-navigation-item" to="/">홈</router-link>
+        <router-link class="side-navigation-item" to="/ClassRoomList">교실 목록</router-link>
+        <div class="side-navigation-item" @click="$router.go(-1)">수업 목록</div>
       </div>
-      <chart></chart>
+    </side-navigation-panel>
+    <div class="main-panel">
+      <div>
+        <ul>
+          <li v-for="student in studentList" v-bind:key="student.user">
+            <div @click="displayUserChart(student)">
+            {{ student.name }}
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <div class="CCTButtons">
+          <div @click="displaySelectedData('focusPoint')">Focus Point</div>
+          <div @click="displaySelectedData('absence')">Absence</div>
+          <div @click="displaySelectedData('sleep')">Sleep</div>
+          <div @click="displaySelectedData('turnHead')">TurnHead</div>
+        </div>
+        <chart></chart>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
+import SideNavigationPanel from '../components/common/SideNavigationPanel.vue';
 import chart from '../components/Dashboard/Chart.vue';
 import bus from '../../utils/bus';
 
@@ -30,6 +40,7 @@ export default {
   name: "Dashboard",
   components: {
     chart,
+    SideNavigationPanel,
   },
   computed: {
     ...mapGetters('dashboard', ["studentList"]),
@@ -82,18 +93,5 @@ export default {
 </script>
 
 <style scoped>
-.CCTButtons {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-}
-
-.CCTButtons div {
-  background: #00d39d;
-  color: white;
-  margin: 0 10px;
-}
-.CCTButtons div:focus {
-  background: red;
-}
+@import '../assets/css/Dashboard.css';
 </style>

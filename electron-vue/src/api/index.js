@@ -57,12 +57,10 @@ function fetchConcentration(jwt, url, options) {
 }
 
 function fetchUserList(jwt, options) {
-  console.log(jwt, options);
   return axios.get(`${config.baseUrl}/class/users`, setHeader(jwt, options));
 }
 
 function finishClass(jwt, options) {
-  console.log(options);
   return axios.delete(`${config.baseUrl}/session`, setHeader(jwt, options));
 }
 

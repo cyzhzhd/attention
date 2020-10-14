@@ -155,8 +155,17 @@ img {
   left: 100px;
 }
 .header {
+  display: flex;
   cursor: move;
   background-color: aquamarine;
+  padding: 0px 30px;
+}
+.modal-title {
+  flex: 1;
+}
+
+.closeModalBtn {
+  cursor: pointer;
 }
 
 .msg {
@@ -215,16 +224,5 @@ img {
 .bot-msg {
   background-color: gray;
   border-radius: 0.5rem;
-}
-.header {
-  display: flex;
-  padding: 0px 30px;
-}
-.modal-title {
-  flex: 1;
-}
-
-.closeModalBtn {
-  cursor: pointer;
 }
 </style>

@@ -15,6 +15,9 @@
         <div class="option" @click.prevent="controlModal('showingInviteModal')">
           초대
         </div>
+        <div class="option" @click.prevent="controlModal('showingCCTModal')">
+          그래프
+        </div>
         <div
           class="option"
           @click.prevent="controlModal('showingSettingModal')"
@@ -68,6 +71,10 @@
       v-bind:showingModal="modalList.showingChatModal"
       v-on:closeModal="controlModal"
     ></chat>
+    <CCTGraph
+      v-bind:showingModal="modalList.showingCCTModal"
+      v-on:closeModal="controlModal"
+    ></CCTGraph>
     <screen-sharing
       v-bind:showingModal="modalList.showingScreenSharingModal"
       v-on:closeModal="controlModal"
@@ -81,6 +88,7 @@ import smallModal from '../common/smallModal.vue';
 import settings from './roomOptions/mainSettings.vue';
 import chat from './roomOptions/chat.vue';
 import screenSharing from './roomOptions/screenSharing.vue';
+import CCTGraph from './roomOptions/CCTGraph.vue';
 import bus from '../../../utils/bus';
 
 export default {
@@ -90,6 +98,7 @@ export default {
     settings,
     chat,
     screenSharing,
+    CCTGraph,
   },
   data() {
     return {
@@ -100,6 +109,7 @@ export default {
         showingSettingModal: false,
         showingChatModal: false,
         showingScreenSharingModal: false,
+        showingCCTModal: false,
       },
 
       isVideoMuted: true,
@@ -126,6 +136,11 @@ export default {
         modelName === 'showingChatModal'
       ) {
         bus.$emit('openChat');
+      } else if (
+        this.modalList[modelName] &&
+        modelName === 'showingCCTModal'
+      ) {
+        bus.$emit('openCCTGraph');
       }
     },
 
@@ -139,17 +154,16 @@ export default {
     },
 
     async leaveRoom() {
+      // if(this.$store.state.user.isTeacher) {
+      //   const options = {
+      //     class: this.classroomId,
+      //     session: this.$route.params.classId,
+      //   }
+      //   console.log('finish class');
+      //   this.FinishClass();
+      //   await this.$store.dispatch('FINISH_CLASS', options);
+      // }
       this.LeaveRoom();
-      console.log(this.$store.state.user.isTeacher);
-      if(this.$store.state.user.isTeacher) {
-        const options = {
-          class: this.classroomId,
-          session: this.$route.params.classId,
-        }
-        console.log('finish class');
-        await this.$store.dispatch('FINISH_CLASS', options);
-        this.FinishClass();
-      }
       this.$router.go(-1);
     },
 

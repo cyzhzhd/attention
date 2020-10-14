@@ -62,11 +62,13 @@ const mutations = {
     // };
     webRTC.sendMessage('leaveSession', {});
 
-    // clearInterval(interval);
+    clearInterval(interval);
     webRTC.disconnectWebRTC();
   },
 
   finishClass(state) {
+    console.log('finishClass');
+    console.log(state.classId);
     webRTC.sendMessage('requestDisconnection', { sendTo: state.classId });
   },
 
