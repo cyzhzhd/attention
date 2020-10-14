@@ -1,6 +1,6 @@
-import bus from '../../../utils/bus';
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
 /* eslint-disable no-use-before-define */
+import bus from '../../../utils/bus';
 import analyzeLib from './analyze/analyzeLib';
 import webRTC from './webRTC/rtcPart';
 
@@ -34,38 +34,40 @@ const mutations = {
     state.myId = id;
   },
   enterRoom(state, payload) {
-
     state.classroomId = payload.classroomId;
     state.classId = payload.classId;
     state.jwt = payload.jwt;
 
-    const options = {
-      token: state.jwt,
-      class: state.classroomId,
-      session: state.classId,
-    };
-    webRTC.emitEvent('joinSession', options);
+    // const options = {
+    //   token: state.jwt,
+    //   class: state.classroomId,
+    //   session: state.classId,
+    // };
+    // console.log('joinSession', options);
+    // webRTC.emitEvent('joinSession', options);
+    webRTC.sendMessage('joinSession', {});
 
     // signal to server every 2 sec for keeping connection
-    interval = setInterval(
-      () => webRTC.emitEvent('pingSession', options),
-      2000,
-    );
+    interval = setInterval(() => webRTC.sendMessage('pingSession', {}), 2000);
     bus.$on('onDeliverDisconnection', () => {
       clearInterval(interval);
       webRTC.disconnectWebRTC();
     });
   },
-  leaveRoom(state) {
-    const options = {
-      token: state.jwt,
-      class: state.classroomId,
-      session: state.classId,
-    };
-    webRTC.emitEvent('leaveSession', options);
+  leaveRoom() {
+    // const options = {
+    //   token: state.jwt,
+    //   class: state.classroomId,
+    //   session: state.classId,
+    // };
+    webRTC.sendMessage('leaveSession', {});
 
-    clearInterval(interval);
+    // clearInterval(interval);
     webRTC.disconnectWebRTC();
+  },
+
+  finishClass(state) {
+    webRTC.sendMessage('requestDisconnection', { sendTo: state.classId });
   },
 
   connectWithTheUser(state, targetUser) {
@@ -106,6 +108,10 @@ const actions = {
 
   LeaveRoom({ commit }) {
     commit('leaveRoom');
+  },
+
+  FinishClass({ commit }) {
+    commit('finishClass');
   },
 
   SendChat({ commit }, message) {

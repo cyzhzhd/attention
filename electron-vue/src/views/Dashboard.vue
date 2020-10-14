@@ -53,7 +53,7 @@ export default {
         jwt: this.$store.state.jwt,
         params: {
           class: this.classroomId,
-          user: '5f7c1869e6ecde001b3f2f0c',
+          // user: '5f7c1869e6ecde001b3f2f0c',
         },
       }
       this.SetStudentList(options);

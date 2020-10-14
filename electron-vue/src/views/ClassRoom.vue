@@ -18,7 +18,7 @@
       <div class="main-panel-contents">
         <div class="main-panel-class-list">
           <router-link
-            v-if="$store.state.user._id === teacher"
+            v-if="$store.state.user.isTeacher"
             :to="{
               name: 'AddClass',
               params: {
@@ -133,10 +133,12 @@ export default {
     },
   },
   async mounted() {
+    console.log("mounted");
     const options = {
        class: this.classroomId,
     }
     const data = await this.$store.dispatch('FETCH_CLASS_ROOM_INFO', options);
+    console.log("session", data);
     this.classId = data.session;
     if (this.classId === 'notReady') {
       this.isClassReady = false;

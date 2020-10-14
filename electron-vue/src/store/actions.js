@@ -9,6 +9,7 @@ import {
   fetchClassInfo,
   createClass,
   fetchConcentration,
+  finishClass,
 } from '../api';
 
 function setError(commit, error) {
@@ -76,6 +77,11 @@ export default {
   },
   FETCH_CONCENTRATION({ state }, options) {
     return fetchConcentration(state.jwt, options.url, options.params)
+      .then(({ data }) => data)
+      .catch(error => console.error(error));
+  },
+  FINISH_CLASS({ state }, options) {
+    return finishClass(state.jwt, options)
       .then(({ data }) => data)
       .catch(error => console.error(error));
   },

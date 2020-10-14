@@ -4,7 +4,6 @@
       <p>2주차 관동별곡</p>
     </div>
     <web-rtc class="webRTC"></web-rtc>
-    <!-- <chat class="chat"></chat> -->
     <user-list class="user-list"></user-list>
     <room-options class="room-options"></room-options>
   </div>
@@ -12,7 +11,6 @@
 
 <script>
 import { mapActions } from 'vuex';
-// import chat from '../components/Room/roomOptions/chat.vue';
 import WebRtc from '../components/Room/webRTC.vue';
 import userList from '../components/Room/userlist.vue';
 import roomOptions from '../components/Room/roomOptions.vue';
@@ -37,7 +35,7 @@ export default {
       this.EnterRoom({
         classroomId: this.classroomId,
         classId: this.classId,
-        jwt: this.$jwt,
+        jwt: this.$store.state.jwt,
       });
     },
     ...mapActions('webRTC', ['EnterRoom']),

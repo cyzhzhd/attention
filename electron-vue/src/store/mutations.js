@@ -20,6 +20,16 @@ export default {
   },
   SET_CLASSROOM_LIST(state, classInfo) {
     if (classInfo.session === null) classInfo.session = 'notReady';
-    state.classroom.push(classInfo);
+    /* eslint no-underscore-dangle: ["error", { "allow": [ "_id"] }] */
+    let hasFound = false;
+    state.classroom.some(classroom => {
+      if (classInfo._id === classroom._id) {
+        classroom.session = classInfo.session;
+        hasFound = true;
+        return true;
+      }
+      return false;
+    });
+    if (!hasFound) state.classroom.push(classInfo);
   },
 };

@@ -93,7 +93,7 @@ export default {
   },
   data() {
     return {
-      roomId: this.$route.params.roomId,
+      classroomId: this.$route.params.classroomId,
       roomName: this.$route.params.roomName,
       modalList: {
         showingInviteModal: false,
@@ -138,9 +138,19 @@ export default {
       this.MuteAudio();
     },
 
-    leaveRoom() {
-      this.$router.go(-1);
+    async leaveRoom() {
       this.LeaveRoom();
+      console.log(this.$store.state.user.isTeacher);
+      if(this.$store.state.user.isTeacher) {
+        const options = {
+          class: this.classroomId,
+          session: this.$route.params.classId,
+        }
+        console.log('finish class');
+        await this.$store.dispatch('FINISH_CLASS', options);
+        this.FinishClass();
+      }
+      this.$router.go(-1);
     },
 
     ...mapActions('webRTC', [
@@ -149,6 +159,7 @@ export default {
       'ShareScreen',
       'LeaveRoom',
       'ButtonSetter1',
+      'FinishClass',
     ]),
   },
   mounted() {

@@ -61,6 +61,11 @@ function fetchUserList(jwt, options) {
   return axios.get(`${config.baseUrl}/class/users`, setHeader(jwt, options));
 }
 
+function finishClass(jwt, options) {
+  console.log(options);
+  return axios.delete(`${config.baseUrl}/session`, setHeader(jwt, options));
+}
+
 export {
   fetchJWT,
   fetchUserInfo,
@@ -73,4 +78,5 @@ export {
   createClass,
   fetchConcentration,
   fetchUserList,
+  finishClass,
 };
