@@ -7,7 +7,7 @@
 /* eslint-disable dot-notation */
 /* eslint-disable import/prefer-default-export */
 
-import * as tfjs from "@tensorflow/tfjs";
+import * as tfjs from '@tensorflow/tfjs';
 
 class DetectorModel {
   constructor(imgW, imgH) {
@@ -29,7 +29,7 @@ class DetectorModel {
       pred,
       this.anchors,
       this.imgW,
-      this.imgH
+      this.imgH,
     );
     const [selectedBox, conf] = await nonMaximalSuppression(bboxes, confs, 0.3);
     tfjs.dispose([normalized, preds, pred, confs, bboxes]);
@@ -93,12 +93,12 @@ function prediction_to_bbox(prediction, anchors, imgW, imgH) {
 async function nonMaximalSuppression(bboxes, confs, min_conf) {
   const topk = confs.topk(1);
 
-  const toCopy = [topk["values"], topk["indices"]];
+  const toCopy = [topk['values'], topk['indices']];
   const [[maxConf], [maxArg]] = await Promise.all(
-    toCopy.map(async (item) => {
+    toCopy.map(async item => {
       const arr = await item.array();
       return arr;
-    })
+    }),
   );
 
   if (maxConf < min_conf) {

@@ -5,7 +5,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-new-object */
 
-import * as tfjs from "@tensorflow/tfjs";
+import * as tfjs from '@tensorflow/tfjs';
 
 class LandmarkModel {
   constructor(imgW, imgH) {
@@ -23,16 +23,16 @@ class LandmarkModel {
     if (croppedFace === undefined) return [undefined, undefined];
 
     const [angles, _rawLandmarks] = this.model.execute(croppedFace, [
-      "Identity_1",
-      "Identity_2",
+      'Identity_1',
+      'Identity_2',
     ]);
 
     const toCopy = [angles, _rawLandmarks];
     const [angle, rawLandmarks] = await Promise.all(
-      toCopy.map(async (item) => {
+      toCopy.map(async item => {
         const arr = await item.array();
         return arr;
-      })
+      }),
     );
 
     const landmarks = convertLandmark(rawLandmarks, bbox);
@@ -53,7 +53,7 @@ class LandmarkModel {
         ],
       ],
       [0],
-      [160, 160]
+      [160, 160],
     );
   }
 }
@@ -67,8 +67,8 @@ export function convertLandmark(landmarks, box) {
 
     let o =
       i % 2
-        ? { key: "_y", offset: box[1], mult: box[3] - box[1] }
-        : { key: "_x", offset: box[0], mult: box[2] - box[0] };
+        ? { key: '_y', offset: box[1], mult: box[3] - box[1] }
+        : { key: '_x', offset: box[0], mult: box[2] - box[0] };
     landmarkObj[Math.floor(i / 2)][o.key] = o.offset + landmarks[0][i] * o.mult;
   }
   return landmarkObj;

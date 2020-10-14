@@ -595,6 +595,9 @@ socket.on('camSharingMode', id => {
   // 레이아웃 원래대로 되돌림
   console.log(id);
 });
+socket.on('deliverConcenteration', cctData => {
+  console.log(cctData);
+});
 
 bus.$on('change-screen-to-localstream', () => {
   substitueTrack(localStream.getTracks()[1], false);
