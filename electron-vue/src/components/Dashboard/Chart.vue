@@ -24,6 +24,7 @@ export default {
       datacollection: null,
       timeRange: [],
       data: {},
+      hasCalculated: {},
     }
   },
   methods: {
@@ -31,7 +32,7 @@ export default {
       console.log('distributeCCTData start --------------');
       console.log(this.studentList);
       const options = {
-          url: 'class',
+        url: 'class',
         params: { class: this.$route.params.classroomId},
       }
       const concentrations = await this.$store.dispatch('FETCH_CONCENTRATION', options);
@@ -81,11 +82,13 @@ export default {
           keys.forEach(key => {
               this.studentList[key].cctTime.push({
                   time: label,
-            concentrationArr: [],
-            concentrationMean: {},
+                  concentrationArr: [],
+                  concentrationMean: {},
           })
         })
       });
+
+      // bus.$emit("ready-to-draw-chart");
       console.log('fillStudentList end --------------');
     },
     getLabels() {
@@ -144,12 +147,23 @@ export default {
         this.data[student.user].turnHead.push(turnHeadMean);
       })
     },
-    calculateCCTData() {
+    calculateCCTData(userList) {
       console.log('calculateCCTData start --------------');
-      const id = '5f7fef73b14f4400111665c4';
-      const student = this.studentList[id];
-      this.divideDataPerMinute(student);
-      this.calculateAverage(student);    
+      userList.forEach(userInfo => {
+        const { user } = userInfo;
+        console.log(user);
+        console.log(this.hasCalculated[user]);
+        console.log(!this.hasCalculated[user]);
+        if(!this.hasCalculated[user]) {
+          const student = this.studentList[user];
+          console.log('calculating -------------------', student);
+          this.divideDataPerMinute(student);
+          this.calculateAverage(student);    
+          this.hasCalculated[user] = true;
+        }
+      })
+      // const id = '5f7fef73b14f4400111665c4';
+      // const student = this.studentList[id];
       console.log('calculateCCTData end --------------');
     },
 
@@ -159,46 +173,54 @@ export default {
         if(key === 'sleep') return 'rgba(0, 255, 0, 1)';
         return 'rgba(0, 0, 255, 1)';
     },
-    addDataSet(key) {
-        console.log(key);
-      const id = '5f7fef73b14f4400111665c4';
-      console.log(this.data[id]);
+    addDataSet(userInfo, key) {
+      const { user, name } = userInfo;
+      console.log(key);
+      // const id = '5f7fef73b14f4400111665c4';
+      console.log(this.data[user]);
         return {
-            label: key,
+            label: `${name} - ${key}`,
             borderColor: this.chooseColor(key),
-            data: this.data[id][key],
+            data: this.data[user][key],
             fill: false,
         }
     },
-    drawChart(data) {
+    drawChart(userList, type) {
       console.log('drawChart start --------------');
-      console.log(data);
+      console.log(type);
+      console.log(userList);
       this.datacollection = {
         labels: this.timeRange,
         datasets: [
         ],
       };
-      const keys = Object.keys(data);
-      keys.forEach(key => {
-          if(data[key]) {
-              this.datacollection.datasets.push(this.addDataSet(key));
-          }
+      userList.forEach(userInfo => {
+        const keys = Object.keys(type);
+        keys.forEach(key => {
+            if(type[key]) {
+                this.datacollection.datasets.push(this.addDataSet(userInfo, key));
+            }
+        })
       })
-      
       console.log('drawChart end --------------');
     },
-    async displayData(data) {
-      await this.distributeCCTData();
-      this.getLabels();
-      this.fillStudentList();
-      this.calculateCCTData();
-      this.drawChart(data);
+    displayData(userList, type) {
+      this.calculateCCTData(userList);
+      this.drawChart(userList, type);
     },
+    displayDataByUser(userList, type) {
+      this.calculateCCTData(userList);
+      this.drawChart(userList, type);
+    }
   },
-  mounted() {
-    bus.$on('changeDisplayingData', (type) => {
-      this.displayData(type);
-    })
+  async mounted() {
+    bus.$on('changeDisplayingData', (userList, type) => {
+      console.log('changeDisplayingData', type);
+      this.displayData(userList, type);
+    });
+    await this.distributeCCTData();
+    this.getLabels();
+    this.fillStudentList();
   },
       
   beforeDestroy() {

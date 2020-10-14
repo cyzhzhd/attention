@@ -75,7 +75,6 @@ export default {
       .catch(error => console.error(error));
   },
   FETCH_CONCENTRATION({ state }, options) {
-    console.log('FETCH_CONCENTRATION', options);
     return fetchConcentration(state.jwt, options.url, options.params)
       .then(({ data }) => data)
       .catch(error => console.error(error));

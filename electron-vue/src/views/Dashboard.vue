@@ -3,7 +3,9 @@
     <div>
       <ul>
         <li v-for="student in studentList" v-bind:key="student.user">
-          {{ student.user }}
+          <div @click="displayUserChart(student)">
+          {{ student.name }}
+          </div>
         </li>
       </ul>
     </div>
@@ -41,33 +43,40 @@ export default {
         sleep: false,
         turnHead: false,
       },
+      displayingUser: [],
     }
   },
   methods: {
     createStudentList() {
       console.log('createStudentList start --------------');
-      this.$store.state.classroom.some(classroom => {
-      const { _id } = classroom;
-      if (_id === this.classroomId) {
-        this.SetStudentList(classroom);
-        return true;
+      const options = {
+        jwt: this.$store.state.jwt,
+        params: {
+          class: this.classroomId,
+          user: '5f7c1869e6ecde001b3f2f0c',
+        },
       }
-      return false;
-      });
+      this.SetStudentList(options);
       console.log('createStudentList end --------------');
+    },
+    displayUserChart(student) {
+      const index = this.displayingUser.findIndex((user) => user.user === student.user);
+      if(index === -1) {
+        this.displayingUser.push({user: student.user, name: student.name});
+      } else {
+        this.displayingUser.splice(index, 1);
+      }
+      bus.$emit('changeDisplayingData', this.displayingUser, this.type);
     },
     displaySelectedData(dataType) {
       this.type[dataType] = !this.type[dataType];
-      bus.$emit('changeDisplayingData', this.type);
+      bus.$emit('changeDisplayingData', this.displayingUser, this.type);
     },
 
     ...mapActions('dashboard', ['SetStudentList']),
   },
   created() {
     this.createStudentList();
-  },
-  mounted() {
-    bus.$emit('changeDisplayingData', this.type);
   },
 }
 </script>
