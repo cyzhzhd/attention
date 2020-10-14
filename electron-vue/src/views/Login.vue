@@ -49,11 +49,24 @@
           placeholder="password"
         />
         <input
+          type="password"
+          class="signup-password-check"
+          v-model.trim="signup.passwordCheck"
+          placeholder="password-check"
+        />
+        <input
           type="text"
           class="signup-displayname"
           v-model.trim="signup.displayName"
           placeholder="displayname"
         />
+        <form>
+          가입 유형
+          <select name="dropdown2" v-model="signup.type">
+            <option value="학생" selected>학생</option>
+            <option value="선생님">선생님</option>
+          </select>
+        </form>
         <button type="submit" variant="primary" :disabled="!signup.email">
           Sign Up
         </button>
@@ -69,66 +82,60 @@ export default {
   data() {
     return {
       login: { email: '', password: '' },
-      signup: { email: '', password: '', displayName: '' },
-      errorMessage: '',
+      signup: {
+        email: '',
+        password: '',
+        passwordCheck: '',
+        displayName: '',
+        type: '학생',
+      },
+      errorMessage: this.$store.state.errorMessage,
       hasLogInActivated: true,
     };
   },
   methods: {
-    LogIn() {
+    async LogIn() {
       const options = {
         email: this.login.email,
         password: this.login.password,
       };
-      this.$http
-        .post('https://be.swm183.com:3000/user/login', options)
-        .then(response => {
-          console.log(response);
-          this.$setJWT(response.data);
+      const jwt = await this.$store.dispatch("FETCH_JWT", options);
+      const info = await this.$store.dispatch("FETCH_USER_INFO");
 
-          this.login.email = '';
-          this.login.password = '';
-
-          this.$router.push({
-            name: 'ClassRoomList',
+      if(jwt && info) {
+        this.$router.push({
+          name: 'ClassRoomList',
           });
-        })
-        .catch(error => {
-          this.errorMessage = error.response;
-          // this.errorMessage = '잘못된 아이디 혹은 비밀번호를 입력하셨습니다.';
-          console.log(error);
-        });
+      } else {
+        this.errorMessage = this.$store.state.errorMessage;
+      }
     },
 
-    SignUp() {
-      const options = {
-        email: this.signup.email,
-        password: this.signup.password,
-        name: this.signup.displayName,
-        isTeacher: 1,
-      };
-      this.$http
-        .post('https://be.swm183.com:3000/user/account', options)
-        .then(response => {
-          console.log(response);
-          // if (response.data.code === 'auth/invalid-password') {
-          //   this.errorMessage = '비밀번호는 6자리 이상 입력해주세요';
-          // } else if (response.data.code === 'auth/invalid-email') {
-          //   this.errorMessage = '정확한 이메일 주소를 입력해주세요.';
-          // } else {
+    async SignUp() {
+      const isPasswordSame = this.signup.password === this.signup.passwordCheck;
+      if (isPasswordSame) {
+        const isTeacher = this.signup.type === '학생' ? 0 : 1;
+        const options = {
+          email: this.signup.email,
+          password: this.signup.password,
+          name: this.signup.displayName,
+          isTeacher,
+        };
+
+        const data = await this.$store.dispatch('SIGN_UP_USER', options);
+        if(data) {
           this.login.email = this.signup.email;
           this.signup.email = '';
           this.signup.password = '';
+          this.signup.passwordCheck = '';
           this.signup.displayName = '';
-          this.errorMessage = '';
           this.hasLogInActivated = true;
-          // }
-        })
-        .catch(error => {
-          this.errorMessage = error.response;
-          console.log(error.response);
-          console.error(error);
-        });
+        } else {
+          this.errorMessage = this.$store.state.errorMessage;
+        }
+      } else {
+        this.errorMessage = '비밀번호를 다시 확인해주세요.';
+      }
     },
 
     activeLogIn() {

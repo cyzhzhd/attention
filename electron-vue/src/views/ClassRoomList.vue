@@ -19,11 +19,16 @@
               <div class="create-classroom-plus-icon">
                 <img src="../assets/img/common/plus.png" />
               </div>
-              교실 만들기
+              <p v-if="$store.state.user.isTeacher">
+                교실 만들기
+              </p>
+              <p v-else>
+                교실 추가하기
+              </p>
             </div>
           </router-link>
 
-          <li class="classroom-card" v-for="room in classRooms" :key="room._id">
+          <li class="classroom-card" v-for="room in $store.state.classroom" :key="room._id">
             <div class="classroom-card-header">
               <router-link
                 class="classroom-card-title"
@@ -33,6 +38,7 @@
                     classroomId: room._id,
                     classroomName: room.name,
                     classId: room.session,
+                    teacher: room.teacher,
                   },
                 }"
                 action
@@ -136,7 +142,6 @@ export default {
         confirmModal: false,
         addClassRoomModal: false,
       },
-      classRooms: [],
       classRoomId: '',
       textConfirm: '',
     };
@@ -168,24 +173,17 @@ export default {
       this.classRoomId = room.classroomId;
     },
 
-    confirm() {
+    async confirm() {
       if (this.textConfirm === '확인') {
         this.controlModal('confirmModal');
-
         const options = {
-          headers: {
-            Authorization: `Bearer ${this.$jwt}`,
-          },
-          params: {
-            // class로 바꿀 예정
             class: this.classRoomId,
-          },
         };
-        console.log(this.classRoomId);
-        this.$http.delete('https://be.swm183.com:3000/class', options);
+        await this.$store.dispatch('DELETE_CLASSROOM', options);
         this.getClassRoomList();
       }
     },
+
     controlModal(modelName) {
       this.modalList[modelName] = !this.modalList[modelName];
 
@@ -195,45 +193,29 @@ export default {
       }
     },
 
-    addListOnClassRoom(classList, options, route) {
+    addListOnClassRoom(classList) {
       classList.forEach(async joinedClass => {
-        const tempOption = options;
-        tempOption.params = {
-          class: joinedClass,
-        };
-        const classInfo = await this.$http.get(
-          `https://be.swm183.com:3000/${route}`,
-          tempOption,
-        );
-        if (classInfo.data.session === null)
-          classInfo.data.session = 'notReady';
-        this.classRooms.push(classInfo.data);
+        const options = {
+            class:joinedClass,
+        }
+        await this.$store.dispatch('FETCH_CLASS_ROOM_INFO', options);
       });
     },
 
     async getClassRoomList() {
-      console.log('jwt = ', this.$jwt);
-      const options = {
-        headers: {
-          Authorization: `Bearer ${this.$jwt}`,
-        },
-      };
-      const userInfo = await this.$http.get(
-        'https://be.swm183.com:3000/user',
-        options,
-      );
-      this.$setUser(userInfo.data);
-      const { ownClasses } = userInfo.data;
-      this.classRooms = [];
-      this.addListOnClassRoom(ownClasses, options, 'class');
+      this.$store.state.classroom = [];
+      await this.$store.dispatch("FETCH_USER_INFO");
+      const { ownClasses } = this.$store.state.user;
+      this.addListOnClassRoom(ownClasses);
 
-      const { classes } = userInfo.data;
-      this.addListOnClassRoom(classes, options, 'class');
-      console.log('room = ', this.classRooms);
+      const { classes } = this.$store.state.user;
+      this.addListOnClassRoom(classes);
+      console.log(this.$store.state.classroom);
     },
   },
 
-  mounted() {
+  created() {
+    console.log('object');
     this.getClassRoomList();
   },
 };

@@ -26,20 +26,14 @@ export default {
     };
   },
   methods: {
-    createSession() {
+    async createSession() {
       const options = {
         name: this.sessionName,
         class: this.$route.params.classroomId,
         scheduledStartTime: `${this.startTime}:00+09:00`,
         scheduledEndTime: `${this.endTime}:00+09:00`,
       };
-      const headers = {
-        headers: {
-          Authorization: `Bearer ${this.$jwt}`,
-        },
-      };
-      console.log(options);
-      this.$http.post('https://be.swm183.com:3000/session', options, headers);
+      await this.$store.dispatch('CREATE_CLASS', options);
       this.$router.go(-1);
     },
   },

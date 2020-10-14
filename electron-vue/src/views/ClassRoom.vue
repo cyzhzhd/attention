@@ -9,6 +9,7 @@
       <div class="main-panel-contents">
         <div class="main-panel-class-list">
           <router-link
+            v-if="$store.state.user._id === teacher"
             :to="{
               name: 'AddClass',
               params: {
@@ -86,6 +87,7 @@ export default {
       classroomId: this.$route.params.classroomId,
       classroomName: this.$route.params.classroomName,
       classId: this.$route.params.classId,
+      teacher: this.$route.params.teacher,
       classInfo: '',
       startDate: '',
       startTime: '',
@@ -97,33 +99,23 @@ export default {
   },
   methods: {
     async getClassList() {
-      console.log('jwt = ', this.$jwt);
       const options = {
-        headers: {
-          Authorization: `Bearer ${this.$jwt}`,
-        },
-        params: {
           class: this.classroomId,
           session: this.classId,
-        },
       };
-      const info = await this.$http.get(
-        'https://be.swm183.com:3000/session',
-        options,
-      );
-      this.classInfo = info.data;
-      this.className = info.data.name;
-      const startDate = this.getTime(info.data.scheduledStartTime);
+      const info = await this.$store.dispatch('FETCH_CLASS_LIST', options);
+      this.classInfo = info;
+      this.className = info.name;
+      const startDate = this.getTime(info.scheduledStartTime);
       this.startDate = startDate.date;
       this.startTime = startDate.time;
 
-      const endDate = this.getTime(info.data.scheduledEndTime);
+      const endDate = this.getTime(info.scheduledEndTime);
       this.endDate = endDate.date;
       this.endTime = endDate.time;
     },
 
     getTime(day) {
-      console.log(day);
       const dates = day.split('-');
       const date = `${dates[1]}월 ${dates[2].slice(0, 2)}일`;
       const times = dates[2].slice(3).split(':');
@@ -131,7 +123,13 @@ export default {
       return { date, time };
     },
   },
-  mounted() {
+  async mounted() {
+    const options = {
+       class: this.classroomId,
+    }
+    const data = await this.$store.dispatch('FETCH_CLASS_ROOM_INFO', options);
+    this.classId = data.session;
+    console.log(data);
     if (this.classId === 'notReady') {
       this.isClassReady = false;
     } else {

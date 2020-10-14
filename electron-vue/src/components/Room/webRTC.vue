@@ -27,7 +27,7 @@ export default {
     ...mapActions('webRTC', ['SetUser', 'VideoSetter']),
   },
   mounted() {
-    const { _id } = this.$user;
+    const { _id } = this.$store.state.user;
     this.SetUser(_id);
     const params = {
       localVideo: this.$refs.localVideo,

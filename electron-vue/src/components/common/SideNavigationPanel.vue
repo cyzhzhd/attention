@@ -5,7 +5,9 @@
     </div>
     <div class="side-navigation-body">
       <router-link class="side-navigation-item" to="/">홈</router-link>
-      <div class="side-navigation-item">교실 목록</div>
+      <router-link class="side-navigation-item" to="/ClassRoomList"
+        >교실 목록</router-link
+      >
       <div class="side-navigation-item">수업 목록</div>
     </div>
     <div class="side-navigation-footer">
