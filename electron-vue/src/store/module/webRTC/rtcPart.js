@@ -23,10 +23,10 @@ let isVideoMuted = true;
 let isAudioMuted = true;
 const rtcIceServerConfiguration = {
   iceServers: [
-    // {
-    //   // urls: 'stun:stun.l.google.com:19302',
-    // urls: 'stun:swm183.com:3478',
-    // },
+    {
+      urls: 'stun:stun.l.google.com:19302',
+      // urls: 'stun:swm183.com:3478',
+    },
     {
       urls: 'turn:swm183.com:3478',
       username: 'newteam183',
@@ -294,7 +294,7 @@ function setOnTrackEvent(user) {
           div.appendChild(p);
 
           state.videos.appendChild(div);
-          manageVideoLayout();
+          // manageVideoLayout();
         }
         video.srcObject = src;
         video.autoplay = true;
@@ -421,11 +421,11 @@ function substitueTrack(track, bool) {
   isScreenSharing = bool;
 }
 
-function ShareScreen(track) {
-  screenSharingTrack = track;
-  sendMessage('shareScreen', {});
-  substitueTrack(track, true);
-}
+// function ShareScreen(track) {
+//   screenSharingTrack = track;
+//   sendMessage('shareScreen', {});
+//   substitueTrack(track, true);
+// }
 
 function connectWithTheUser(targetUser) {
   if (targetUser.rtc.connectionState === 'connected') {
@@ -613,7 +613,7 @@ export default {
   sendMessage,
   connectWithTheUser,
   disconnectWithTheUser,
-  ShareScreen,
+  // ShareScreen,
   muteVideo,
   muteAudio,
 };
