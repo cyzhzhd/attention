@@ -154,6 +154,8 @@ const actions = {
   ButtonSetter2({ commit }, button) {
     commit('buttonSetter2', button);
     state.tempButton2.addEventListener('click', () => {
+      const now = new Date();
+      analyzeLib.eyeSetting(true, now);
       console.log('button clicked2!');
     });
   },

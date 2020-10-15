@@ -75,6 +75,7 @@ let eyeVar = {
     avgEAR: 0,
     maxEAR: studentData.eyeSize,
     minEAR: studentData.blinkSize,
+    arrSet: [],
     weight: 1,
     closedRatio: 0,
 
@@ -232,6 +233,29 @@ function analyzeFaceExpression(landmarks, timestamp) {
 
 }
 
+// function eyeSetting(flag, now) {
+//     if (flag) {
+//         flag = false;
+//         const temp = now;
+//     }
+//     eyeVar.arrSet.push(eyeVar.avgEAR);
+//     const settingTime = new Date();
+//     if (settingTime.getTime() - now.getTime() > 5 * 1000) {
+//         let arrBlink = [];
+//         eyeVar.arrSet.sort((a, b) => a - b);
+//         arrBlink = calcEdge(eyeVar.arrSet);
+//         eyeVar.maxEAR = eyeVar.arrSet[-1];
+//         eyeVar.minEAR = arrBlink[0];
+//         studentData.eyeSize = eyeVar.arrSet.reduce((a, b) => {
+//             return a + b;
+//         }, 0) / eyeVar.arrSet.length;
+//         studentData.blinkSize = arrBlink.reduce((a, b) => {
+//             return a + b;
+//         }, 0) / arrBlink.length;
+//         eyeVar.arrSet.length = 0;
+//     }
+// }
+
 function calcDist(p1, p2) {
     return Math.sqrt(Math.pow(p1._x - p2._x, 2) + Math.pow(p1._y - p2._y, 2));
 }
@@ -328,5 +352,7 @@ function pointCal(timestamp) {
 
 export default {
     analysis,
-    varInit
+    varInit,
+    eyeSetting,
+
 }
