@@ -40,7 +40,6 @@ let detectVar = {
 }
 
 let angleVar = {
-
     arrPitch: [],
     arrYaw: [],
     arrRoll: [],
@@ -53,74 +52,50 @@ let angleVar = {
     timeChange: true,
     timeSave: 0,
     secFlag: true,
-    cutIndexP: 0,
-    cutIndexY: 0,
-    cutIndexR: 0,
-    secLengthP: 0,
-    secLengthY: 0,
-    secLengthR: 0,
 }
 
 let eyeVar = {
-    inHeightR: 0,
-    inHeightL: 0,
-    outHeightR: 0,
-    outHeightL: 0,
-    widthR: 0,
-    widthL: 0,
-    ratioR: 0,
-    ratioL: 0,
-    EAR: 0,
     arrEAR: [],
-    avgEAR: 0,
     maxEAR: studentData.eyeSize,
     minEAR: studentData.blinkSize,
     arrSet: [],
     weight: 1,
     closedRatio: 0,
 
-    secLength: 0,
     timeSave: 0,
     timeChange: true,
-    secFlag: true,
 }
 
 let pointVar = {
     deltaRatio: 0,
     mouseRatio: 0,
     eyeRatio: 0,
-    mouseW: 0,
-    mouseH: 0,
 
-    timeChange: true,
-    timeChange2: true,
-    timeSave: 0,
+    deltaTimeChange: true,
+    pointTimeChange: true,
+    deltaTimeSave: 0,
     timeSave2: 0,
     tempEAR: 0,
     tempPoint: 100,
     secFlag: true,
     secLength: 0,
     arrPoint: [],
-    eyeW: 0,
-    deltaW: 0,
-    mouseWw: 0,
-    cutIndex: 0,
+    eyeWeight: 0,
+    deltaWeight: 0,
+    mouseWeight: 0,
 }
 
 function varInit() {
     detectVar.arrDetect = [];
     detectVar.timeChange = true;
-    detectVar.secFlag = true;
     eyeVar.arrEAR = [];
     eyeVar.timeChange = true;
-    eyeVar.secFlag = true;
     angleVar.arrPitch = [];
     angleVar.arrYaw = [];
     angleVar.arrRoll = [];
     angleVar.timeChange = true;
-    angleVar.secFlag = true;
-    pointVar.timeChange = true;
-    pointVar.timeChange2 = true;
+    pointVar.deltaTimeChange = true;
+    pointVar.pointTimeChange = true;
 
 }
 
@@ -173,47 +148,45 @@ function analysis(detection, landmarks, angle, timestamp) {
 function analyzeFaceExpression(landmarks, timestamp) {
     if (eyeVar.timeChange) {
         eyeVar.timeChange = false;
-        // eyeVar.secFlag = true;
         eyeVar.timeSave = timestamp;
-        // eyeVar.secLength = eyeVar.arrEAR.length;
     }
-    if (pointVar.timeChange) {
-        pointVar.timeChange = false;
-        pointVar.timeSave = timestamp;
+    if (pointVar.deltaTimeChange) {
+        pointVar.deltaTimeChange = false;
+        pointVar.deltaTimeSave = timestamp;
     }
-    eyeVar.inHeightL = calcDist(landmarks[43], landmarks[47]);
-    eyeVar.outHeightL = calcDist(landmarks[44], landmarks[46]);
-    eyeVar.widthL = calcDist(landmarks[42], landmarks[45]);
-    eyeVar.inHeightR = calcDist(landmarks[38], landmarks[40]);
-    eyeVar.outHeightR = calcDist(landmarks[37], landmarks[41]);
-    eyeVar.widthR = calcDist(landmarks[36], landmarks[39]);
+    const inHeightL = calcDist(landmarks[43], landmarks[47]);
+    const outHeightL = calcDist(landmarks[44], landmarks[46]);
+    const widthL = calcDist(landmarks[42], landmarks[45]);
+    const inHeightR = calcDist(landmarks[38], landmarks[40]);
+    const outHeightR = calcDist(landmarks[37], landmarks[41]);
+    const widthR = calcDist(landmarks[36], landmarks[39]);
 
-    eyeVar.ratioL = (eyeVar.inHeightL + eyeVar.outHeightL) / (2 * eyeVar.widthL);
-    eyeVar.ratioR = (eyeVar.inHeightR + eyeVar.outHeightR) / (2 * eyeVar.widthR);
-    eyeVar.EAR = (eyeVar.ratioL + eyeVar.ratioR) / 2;
+    const ratioL = (inHeightL + outHeightL) / (2 * widthL);
+    const ratioR = (inHeightR + outHeightR) / (2 * widthR);
+    const EAR = (ratioL + ratioR) / 2;
 
-    pointVar.mouseW = calcDist(landmarks[48], landmarks[54]);
-    pointVar.mouseH =
+    const mouseW = calcDist(landmarks[48], landmarks[54]);
+    const mouseH =
         (calcDist(landmarks[50], landmarks[58]) +
             calcDist(landmarks[51], landmarks[57]) +
             calcDist(landmarks[52], landmarks[56])) /
         3;
-    pointVar.mouseRatio = pointVar.mouseH / pointVar.mouseW;
+    pointVar.mouseRatio = mouseH / mouseW;
     const tempTime1 = new Date();
-    if (tempTime1.getTime() - pointVar.timeSave.getTime() > 1000) {
-        pointVar.timeChange = true;
-        pointVar.deltaRatio = Math.abs(eyeVar.EAR - pointVar.tempEAR);
-        pointVar.tempEAR = eyeVar.EAR;
+    if (tempTime1.getTime() - pointVar.deltaTimeSave.getTime() > 1000) {
+        pointVar.deltaTimeChange = true;
+        pointVar.deltaRatio = Math.abs(EAR - pointVar.tempEAR);
+        pointVar.tempEAR = EAR;
     }
 
-    eyeVar.arrEAR.push(eyeVar.EAR);
-    eyeVar.avgEAR = (eyeVar.arrEAR.reduce((a, b) => a + b)) / eyeVar.arrEAR.length;
-    if (eyeVar.avgEAR > eyeVar.maxEAR) eyeVar.weight = 0.1;
-    else if (eyeVar.avgEAR < eyeVar.minEAR) eyeVar.avgEAR = studentData.blinkSize;
-    else eyeVar.weight = 1 + Math.pow(Math.abs(eyeVar.avgEAR), 2) - 20 * Math.pow(angleVar.pitch, 2);
+    eyeVar.arrEAR.push(EAR);
+    const avgEAR = (eyeVar.arrEAR.reduce((a, b) => a + b)) / eyeVar.arrEAR.length;
+    if (avgEAR > eyeVar.maxEAR) eyeVar.weight = 0.1;
+    else if (avgEAR < eyeVar.minEAR) avgEAR = studentData.blinkSize;
+    else eyeVar.weight = 1 + Math.pow(Math.abs(avgEAR), 2) - 20 * Math.pow(angleVar.pitch, 2);
     if (angleVar.pitch < 0 || angleVar.pitch > 0.18) eyeVar.weight = 0.1;
-    eyeVar.closedRatio = ((eyeVar.weight * Math.abs(studentData.eyeSize - eyeVar.avgEAR)) / (studentData.eyeSize - studentData.blinkSize)).toFixed(3);
-    pointVar.eyeRatio = eyeVar.avgEAR;
+    eyeVar.closedRatio = ((eyeVar.weight * Math.abs(studentData.eyeSize - avgEAR)) / (studentData.eyeSize - studentData.blinkSize)).toFixed(3);
+    pointVar.eyeRatio = avgEAR;
     // console.log("sleep : ", eyeVar.closedRatio);
     const tempTime2 = new Date();
     // if (tempTime2.getTime() - eyeVar.timeSave.getTime() > 2000) {
@@ -304,34 +277,34 @@ function analyzeAngle(angle, timestamp) {
 }
 
 function pointCal(timestamp) {
-    if (pointVar.timeChange2) {
-        pointVar.timeChange2 = false;
+    if (pointVar.pointTimeChange) {
+        pointVar.pointTimeChange = false;
         // pointVar.secFlag = true;
         pointVar.timeSave2 = timestamp;
         // pointVar.secLength = pointVar.arrPoint.length;
     }
-    if (pointVar.eyeRatio < 0.15) pointVar.eyeW = 0;
-    else if (pointVar.eyeRatio < 0.27) pointVar.eyeW = 6.67 * (pointVar.eyeRatio - 0.27) + 0.8;
-    else if (pointVar.eyeRatio < 0.34) pointVar.eyeW = 0.8;
-    else if (pointVar.eyeRatio < 0.4) pointVar.eyeW = 3.34 * (pointVar.eyeRatio - 0.4) + 1;
-    else pointVar.eyeW = 1;
+    if (pointVar.eyeRatio < 0.15) pointVar.eyeWeight = 0;
+    else if (pointVar.eyeRatio < 0.27) pointVar.eyeWeight = 6.67 * (pointVar.eyeRatio - 0.27) + 0.8;
+    else if (pointVar.eyeRatio < 0.34) pointVar.eyeWeight = 0.8;
+    else if (pointVar.eyeRatio < 0.4) pointVar.eyeWeight = 3.34 * (pointVar.eyeRatio - 0.4) + 1;
+    else pointVar.eyeWeight = 1;
 
-    if (pointVar.deltaRatio < 0) pointVar.deltaW = 0;
+    if (pointVar.deltaRatio < 0) pointVar.deltaWeight = 0;
     else if (pointVar.deltaRatio < 0.125)
-        pointVar.deltaW = 6.4 * (pointVar.deltaRatio - 0.125) + 0.8;
-    else if (pointVar.deltaRatio < 0.1875) pointVar.deltaW = 0.8;
+        pointVar.deltaWeight = 6.4 * (pointVar.deltaRatio - 0.125) + 0.8;
+    else if (pointVar.deltaRatio < 0.1875) pointVar.deltaWeight = 0.8;
     else if (pointVar.deltaRatio < 0.258)
-        pointVar.deltaW = 2.82 * (pointVar.deltaRatio - 0.258) + 1;
-    else pointVar.deltaW = 1;
+        pointVar.deltaWeight = 2.82 * (pointVar.deltaRatio - 0.258) + 1;
+    else pointVar.deltaWeight = 1;
 
-    if (pointVar.mouseRatio < 0.5) pointVar.mouseWw = 1;
+    if (pointVar.mouseRatio < 0.5) pointVar.mouseWeight = 1;
     else if (pointVar.mouseRatio < 0.8)
-        pointVar.mouseWw = -5.56 * Math.pow(pointVar.mouseRatio - 0.5, 2) + 1;
+        pointVar.mouseWeight = -5.56 * Math.pow(pointVar.mouseRatio - 0.5, 2) + 1;
     else if (pointVar.mouseRatio < 1.2)
-        pointVar.mouseWw = 3.125 * Math.pow(pointVar.mouseRatio - 1.2, 2);
-    else pointVar.mouseWw = 0;
+        pointVar.mouseWeight = 3.125 * Math.pow(pointVar.mouseRatio - 1.2, 2);
+    else pointVar.mouseWeight = 0;
 
-    pointVar.arrPoint.push(((pointVar.eyeW * 2.5 + pointVar.deltaW * 1 + pointVar.mouseWw * 6.5) * 100) / 10);
+    pointVar.arrPoint.push(((pointVar.eyeWeight * 2.5 + pointVar.deltaWeight * 1 + pointVar.mouseWeight * 6.5) * 100) / 10);
     pointVar.tempPoint = (pointVar.arrPoint.reduce((a, b) => a + b)) / pointVar.arrPoint.length;
 
     const tempTime4 = new Date();
@@ -343,7 +316,7 @@ function pointCal(timestamp) {
     //     }
     // }
     if (tempTime4.getTime() - pointVar.timeSave2.getTime() > teacherData.period[3] * 1000) {
-        pointVar.timeChange2 = true;
+        pointVar.pointTimeChange = true;
         judge.focusPoint = pointVar.tempPoint.toFixed(2);
         // pointVar.arrPoint.splice(0, pointVar.cutIndex);
         pointVar.arrPoint.length = 0;
