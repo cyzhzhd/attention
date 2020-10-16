@@ -13,6 +13,32 @@ import bus from '../../../utils/bus';
 
 export default {
   name: "Chart",
+  props:['classId'],
+  watch: {
+    classId: {
+      immediate: true,
+      async handler(val, oldVal) {
+        console.log('classDataHandler', val, oldVal);
+        if(val === 'all') {
+          const options =  { class: this.$route.params.classroomId};
+          await this.distributeCCTData('class', options);
+        } else {
+          const options = {session: val};
+          await this.distributeCCTData('session', options);  
+        }
+        this.getLabels();
+        this.fillStudentList();
+        console.log(this.userList.length);
+        if(!this.userList.length) {
+          const keys = Object.keys(this.studentList);
+          const {name, user} = this.studentList[keys[0]];
+          this.userList.push({name, user});
+          console.log(this.userList);
+        }
+        this.displayData(this.userList, this.type);
+      }
+    }
+  },
   components: {
     LineChart,
   },
@@ -25,20 +51,45 @@ export default {
       timeRange: [],
       data: {},
       hasCalculated: {},
+      userList: [],
+      type: {
+        focusPoint: true,
+        absence: false,
+        sleep: false,
+        turnHead: false,
+      },
     }
   },
   methods: {
-    async distributeCCTData() {
+    // 이 부분 세션 정보 받아오는 걸로 변경
+    resetData() {
+      const keys = Object.keys(this.studentList);
+      if(keys) {
+        keys.forEach(key => {
+          this.studentList[key].cctTotal = [];
+          this.studentList[key].cctTime = [];
+          console.log(this.studentList[key]);
+        });
+      }
+      this.data = {};
+      this.hasCalculated = {};
+    },
+
+    async distributeCCTData(url, params) {
       console.log('distributeCCTData start --------------');
-      console.log(this.studentList);
+      console.log(url, params);
+      this.resetData();
+      
       const options = {
-        url: 'class',
-        params: { class: this.$route.params.classroomId},
+        url,
+        params,
       }
       const concentrations = await this.$store.dispatch('FETCH_CONCENTRATION', options);
+      console.log(concentrations);
       concentrations.forEach(concentration => {
           this.studentList[concentration.user].cctTotal.push(concentration);
       })
+      console.log(this.studentList);
       console.log('distributeCCTData end --------------');
     },
     compare(a,b) {
@@ -149,6 +200,7 @@ export default {
     },
     calculateCCTData(userList) {
       console.log('calculateCCTData start --------------');
+      console.log(userList);
       userList.forEach(userInfo => {
         const { user } = userInfo;
         console.log(user);
@@ -205,22 +257,26 @@ export default {
       console.log('drawChart end --------------');
     },
     displayData(userList, type) {
+      console.log(userList, type);
       this.calculateCCTData(userList);
       this.drawChart(userList, type);
     },
-    displayDataByUser(userList, type) {
-      this.calculateCCTData(userList);
-      this.drawChart(userList, type);
-    }
+    // displayDataByUser(userList, type) {
+    //   this.calculateCCTData(userList);
+    //   this.drawChart(userList, type);
+    // }
   },
   async mounted() {
     bus.$on('changeDisplayingData', (userList, type) => {
       console.log('changeDisplayingData', type);
-      this.displayData(userList, type);
+      this.userList = userList;
+      this.type = type;
+      this.displayData(this.userList, this.type);
     });
-    await this.distributeCCTData();
-    this.getLabels();
-    this.fillStudentList();
+    console.log(this.studentList);
+    // await this.distributeCCTData();
+    // this.getLabels();
+    // this.fillStudentList();
   },
       
   beforeDestroy() {
@@ -231,7 +287,7 @@ export default {
 
 <style>
   .small {
-    max-width: 600px;
+    max-width: 400px;
     margin: 150px auto;
   }
 </style>

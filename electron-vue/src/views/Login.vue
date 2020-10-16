@@ -62,7 +62,7 @@
         />
         <form>
           가입 유형
-          <select name="dropdown2" v-model="signup.type">
+          <select name="dropdown" v-model="signup.type">
             <option value="학생" selected>학생</option>
             <option value="선생님">선생님</option>
           </select>

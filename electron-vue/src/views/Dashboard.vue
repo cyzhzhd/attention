@@ -18,13 +18,24 @@
         </ul>
       </div>
       <div>
+        <form>
+          수업 차시
+          <select name="dropdown" v-model="classId">
+            <option value="all" selected>전체</option>
+            <option v-for="classInfo in classList" :key="classInfo._id" :value="classInfo._id">
+              {{ classInfo.name }}
+            </option>
+          </select>
+        </form>
+      </div>
+      <div>
         <div class="CCTButtons">
           <div @click="displaySelectedData('focusPoint')">Focus Point</div>
           <div @click="displaySelectedData('absence')">Absence</div>
           <div @click="displaySelectedData('sleep')">Sleep</div>
           <div @click="displaySelectedData('turnHead')">TurnHead</div>
         </div>
-        <chart></chart>
+        <chart v-bind:classId="classId"></chart>
       </div>
     </div>
   </div>
@@ -48,6 +59,8 @@ export default {
   data() {
     return {
       classroomId: this.$route.params.classroomId,
+      classList: [],
+      classId: 'all',
       type: {
         focusPoint: true,
         absence: false,
@@ -64,7 +77,6 @@ export default {
         jwt: this.$store.state.jwt,
         params: {
           class: this.classroomId,
-          // user: '5f7c1869e6ecde001b3f2f0c',
         },
       }
       this.SetStudentList(options);
@@ -86,12 +98,19 @@ export default {
 
     ...mapActions('dashboard', ['SetStudentList']),
   },
-  created() {
+  async created() {
     this.createStudentList();
+    const options = {
+      class: this.classroomId,
+    }
+    this.classList = await this.$store.dispatch('FETCH_CLASSLIST', options);
+    console.log(this.classList);
+    // [ this.classId ] = this.classList;
+    // this.classId = "asdasd";
+    console.log('classId', this.classId);
   },
 }
 </script>
-
 <style scoped>
 @import '../assets/css/Dashboard.css';
 </style>

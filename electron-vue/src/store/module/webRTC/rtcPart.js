@@ -10,7 +10,7 @@ const socket = io('https://be.swm183.com:3000', {
 
 let isStarted = false;
 let isChannelReady = false;
-let currentResolution = 'START';
+// let currentResolution = 'START';
 let isScreenSharing;
 let screenSharingUser;
 let screenSharingTrack;
@@ -21,16 +21,24 @@ let sendingTracks = [];
 let localStream;
 let isVideoMuted = true;
 let isAudioMuted = true;
+// const rtcIceServerConfiguration = {
+//   iceServers: [
+//     {
+//       urls: ['stun:stun.l.google.com:19302'],
+//       // urls: 'stun:swm183.com:3478',
+//     },
+//     {
+//       urls: 'turn:swm183.com:3478',
+//       username: 'newteam183',
+//       credential: '12345',
+//     },
+//   ],
+//   iceCandidatePoolSize: 10,
+// };
 const rtcIceServerConfiguration = {
   iceServers: [
     {
-      urls: 'stun:stun.l.google.com:19302',
-      // urls: 'stun:swm183.com:3478',
-    },
-    {
-      urls: 'turn:swm183.com:3478',
-      username: 'newteam183',
-      credential: '12345',
+      urls: ['stun:stun.l.google.com:19302'],
     },
   ],
   iceCandidatePoolSize: 10,
@@ -307,6 +315,7 @@ function setOnTrackEvent(user) {
 
 function setOnIceConnectionStateChange(user) {
   user.rtc.addEventListener('iceconnectionstatechange', () => {
+    console.log('iceconnectionstatechange -----------');
     if (user.rtc.iceConnectionState === 'failed') {
       console.log('restartICE');
       user.rtc.restartIce();
@@ -359,40 +368,40 @@ async function addingListenerOnPC(user, isOfferer = false) {
   }
 }
 
-async function adjustResolution(screenMode) {
-  console.log(screenMode);
-  try {
-    if (screenMode) {
-      localStream = await navigator.mediaDevices.getUserMedia(
-        mediaStreamConstraints(resolutions.qvgaConstraints),
-      );
-      currentResolution = 'QVGA';
-    } else {
-      localStream = await navigator.mediaDevices.getUserMedia(
-        mediaStreamConstraints(resolutions.startConstraints),
-      );
-      currentResolution = 'START';
-    }
-    console.log('change resolution to ', currentResolution);
-  } catch (error) {
-    console.log(error);
-  }
+// async function adjustResolution(screenMode) {
+//   console.log(screenMode);
+//   try {
+//     if (screenMode) {
+//       localStream = await navigator.mediaDevices.getUserMedia(
+//         mediaStreamConstraints(resolutions.qvgaConstraints),
+//       );
+//       currentResolution = 'QVGA';
+//     } else {
+//       localStream = await navigator.mediaDevices.getUserMedia(
+//         mediaStreamConstraints(resolutions.startConstraints),
+//       );
+//       currentResolution = 'START';
+//     }
+//     console.log('change resolution to ', currentResolution);
+//   } catch (error) {
+//     console.log(error);
+//   }
 
-  sendingTracks
-    .filter(tracks => tracks.track.kind === 'video')
-    .forEach(tracks => tracks.replaceTrack(localStream.getTracks()[1]));
-  state.localVideo.srcObject = localStream;
-  if (isVideoMuted) {
-    localStream.getTracks()[1].enabled = false;
-  } else {
-    localStream.getTracks()[1].enabled = true;
-  }
-  if (isAudioMuted) {
-    localStream.getTracks()[0].enabled = false;
-  } else {
-    localStream.getTracks()[0].enabled = true;
-  }
-}
+//   sendingTracks
+//     .filter(tracks => tracks.track.kind === 'video')
+//     .forEach(tracks => tracks.replaceTrack(localStream.getTracks()[1]));
+//   state.localVideo.srcObject = localStream;
+//   if (isVideoMuted) {
+//     localStream.getTracks()[1].enabled = false;
+//   } else {
+//     localStream.getTracks()[1].enabled = true;
+//   }
+//   if (isAudioMuted) {
+//     localStream.getTracks()[0].enabled = false;
+//   } else {
+//     localStream.getTracks()[0].enabled = true;
+//   }
+// }
 
 async function makeAnswer(sentFrom) {
   try {
@@ -513,7 +522,7 @@ function resetVariables() {
 
   isStarted = false;
   isChannelReady = false;
-  currentResolution = 'START';
+  // currentResolution = 'START';
   isScreenSharing = null;
   screenSharingUser = null;
   screenSharingTrack = null;
@@ -583,20 +592,44 @@ socket.on('deliverDisconnection', () => {
   // alert('연결이 끊겼습니다. 방을 나갔다 다시 들어와주세요.');
 });
 
-socket.on('screenSharingMode', id => {
-  // 화질 변경
-  adjustResolution(true);
-  // 공유한 사람 위주로 레이아웃 재편성
-  console.log(id);
-});
-socket.on('camSharingMode', id => {
-  // 화질 변경
-  adjustResolution(false);
-  // 레이아웃 원래대로 되돌림
-  console.log(id);
-});
+// socket.on('screenSharingMode', id => {
+//   // 화질 변경
+//   adjustResolution(true);
+//   // 공유한 사람 위주로 레이아웃 재편성
+//   console.log(id);
+// });
+// socket.on('camSharingMode', id => {
+//   // 화질 변경
+//   adjustResolution(false);
+//   // 레이아웃 원래대로 되돌림
+//   console.log(id);
+// });
 socket.on('deliverConcenteration', cctData => {
   console.log(cctData);
+  const { name, user, content } = cctData;
+  const { absence, focusPoint, sleep, turnHead } = content;
+  if (!state.CCTData[user]) {
+    state.CCTData[user] = {
+      name,
+      avr: { num: 0, ttl: 0 },
+      CCT: { absence: [], focusPoint: [], sleep: [], turnHead: [], time: [] },
+    };
+  }
+
+  function setVal(target) {
+    state.CCTData[target].CCT.absence.push(absence);
+    state.CCTData[target].CCT.focusPoint.push(focusPoint);
+    state.CCTData[target].CCT.sleep.push(sleep);
+    state.CCTData[target].CCT.turnHead.push(turnHead);
+    const date = new Date(Date.now());
+    state.CCTData[target].CCT.time.push(date.toString().split(' ')[4]);
+    state.CCTData[target].avr.num += 1;
+    state.CCTData[target].avr.ttl += focusPoint;
+  }
+  setVal(user);
+  setVal('all');
+  // label
+  // all과 user에 모두 반영
 });
 
 bus.$on('change-screen-to-localstream', () => {

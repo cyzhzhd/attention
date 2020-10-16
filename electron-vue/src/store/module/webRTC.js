@@ -18,6 +18,12 @@ const state = {
   tempButton1: '',
   tempButton2: '',
   myId: '',
+  CCTData: {
+    all: {
+      avr: { num: 0, ttl: 0 },
+      CCT: { absence: [], focusPoint: [], sleep: [], turnHead: [], time: [] },
+    },
+  },
 };
 
 const getters = {

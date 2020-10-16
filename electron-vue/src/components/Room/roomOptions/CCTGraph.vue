@@ -45,13 +45,12 @@ export default {
   mounted() {
     bus.$on('openCCTGraph', () => {
       this.$nextTick(() => {
-        console.log(this.$refs.modal, this.$refs.header);
         this.DragModal({ modal: this.$refs.modal, header: this.$refs.header });
       });
     });
   },
   beforeDestroy() {
-    bus.$off('onMessage');
+    bus.$off('openCCTGraph');
   },
 };
 </script>

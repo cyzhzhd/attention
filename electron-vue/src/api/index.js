@@ -64,6 +64,10 @@ function finishClass(jwt, options) {
   return axios.delete(`${config.baseUrl}/session`, setHeader(jwt, options));
 }
 
+function fetchClassList(jwt, options) {
+  return axios.get(`${config.baseUrl}/class/sessions`, setHeader(jwt, options));
+}
+
 export {
   fetchJWT,
   fetchUserInfo,
@@ -77,4 +81,5 @@ export {
   fetchConcentration,
   fetchUserList,
   finishClass,
+  fetchClassList,
 };

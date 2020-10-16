@@ -10,6 +10,7 @@ import {
   createClass,
   fetchConcentration,
   finishClass,
+  fetchClassList,
 } from '../api';
 
 function setError(commit, error) {
@@ -82,6 +83,11 @@ export default {
   },
   FINISH_CLASS({ state }, options) {
     return finishClass(state.jwt, options)
+      .then(({ data }) => data)
+      .catch(error => console.error(error));
+  },
+  FETCH_CLASSLIST({ state }, options) {
+    return fetchClassList(state.jwt, options)
       .then(({ data }) => data)
       .catch(error => console.error(error));
   },
