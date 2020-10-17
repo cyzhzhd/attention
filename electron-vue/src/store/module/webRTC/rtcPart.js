@@ -35,7 +35,7 @@ const rtcIceServerConfiguration = {
       urls: ['stun:stun.l.google.com:19302'],
     },
     {
-      urls: '13.125.214.253:3478',
+      urls: 'turn:13.125.214.253:3478',
       username: 'newteam183',
       credential: '12345',
     },
