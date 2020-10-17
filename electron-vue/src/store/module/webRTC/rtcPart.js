@@ -35,7 +35,7 @@ const rtcIceServerConfiguration = {
       urls: ['stun:stun.l.google.com:19302'],
     },
     {
-      urls: 'turn:swm183.com:3478',
+      urls: '13.125.214.253:3478',
       username: 'newteam183',
       credential: '12345',
     },
@@ -317,7 +317,6 @@ function setOnIceConnectionStateChange(user) {
   user.rtc.addEventListener('iceconnectionstatechange', () => {
     console.log('iceconnectionstatechange -----------');
     console.log('iceconnectionstatechange', user.rtc);
-    console.log('iceconnectionstatechange', user.rtc.iceConnectionState);
     if (user.rtc.iceConnectionState === 'disconnected') {
       console.log('restartICE');
       user.rtc.restartIce();
@@ -329,7 +328,7 @@ function setOnIceCandidate(user) {
   // setLocalDescription()에 의해 호출 됌.
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/icecandidate_event
   user.rtc.addEventListener('icecandidate', event => {
-    // console.log('icecandidate event: ', event);
+    console.log('icecandidate event: ', event);
     if (event.candidate) {
       sendMessage('sendSignal', {
         sendTo: user.socket,
@@ -350,6 +349,7 @@ function addTrackOnPC(user) {
   if (localStream !== undefined) {
     console.log(user.user, '에 track을 추가하는 중.', localStream.getTracks());
     // await adjustResolution();
+    console.log('addTrack event', user.rtc);
     localStream.getTracks().forEach(track => {
       sendingTracks.push(user.rtc.addTrack(track, localStream));
       console.log('track added sendingTracks', sendingTracks);
