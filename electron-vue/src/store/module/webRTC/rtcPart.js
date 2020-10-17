@@ -617,14 +617,14 @@ socket.on('deliverConcenteration', cctData => {
   }
 
   function setVal(target) {
-    state.CCTData[target].CCT.absence.push(absence);
-    state.CCTData[target].CCT.focusPoint.push(focusPoint);
-    state.CCTData[target].CCT.sleep.push(sleep);
-    state.CCTData[target].CCT.turnHead.push(turnHead);
+    state.CCTData[target].CCT.absence.push(Number(absence));
+    state.CCTData[target].CCT.focusPoint.push(Number(focusPoint));
+    state.CCTData[target].CCT.sleep.push(Number(sleep));
+    state.CCTData[target].CCT.turnHead.push(Number(turnHead));
     const date = new Date(Date.now());
     state.CCTData[target].CCT.time.push(date.toString().split(' ')[4]);
     state.CCTData[target].avr.num += 1;
-    state.CCTData[target].avr.ttl += focusPoint;
+    state.CCTData[target].avr.ttl += Number(focusPoint);
   }
   setVal(user);
   setVal('all');

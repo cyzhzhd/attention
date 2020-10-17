@@ -33,6 +33,9 @@ const getters = {
   storedLocalVideo(state) {
     return state.localVideo;
   },
+  storedCCTData(state) {
+    return state.CCTData;
+  },
 };
 
 const mutations = {

@@ -1,12 +1,11 @@
 <template>
   <div class="small">
     <line-chart :chart-data="datacollection"></line-chart>
-    <button @click="drawChart()">Show</button>
   </div>
 </template>
 
 <script>
-import bus from '../../../../../utils/bus';
+// import { mapGetters } from 'vuex';
 import LineChart from './ClassLineChart.vue';
 
 export default {
@@ -14,25 +13,35 @@ export default {
     components: {
         LineChart,
     },
-    data() {
-        return {
-            CCTDATA: { all: {}, },
+    computed: {
+        // ...mapGetters('webRTC', ['storedCCTData']),
+        CCTData() {
+            return this.$store.state.webRTC.CCTData.all.avr.num;
         }
     },
-    methods: {
-
+    watch: {
+        CCTData: {
+            immediate: true,
+            handler() {
+                console.log(this.$store.state.webRTC.CCTData);
+                // chart 그리기
+            }
+        }
     },
-    mounted() {
-        bus.$on('deliverConcenteration', (CCTData) => {
-            console.log(CCTdata);
-        })
-    },
-    beforeDestroy() {
-        bus.$off('deliverConcenteration');
+    data() {
+        return {
+            datacollection: null,
+            targetId: '',
+        }
     },
 }
 </script>
 
 <style>
-
+  .small {
+    /* max-width: 200px; */
+    height: 150px;
+    width: 400px;
+    /* margin: 150px auto; */
+  }
 </style>

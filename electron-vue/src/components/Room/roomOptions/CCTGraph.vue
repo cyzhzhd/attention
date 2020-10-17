@@ -13,7 +13,7 @@
           </div>
         </h3>
         <h4 slot="body">
-          그래프
+          <class-chart></class-chart>
         </h4>
         <h4 slot="footer"></h4>
       </mediumWideModal>
@@ -25,12 +25,14 @@
 import { mapActions } from 'vuex';
 import mediumWideModal from '../../common/mediumWideModal.vue';
 import bus from '../../../../utils/bus';
+import ClassChart from './ClassChart/ClassChart.vue';
 
 export default {
   name: 'CCTGraph',
   props: ['showingModal'],
   components: {
     mediumWideModal,
+    ClassChart,
   },
   data() {
     return {
