@@ -61,7 +61,6 @@ export default {
     }
   },
   methods: {
-    // 이 부분 세션 정보 받아오는 걸로 변경
     resetData() {
       const keys = Object.keys(this.studentList);
       if(keys) {
@@ -138,8 +137,6 @@ export default {
           })
         })
       });
-
-      // bus.$emit("ready-to-draw-chart");
       console.log('fillStudentList end --------------');
     },
     getLabels() {
@@ -148,14 +145,12 @@ export default {
       const labels = this.makeRange(startTime, endTime);
       this.timeRange = labels;
       console.log('getLabels end --------------');
-    //   return labels;
     },
     divideDataPerMinute(student) {
       student.cctTotal.forEach(cctTotal => {
         const date = new Date(cctTotal.date);
         date.setSeconds(0, 0)
         const time = date.toString().split(' ')[4];
-        // console.log(time);
         student.cctTime.forEach(cctTime => {
           if(cctTime.time === time) {
             cctTime.concentrationArr.push(cctTotal.status);
@@ -214,8 +209,6 @@ export default {
           this.hasCalculated[user] = true;
         }
       })
-      // const id = '5f7fef73b14f4400111665c4';
-      // const student = this.studentList[id];
       console.log('calculateCCTData end --------------');
     },
 
@@ -228,7 +221,6 @@ export default {
     addDataSet(userInfo, key) {
       const { user, name } = userInfo;
       console.log(key);
-      // const id = '5f7fef73b14f4400111665c4';
       console.log(this.data[user]);
         return {
             label: `${name} - ${key}`,
@@ -261,10 +253,6 @@ export default {
       this.calculateCCTData(userList);
       this.drawChart(userList, type);
     },
-    // displayDataByUser(userList, type) {
-    //   this.calculateCCTData(userList);
-    //   this.drawChart(userList, type);
-    // }
   },
   async mounted() {
     bus.$on('changeDisplayingData', (userList, type) => {
@@ -273,10 +261,6 @@ export default {
       this.type = type;
       this.displayData(this.userList, this.type);
     });
-    console.log(this.studentList);
-    // await this.distributeCCTData();
-    // this.getLabels();
-    // this.fillStudentList();
   },
       
   beforeDestroy() {

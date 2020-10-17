@@ -15,7 +15,6 @@ const getters = {
 
 const mutations = {
   setStudentList(state, studentList) {
-    console.log('setStudentList start --------------------');
     state.studentList = {};
     console.log(state.studentList);
     console.log(studentList);
@@ -30,15 +29,10 @@ const mutations = {
         cctTime: [],
       };
     });
-    console.log('setStudentList done --------------------');
   },
 };
 
 const actions = {
-  // SetStudentList({ commit }, classroom) {
-  //   commit('setStudentList', classroom);
-  // },
-
   SetStudentList({ commit }, options) {
     console.log(options);
     return fetchUserList(options.jwt, options.params)

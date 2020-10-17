@@ -21,20 +21,6 @@ let sendingTracks = [];
 let localStream;
 let isVideoMuted = true;
 let isAudioMuted = true;
-// const rtcIceServerConfiguration = {
-//   iceServers: [
-//     {
-//       urls: ['stun:stun.l.google.com:19302'],
-//       // urls: 'stun:swm183.com:3478',
-//     },
-//     {
-//       urls: 'turn:swm183.com:3478',
-//       username: 'newteam183',
-//       credential: '12345',
-//     },
-//   ],
-//   iceCandidatePoolSize: 10,
-// };
 const rtcIceServerConfiguration = {
   iceServers: [
     {
@@ -156,6 +142,7 @@ function joiningClass(userlist) {
   createPeerConnection();
 }
 
+// 리스트 비교를 통해 처리하게 바꾸기
 function manageUserlist(userlist) {
   console.log('userList', userlist);
 
@@ -316,7 +303,9 @@ function setOnTrackEvent(user) {
 function setOnIceConnectionStateChange(user) {
   user.rtc.addEventListener('iceconnectionstatechange', () => {
     console.log('iceconnectionstatechange -----------');
-    if (user.rtc.iceConnectionState === 'failed') {
+    console.log('iceconnectionstatechange', user.rtc);
+    console.log('iceconnectionstatechange', user.rtc.iceConnectionState);
+    if (user.rtc.iceConnectionState === 'disconnected') {
       console.log('restartICE');
       user.rtc.restartIce();
     }
@@ -358,7 +347,7 @@ function addTrackOnPC(user) {
   }
 }
 
-async function addingListenerOnPC(user, isOfferer = false) {
+function addingListenerOnPC(user, isOfferer = false) {
   setOnIceCandidate(user);
   setOnIceConnectionStateChange(user);
   setOnTrackEvent(user);

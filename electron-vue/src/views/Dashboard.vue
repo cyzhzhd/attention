@@ -11,7 +11,7 @@
       <div>
         <ul>
           <li v-for="student in studentList" v-bind:key="student.user">
-            <div @click="displayUserChart(student)">
+            <div @click="displaySelectedUser(student)">
             {{ student.name }}
             </div>
           </li>
@@ -30,10 +30,10 @@
       </div>
       <div>
         <div class="CCTButtons">
-          <div @click="displaySelectedData('focusPoint')">Focus Point</div>
-          <div @click="displaySelectedData('absence')">Absence</div>
-          <div @click="displaySelectedData('sleep')">Sleep</div>
-          <div @click="displaySelectedData('turnHead')">TurnHead</div>
+          <div @click="displaySelectedType('focusPoint')">Focus Point</div>
+          <div @click="displaySelectedType('absence')">Absence</div>
+          <div @click="displaySelectedType('sleep')">Sleep</div>
+          <div @click="displaySelectedType('turnHead')">TurnHead</div>
         </div>
         <chart v-bind:classId="classId"></chart>
       </div>
@@ -82,7 +82,7 @@ export default {
       this.SetStudentList(options);
       console.log('createStudentList end --------------');
     },
-    displayUserChart(student) {
+    displaySelectedUser(student) {
       const index = this.displayingUser.findIndex((user) => user.user === student.user);
       if(index === -1) {
         this.displayingUser.push({user: student.user, name: student.name});
@@ -91,7 +91,7 @@ export default {
       }
       bus.$emit('changeDisplayingData', this.displayingUser, this.type);
     },
-    displaySelectedData(dataType) {
+    displaySelectedType(dataType) {
       this.type[dataType] = !this.type[dataType];
       bus.$emit('changeDisplayingData', this.displayingUser, this.type);
     },
