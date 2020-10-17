@@ -21,10 +21,23 @@ let sendingTracks = [];
 let localStream;
 let isVideoMuted = true;
 let isAudioMuted = true;
+// const rtcIceServerConfiguration = {
+//   iceServers: [
+//     {
+//       urls: ['stun:stun.l.google.com:19302'],
+//     },
+//   ],
+//   iceCandidatePoolSize: 10,
+// };
 const rtcIceServerConfiguration = {
   iceServers: [
     {
       urls: ['stun:stun.l.google.com:19302'],
+    },
+    {
+      urls: 'turn:swm183.com:3478',
+      username: 'newteam183',
+      credential: '12345',
     },
   ],
   iceCandidatePoolSize: 10,
