@@ -3,7 +3,8 @@
     <div class="goal">
       <p>2주차 관동별곡</p>
     </div>
-    <web-rtc class="webRTC"></web-rtc>
+    <web-rtc-teacher class="webRTC" v-if="$store.state.user.isTeacher"></web-rtc-teacher>
+    <web-rtc-student class="webRTC" v-else></web-rtc-student>
     <user-list class="user-list"></user-list>
     <room-options class="room-options"></room-options>
   </div>
@@ -11,7 +12,8 @@
 
 <script>
 import { mapActions } from 'vuex';
-import WebRtc from '../components/Room/webRTC.vue';
+import WebRtcStudent from '../components/Room/webRTCStudent.vue';
+import WebRtcTeacher from '../components/Room/webRTCTeacher.vue';
 import userList from '../components/Room/userlist.vue';
 import roomOptions from '../components/Room/roomOptions.vue';
 import bus from '../../utils/bus';
@@ -19,10 +21,10 @@ import bus from '../../utils/bus';
 export default {
   name: 'Class',
   components: {
-    // chat,
-    WebRtc,
+    WebRtcStudent,
     userList,
     roomOptions,
+    WebRtcTeacher,
   },
   data() {
     return {
@@ -36,6 +38,7 @@ export default {
         classroomId: this.classroomId,
         classId: this.classId,
         jwt: this.$store.state.jwt,
+        isTeacher: this.$store.state.user.isTeacher,
       });
     },
     ...mapActions('webRTC', ['EnterRoom']),

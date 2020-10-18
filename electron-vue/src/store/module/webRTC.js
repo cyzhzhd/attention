@@ -12,6 +12,7 @@ const state = {
   classroomId: '',
   classId: '',
   jwt: '',
+  isTeacher: '',
   connectedUsers: [],
   localVideo: '',
   videos: '',
@@ -50,14 +51,7 @@ const mutations = {
     state.classroomId = payload.classroomId;
     state.classId = payload.classId;
     state.jwt = payload.jwt;
-
-    // const options = {
-    //   token: state.jwt,
-    //   class: state.classroomId,
-    //   session: state.classId,
-    // };
-    // console.log('joinSession', options);
-    // webRTC.emitEvent('joinSession', options);
+    state.isTeacher = payload.isTeacher;
     webRTC.sendMessage('joinSession', {});
 
     // signal to server every 2 sec for keeping connection
@@ -132,18 +126,6 @@ const actions = {
   SendChat({ commit }, message) {
     commit('sendChat', message);
   },
-
-  // async ShareScreen() {
-  //   // on chrome
-  //   const screenStream = await navigator.mediaDevices.getDisplayMedia({
-  //     cursor: true,
-  //   });
-  //   console.log(screenStream);
-  //   // screenTrack = screenStream.getTracks();
-  //   // substitueTrack(screenTrack[0]);
-
-  //   // socket.emit('screenSharing', state.classroomId, sessionId);
-  // },
 
   VideoSetter({ commit }, payload) {
     commit('videoSetter', payload);

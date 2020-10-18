@@ -1,8 +1,5 @@
 <template>
   <div class="webRTC">
-    <div class="teacher">
-      <video ref="teacherVideo"></video>
-    </div>
     <div ref="videos" class="videos">
       <div>
         <video
@@ -32,44 +29,25 @@ export default {
     const params = {
       localVideo: this.$refs.localVideo,
       videos: this.$refs.videos,
-      teacherVideo: this.$refs.teacherVideo,
     };
     this.VideoSetter(params);
   },
 };
 </script>
 
-<style>
+<style scoped>
 .webRTC {
+  /* width: 89.5vw; */
   height: 93vh;
-  display: grid;
-  /* grid-template-rows: 70% 30%; */
-  /* grid-template-areas: 'teacher', 'videos'; */
-  grid-template-columns: 80% 20%;
-  grid-template-areas: 'teacher videos';
 }
-.teacher {
-  grid-area: 'teacher';
-  align-self: center;
-}
-.teacher video {
-  width: 100%;
-  max-height: 67vh;
-}
-
 .videos {
-  grid-area: 'videos';
-  display: flex;
-  flex-direction: column;
-  /* align-items: center; */
-  justify-content: center;
-  /* grid-template-columns: 1fr; */
-  margin-top: 15px;
+  display: grid;
+  grid-template-columns: 1fr;
+  margin-top: 20px;
 }
 .videos video {
-  /* width: 99%; */
-  max-height: 21vh;
-  /* padding: 0 5px; */
+  width: 99%;
+  max-height: 750px;
 }
 .videos div p {
   color: black;
