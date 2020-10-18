@@ -105,8 +105,6 @@ export default {
     }
     this.classList = await this.$store.dispatch('FETCH_CLASSLIST', options);
     console.log(this.classList);
-    // [ this.classId ] = this.classList;
-    // this.classId = "asdasd";
     console.log('classId', this.classId);
   },
 }

@@ -12,6 +12,7 @@ const state = {
   classroomId: '',
   classId: '',
   jwt: '',
+  connectedUsers: [],
   localVideo: '',
   videos: '',
   teacherVideo: '',
@@ -35,6 +36,9 @@ const getters = {
   },
   storedCCTData(state) {
     return state.CCTData;
+  },
+  storedConnectedUsers(state) {
+    return state.connectedUsers;
   },
 };
 

@@ -15,7 +15,6 @@ let isScreenSharing;
 let screenSharingUser;
 let screenSharingTrack;
 
-let connectedUsers = [];
 let sendingTracks = [];
 
 let localStream;
@@ -87,7 +86,7 @@ function startClass(userlist) {
   console.log('start Class?');
   isChannelReady = true;
   isStarted = true;
-  connectedUsers.push(...userlist);
+  state.connectedUsers.push(...userlist);
 }
 
 function findJoiningUser(userlist) {
@@ -103,7 +102,7 @@ function findJoiningUser(userlist) {
 function findLeavingUser(userlist) {
   let leavingUser;
   let index;
-  connectedUsers.forEach((existingUser, idx) => {
+  state.connectedUsers.forEach((existingUser, idx) => {
     let hasFound = false;
     userlist.forEach(newUser => {
       if (existingUser.user === newUser.user) hasFound = true;
@@ -119,7 +118,7 @@ function findLeavingUser(userlist) {
 
 function findUser(pred) {
   let theUser = null;
-  connectedUsers.some(user => {
+  state.connectedUsers.some(user => {
     if (pred(user)) {
       theUser = user;
       return true;
@@ -132,9 +131,9 @@ function findUser(pred) {
 function addUser(userlist) {
   const joiningUser = findJoiningUser(userlist);
   joiningUser.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
-  connectedUsers.push(joiningUser);
+  state.connectedUsers.push(joiningUser);
   console.log('joiningUser', joiningUser);
-  console.log('addUser', connectedUsers);
+  console.log('addUser', state.connectedUsers);
   addingListenerOnPC(joiningUser);
 }
 
@@ -142,12 +141,12 @@ function removeUser(userlist) {
   const { leavingUser, index } = findLeavingUser(userlist);
   leavingUser.rtc.close();
   removeVideo(leavingUser.user);
-  connectedUsers.splice(index, 1);
+  state.connectedUsers.splice(index, 1);
 }
 
 function joiningClass(userlist) {
   userlist.forEach(ul => {
-    connectedUsers.push(ul);
+    state.connectedUsers.push(ul);
   });
   isStarted = true;
 
@@ -155,13 +154,14 @@ function joiningClass(userlist) {
   createPeerConnection();
 }
 
-// 리스트 비교를 통해 처리하게 바꾸기
+// 리스트 전체 비교를 통해 처리하게 바꾸기 *************************************
 function manageUserlist(userlist) {
   console.log('userList', userlist);
 
-  console.log('숫자 비교', userlist.length, connectedUsers.length);
+  console.log(state.connectedUsers);
+  console.log('숫자 비교', userlist.length, state.connectedUsers.length);
   console.log(isChannelReady);
-  if (userlist.length > connectedUsers.length) {
+  if (userlist.length > state.connectedUsers.length) {
     // user joined
     if (!isChannelReady) {
       // new users
@@ -170,7 +170,7 @@ function manageUserlist(userlist) {
       // existing users
       addUser(userlist);
     }
-  } else if (userlist.length < connectedUsers.length) {
+  } else if (userlist.length < state.connectedUsers.length) {
     // user left
     console.log('user left');
     removeUser(userlist);
@@ -196,8 +196,8 @@ function manageUserlist(userlist) {
 }
 
 function createPeerConnection() {
-  console.log('connected Users =', connectedUsers);
-  connectedUsers.forEach(user => {
+  console.log('connected Users =', state.connectedUsers);
+  state.connectedUsers.forEach(user => {
     if (user.user !== state.myId) {
       /* eslint no-param-reassign: "error" */
       user.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
@@ -529,7 +529,7 @@ function resetVariables() {
   screenSharingUser = null;
   screenSharingTrack = null;
 
-  connectedUsers = [];
+  state.connectedUsers = [];
   sendingTracks = [];
   localStream = null;
   isVideoMuted = true;
@@ -540,14 +540,15 @@ function resetVariables() {
   state.videos = null;
   bus.$off('onDeliverDisconnection');
   bus.$off('change-screen-to-localstream');
-  console.log('reset connectedUsers', connectedUsers);
+  console.log('reset state.connectedUsers', state.connectedUsers);
   console.log(isChannelReady);
 }
 
 // communication with signaling server
 socket.on('deliverUserList', userlist => {
   console.log('sendUserList', userlist);
-  console.log(connectedUsers);
+  console.log(state.connectedUsers);
+  // 후에 connectedUserlist를 state로 관리하면 될듯  **********************************************
   bus.$emit('userlist-update', userlist);
   if (userlist.length === 1 && !isStarted) {
     console.log('start class?');
@@ -613,16 +614,17 @@ socket.on('deliverConcenteration', cctData => {
   if (!state.CCTData[user]) {
     state.CCTData[user] = {
       name,
+      user,
       avr: { num: 0, ttl: 0 },
       CCT: { absence: [], focusPoint: [], sleep: [], turnHead: [], time: [] },
     };
   }
 
   function setVal(target) {
-    state.CCTData[target].CCT.absence.push(Number(absence));
+    state.CCTData[target].CCT.absence.push(Number(absence * 100));
     state.CCTData[target].CCT.focusPoint.push(Number(focusPoint));
-    state.CCTData[target].CCT.sleep.push(Number(sleep));
-    state.CCTData[target].CCT.turnHead.push(Number(turnHead));
+    state.CCTData[target].CCT.sleep.push(Number(sleep * 100));
+    state.CCTData[target].CCT.turnHead.push(Number(turnHead * 100));
     const date = new Date(Date.now());
     state.CCTData[target].CCT.time.push(date.toString().split(' ')[4]);
     state.CCTData[target].avr.num += 1;
@@ -630,8 +632,6 @@ socket.on('deliverConcenteration', cctData => {
   }
   setVal(user);
   setVal('all');
-  // label
-  // all과 user에 모두 반영
 });
 
 bus.$on('change-screen-to-localstream', () => {
