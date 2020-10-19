@@ -44,6 +44,7 @@ export default {
     ...mapActions('webRTC', ['EnterRoom']),
   },
   mounted() {
+    console.log("class mounted");
     this.enterRoom();
 
     bus.$on('onDeliverDisconnection', () => {

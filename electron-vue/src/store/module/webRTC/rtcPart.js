@@ -1,5 +1,7 @@
 /* eslint-disable no-use-before-define */
+/* eslint no-param-reassign: "error" */
 import resolutions from './resolution';
+import CCT from './CCT';
 import bus from '../../../../utils/bus';
 
 // eslint-disable-next-line no-undef
@@ -12,7 +14,7 @@ let isStarted = false;
 let isChannelReady = false;
 // let currentResolution = 'START';
 let isScreenSharing;
-let screenSharingUser;
+// let screenSharingUser;
 let screenSharingTrack;
 
 let sendingTracks = [];
@@ -20,19 +22,11 @@ let sendingTracks = [];
 let localStream;
 let isVideoMuted = true;
 let isAudioMuted = true;
-// const rtcIceServerConfiguration = {
-//   iceServers: [
-//     {
-//       urls: ['stun:stun.l.google.com:19302'],
-//     },
-//   ],
-//   iceCandidatePoolSize: 10,
-// };
 const rtcIceServerConfiguration = {
   iceServers: [
-    {
-      urls: ['stun:stun.l.google.com:19302'],
-    },
+    // {
+    //   urls: ['stun:stun.l.google.com:19302'],
+    // },
     {
       urls: 'turn:13.125.214.253:3478',
       username: 'newteam183',
@@ -63,9 +57,16 @@ function mediaStreamConstraints(resolution) {
 
 async function getUserMedia() {
   try {
-    localStream = await navigator.mediaDevices.getUserMedia(
-      mediaStreamConstraints(resolutions.startConstraints),
-    );
+    console.log(state.isTeacher);
+    if (state.isTeacher) {
+      localStream = await navigator.mediaDevices.getUserMedia(
+        mediaStreamConstraints(resolutions.hdConstraints),
+      );
+    } else {
+      localStream = await navigator.mediaDevices.getUserMedia(
+        mediaStreamConstraints(resolutions.vgaConstraints),
+      );
+    }
     localStream.getTracks()[0].enabled = false;
     localStream.getTracks()[1].enabled = false;
   } catch (error) {
@@ -174,24 +175,6 @@ function manageUserlist(userlist) {
     // user left
     console.log('user left');
     removeUser(userlist);
-  } else {
-    // screen sharing
-    const isSomeoneSharingScreen = userlist.some(user => {
-      if (user.isSharingScreen === true) {
-        screenSharingUser = user;
-        return true;
-      }
-      return false;
-    });
-
-    if (!isSomeoneSharingScreen) {
-      console.log(screenSharingUser);
-      screenSharingUser = null;
-      // change layout
-    } else {
-      console.log(screenSharingUser);
-      // change layout
-    }
   }
 }
 
@@ -199,7 +182,6 @@ function createPeerConnection() {
   console.log('connected Users =', state.connectedUsers);
   state.connectedUsers.forEach(user => {
     if (user.user !== state.myId) {
-      /* eslint no-param-reassign: "error" */
       user.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
       addingListenerOnPC(user, true);
     }
@@ -290,6 +272,7 @@ function setOnTrackEvent(user) {
           const div = document.createElement('div');
           div.id = user.user;
           video = document.createElement('video');
+          video.style.width = '100%';
           div.appendChild(video);
           const p = document.createElement('p');
           const foundUser = findUser(val => val.user === user.user);
@@ -311,11 +294,12 @@ function setOnTrackEvent(user) {
   });
 }
 
+// Roughly, disconnected means that the connection was interrupted but may come back without further action. The failed state is a little more permanent, you need to do an ICE restart to get out of it.
 function setOnIceConnectionStateChange(user) {
   user.rtc.addEventListener('iceconnectionstatechange', () => {
     console.log('iceconnectionstatechange -----------');
     console.log('iceconnectionstatechange', user.rtc);
-    if (user.rtc.iceConnectionState === 'disconnected') {
+    if (user.rtc.iceConnectionState === 'failed') {
       console.log('restartICE');
       user.rtc.restartIce();
     }
@@ -344,18 +328,20 @@ function setOnIceCandidate(user) {
 }
 
 function addTrackOnPC(user) {
-  if (localStream !== undefined) {
-    console.log(user.user, '에 track을 추가하는 중.', localStream.getTracks());
-    // await adjustResolution();
-    console.log('addTrack event', user.rtc);
-    localStream.getTracks().forEach(track => {
-      sendingTracks.push(user.rtc.addTrack(track, localStream));
-      console.log('track added sendingTracks', sendingTracks);
-      if (isScreenSharing) {
-        substitueTrack(screenSharingTrack, true);
-      }
-    });
+  console.log('addTrackOnPC', localStream);
+  if (!localStream) {
+    return;
   }
+  console.log(user.user, '에 track을 추가하는 중.', localStream.getTracks());
+  // await adjustResolution();
+  console.log('addTrack event', user.rtc);
+  localStream.getTracks().forEach(track => {
+    sendingTracks.push(user.rtc.addTrack(track, localStream));
+    console.log('track added sendingTracks', sendingTracks);
+    if (isScreenSharing) {
+      substitueTrack(screenSharingTrack, true);
+    }
+  });
 }
 
 function addingListenerOnPC(user, isOfferer = false) {
@@ -437,7 +423,7 @@ function substitueTrack(track, bool) {
 // }
 
 function connectWithTheUser(targetUser) {
-  if (targetUser.rtc.connectionState === 'connected') {
+  if (!!targetUser.rtc && targetUser.rtc.connectionState === 'connected') {
     alert(`you are already connected with ${targetUser.name}`);
   } else {
     targetUser.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
@@ -478,7 +464,9 @@ function removeVideo(targetSessionId) {
       break;
     }
   }
-  manageVideoLayout();
+  if (state.isTeacher) {
+    manageVideoLayout();
+  }
 
   // adjustResolution();
 
@@ -488,11 +476,13 @@ function removeVideo(targetSessionId) {
 }
 
 function disconnectWebRTC() {
-  localStream.getTracks().forEach(track => {
-    if (track.readyState === 'live') {
-      track.stop();
-    }
-  });
+  if (localStream) {
+    localStream.getTracks().forEach(track => {
+      if (track.readyState === 'live') {
+        track.stop();
+      }
+    });
+  }
 
   resetVariables();
 }
@@ -515,6 +505,31 @@ function muteAudio() {
   isAudioMuted = !isAudioMuted;
 }
 
+let currentTime = new Date(Date.now());
+let nextRotateTime = new Date(Date.now());
+
+function rotateStudent() {
+  if (CCT.timeCompare(currentTime, nextRotateTime) >= 0) {
+    if (state.displayingStudentList.length) {
+      state.displayingStudentList.forEach(student => {
+        console.log('연결했었던 유저', student);
+        disconnectWithTheUser(student);
+      });
+      state.displayingStudentList = [];
+    }
+    let len = state.numConnectedStudent;
+    for (let i = 0; i < len; i += 1) {
+      if (state.connectedUsers[i].isTeacher) {
+        len += 1;
+        return;
+      }
+      connectWithTheUser(state.connectedUsers[i]);
+      state.displayingStudentList.push(state.connectedUsers[i]);
+    }
+    nextRotateTime = CCT.setTime(state.rotateStudentInterval);
+  }
+}
+
 function resetVariables() {
   while (state.videos.lastElementChild) {
     state.videos.removeChild(state.videos.lastElementChild);
@@ -524,18 +539,24 @@ function resetVariables() {
   isChannelReady = false;
   // currentResolution = 'START';
   isScreenSharing = null;
-  screenSharingUser = null;
+  // screenSharingUser = null;
   screenSharingTrack = null;
 
-  state.connectedUsers = [];
   sendingTracks = [];
   localStream = null;
   isVideoMuted = true;
   isAudioMuted = true;
 
+  state.connectedUsers = [];
+  state.displayingStudentList = [];
   state.classroomId = null;
   state.localVideo = null;
   state.videos = null;
+  state.teacherVideo = null;
+  state.CCTData = {
+    avr: { num: 0, ttl: 0 },
+    CCT: { absence: [], focusPoint: [], sleep: [], turnHead: [], time: [] },
+  };
   bus.$off('onDeliverDisconnection');
   bus.$off('change-screen-to-localstream');
   console.log('reset state.connectedUsers', state.connectedUsers);
@@ -593,43 +614,18 @@ socket.on('deliverDisconnection', () => {
   // alert('연결이 끊겼습니다. 방을 나갔다 다시 들어와주세요.');
 });
 
-// socket.on('screenSharingMode', id => {
-//   // 화질 변경
-//   adjustResolution(true);
-//   // 공유한 사람 위주로 레이아웃 재편성
-//   console.log(id);
-// });
-// socket.on('camSharingMode', id => {
-//   // 화질 변경
-//   adjustResolution(false);
-//   // 레이아웃 원래대로 되돌림
-//   console.log(id);
-// });
 socket.on('deliverConcenteration', cctData => {
   console.log(cctData);
-  const { name, user, content } = cctData;
-  const { absence, focusPoint, sleep, turnHead } = content;
-  if (!state.CCTData[user]) {
-    state.CCTData[user] = {
-      name,
-      user,
-      avr: { num: 0, ttl: 0 },
-      CCT: { absence: [], focusPoint: [], sleep: [], turnHead: [], time: [] },
-    };
-  }
-
-  function setVal(target) {
-    state.CCTData[target].CCT.absence.push(Number(absence * 100));
-    state.CCTData[target].CCT.focusPoint.push(Number(focusPoint));
-    state.CCTData[target].CCT.sleep.push(Number(sleep * 100));
-    state.CCTData[target].CCT.turnHead.push(Number(turnHead * 100));
-    const date = new Date(Date.now());
-    state.CCTData[target].CCT.time.push(date.toString().split(' ')[4]);
-    state.CCTData[target].avr.num += 1;
-    state.CCTData[target].avr.ttl += Number(focusPoint);
-  }
-  setVal(user);
-  setVal('all');
+  const { user, content } = cctData;
+  const foundUser = findUser(userInfo => userInfo.user === user);
+  CCT.allocateCCTData(foundUser, content);
+  console.log(state.sortStudentListInterval, state.CCTDataInterval);
+  CCT.sortUserListByCCT(state.connectedUsers, state.sortStudentListInterval);
+  CCT.addCCTDataOnTotalCCT(state.CCTData, state.CCTDataInterval);
+  // rearrange
+  // CCT.rotateStudent(state.displayingStudentList, state.connectedUsers, state.rotateStudentInterval);
+  currentTime = new Date(Date.now());
+  rotateStudent();
 });
 
 bus.$on('change-screen-to-localstream', () => {

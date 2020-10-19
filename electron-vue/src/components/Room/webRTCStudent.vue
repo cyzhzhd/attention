@@ -22,7 +22,7 @@
 import { mapActions } from 'vuex';
 
 export default {
-  name: 'WebRTC',
+  name: 'WebRTCStudent',
   methods: {
     ...mapActions('webRTC', ['SetUser', 'VideoSetter']),
   },
@@ -67,7 +67,7 @@ export default {
   margin-top: 15px;
 }
 .videos video {
-  /* width: 99%; */
+  width: 100%;
   max-height: 21vh;
   /* padding: 0 5px; */
 }

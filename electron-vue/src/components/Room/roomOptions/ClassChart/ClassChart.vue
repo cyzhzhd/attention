@@ -9,7 +9,7 @@
     <div>
         <select name="dropdown" v-model="user" @click="displaySelectedUser">
             <option value="all" selected>전체</option>
-            <option v-for="user in storedConnectedUsers" :key="user.user" :value="user.user">{{ user.name }}</option>
+            <option v-for="user in storedConnectedUsers" :key="user.user" :value="user">{{ user.name }}</option>
         </select>
     </div>
     <div>
@@ -32,19 +32,7 @@ export default {
         LineChart,
     },
     computed: {
-        CCTData() {
-            return this.$store.state.webRTC.CCTData.all.avr.num;
-        },
-        ...mapGetters('webRTC', ['storedConnectedUsers', 'storedCCTData']),
-    },
-    watch: {
-        CCTData: {
-            immediate: true,
-            handler() {
-                console.log(this.$store.state.webRTC.CCTData);
-                this.drawChart(this.user, this.type);
-            }
-        }
+      ...mapGetters('webRTC', ['storedConnectedUsers', 'storedCCTData']),
     },
     data() {
         return {
@@ -52,6 +40,7 @@ export default {
             currentPoint: '0',
             datacollection: null,
             user: 'all', 
+            interval: '',
             type: {
               focusPoint: true,
               absence: false,
@@ -76,12 +65,17 @@ export default {
         return 'rgba(0, 0, 255, 1)';
       },
       addDataSet(userInfo, key) {
-          return {
-              label: `${key}`,
-              borderColor: this.chooseColor(key),
-              data: this.storedCCTData[userInfo].CCT[key],
-              fill: false,
-          }
+        const ret = {
+          label: `${key}`,
+          borderColor: this.chooseColor(key),
+          fill: false,
+        };
+        if(userInfo === 'all'){
+          ret.data = this.storedCCTData.CCT[key];
+        } else {
+          ret.data = userInfo.CCTData.CCT[key];
+        }
+        return ret;
       },
       drawChart(user, type) {
         console.log('drawChart start --------------');
@@ -90,15 +84,27 @@ export default {
         this.totalPoint = '데이터가 없습니다.';
         this.currentPoint = '데이터가 없습니다.';
         this.datacollection = {
-            labels: this.storedCCTData.all.CCT.time,
-            datasets: [],
+          datasets: [],
         };
-        if(!this.storedCCTData[user]) return;
+        if(!user.CCTData && user !== 'all') return;
+        if(user === 'all') {
+          this.datacollection.labels = this.storedCCTData.CCT.time;
+        } else {
+          this.datacollection.labels = user.CCTData.CCT.time;
+        }
 
-        const { num, ttl } =this.storedCCTData[user].avr;
-        this.totalPoint = Math.floor(ttl/num);
-        const lenData = this.storedCCTData[user].avr.num - 1;
-        this.currentPoint = this.storedCCTData[user].CCT.focusPoint[lenData];
+        const calculatePoint = (target) => {
+          const { num, ttl } = target.avr;
+          console.log(num, ttl);
+          
+          this.currentPoint = Math.floor(target.CCT.focusPoint[num - 1]);
+          this.totalPoint = Math.floor(ttl/num);
+        }
+        if(user === 'all') {
+          calculatePoint(this.storedCCTData);
+        } else {
+          calculatePoint(user.CCTData);
+        }
 
         const keys = Object.keys(type);
         keys.forEach(key => {
@@ -108,7 +114,14 @@ export default {
         })
         console.log('drawChart end --------------');
       },
-    }
+    },
+    mounted() {
+      this.interval = setInterval(() => this.drawChart(this.user, this.type), 5000);
+      this.drawChart(this.user, this.type)
+    },
+    beforeDestroy() {
+      clearInterval(this.interval);
+    },
 }
 </script>
 

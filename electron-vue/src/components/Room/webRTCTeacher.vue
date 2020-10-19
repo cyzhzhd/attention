@@ -19,7 +19,7 @@
 import { mapActions } from 'vuex';
 
 export default {
-  name: 'WebRTC',
+  name: 'WebRTCTeacher',
   methods: {
     ...mapActions('webRTC', ['SetUser', 'VideoSetter']),
   },
@@ -45,7 +45,10 @@ export default {
   grid-template-columns: 1fr;
   margin-top: 20px;
 }
-.videos video {
+.localVideo {
+    object-fit: cover;
+}
+.videos div video {
   width: 99%;
   max-height: 750px;
 }

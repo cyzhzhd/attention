@@ -14,6 +14,7 @@ const state = {
   jwt: '',
   isTeacher: '',
   connectedUsers: [],
+  displayingStudentList: [],
   localVideo: '',
   videos: '',
   teacherVideo: '',
@@ -21,11 +22,13 @@ const state = {
   tempButton2: '',
   myId: '',
   CCTData: {
-    all: {
-      avr: { num: 0, ttl: 0 },
-      CCT: { absence: [], focusPoint: [], sleep: [], turnHead: [], time: [] },
-    },
+    avr: { num: 0, ttl: 0 },
+    CCT: { absence: [], focusPoint: [], sleep: [], turnHead: [], time: [] },
   },
+  sortStudentListInterval: 10,
+  rotateStudentInterval: 30,
+  numConnectedStudent: 3,
+  CCTDataInterval: 30,
 };
 
 const getters = {
@@ -52,7 +55,6 @@ const mutations = {
     state.classId = payload.classId;
     state.jwt = payload.jwt;
     state.isTeacher = payload.isTeacher;
-    webRTC.sendMessage('joinSession', {});
 
     // signal to server every 2 sec for keeping connection
     interval = setInterval(() => webRTC.sendMessage('pingSession', {}), 2000);
@@ -62,11 +64,6 @@ const mutations = {
     });
   },
   leaveRoom() {
-    // const options = {
-    //   token: state.jwt,
-    //   class: state.classroomId,
-    //   session: state.classId,
-    // };
     webRTC.sendMessage('leaveSession', {});
 
     clearInterval(interval);
@@ -83,13 +80,27 @@ const mutations = {
     webRTC.connectWithTheUser(targetUser);
   },
 
+  disconnectWithTheUser(state, targetUser) {
+    webRTC.disconnectWithTheUser(targetUser);
+  },
+
   sendChat(state, message) {
     webRTC.sendChat(message);
   },
 
-  disconnectWithTheUser(state, targetUser) {
-    webRTC.disconnectWithTheUser(targetUser);
+  settingSetter(state, options) {
+    const {
+      sortStudentListInterval,
+      rotateStudentInterval,
+      numConnectedStudent,
+      CCTDataInterval,
+    } = options;
+    state.sortStudentListInterval = sortStudentListInterval;
+    state.rotateStudentInterval = rotateStudentInterval;
+    state.numConnectedStudent = numConnectedStudent;
+    state.CCTDataInterval = CCTDataInterval;
   },
+
   videoSetter(state, payload) {
     state.videos = payload.videos;
     state.localVideo = payload.localVideo;
@@ -109,10 +120,13 @@ const actions = {
   },
 
   async EnterRoom({ commit }, payload) {
+    commit('enterRoom', payload);
     const localStream = await webRTC.getUserMedia();
     state.localVideo.srcObject = localStream;
+    console.log('EnterRoom', state.localVideo.srcObject);
     analyzeLib.getVideoSrc(state.localVideo);
-    commit('enterRoom', payload);
+
+    webRTC.sendMessage('joinSession', {});
   },
 
   LeaveRoom({ commit }) {
@@ -145,6 +159,11 @@ const actions = {
   DisconnectWithTheUser({ commit }, targetUser) {
     commit('disconnectWithTheUser', targetUser);
   },
+
+  SettingSetter({ commit }, options) {
+    commit('settingSetter', options);
+  },
+
   ButtonSetter1({ commit }, button) {
     commit('buttonSetter1', button);
     state.tempButton1.addEventListener('click', () => {
