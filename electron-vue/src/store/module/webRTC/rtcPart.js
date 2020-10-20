@@ -83,38 +83,36 @@ function sendMessage(type, message) {
   socket.emit(type, message);
 }
 
-function startClass(userlist) {
-  console.log('start Class?');
-  isChannelReady = true;
-  isStarted = true;
-  state.connectedUsers.push(...userlist);
-}
+// function startClass(userlist) {
+//   console.log('start Class?');
+//   isChannelReady = true;
+//   isStarted = true;
+//   state.connectedUsers.push(...userlist);
+// }
 
-function findJoiningUser(userlist) {
-  let joiningUser;
+function findJoiningUsers(userlist) {
+  const joiningUsers = [];
   userlist.forEach(newUser => {
+    console.log(findUser(user => user.user === newUser.user));
     if (findUser(user => user.user === newUser.user) === null)
-      joiningUser = newUser;
+      joiningUsers.push(newUser);
   });
 
-  return joiningUser;
+  return joiningUsers;
 }
 
-function findLeavingUser(userlist) {
-  let leavingUser;
-  let index;
+function removeUser(userlist) {
   state.connectedUsers.forEach((existingUser, idx) => {
     let hasFound = false;
     userlist.forEach(newUser => {
       if (existingUser.user === newUser.user) hasFound = true;
     });
     if (!hasFound) {
-      leavingUser = existingUser;
-      index = idx;
+      existingUser.rtc.close();
+      removeVideo(existingUser.user);
+      state.connectedUsers.splice(idx, 1);
     }
   });
-
-  return { leavingUser, index };
 }
 
 function findUser(pred) {
@@ -130,64 +128,53 @@ function findUser(pred) {
 }
 
 function addUser(userlist) {
-  const joiningUser = findJoiningUser(userlist);
-  joiningUser.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
-  state.connectedUsers.push(joiningUser);
-  console.log('joiningUser', joiningUser);
-  console.log('addUser', state.connectedUsers);
-  addingListenerOnPC(joiningUser);
-}
-
-function removeUser(userlist) {
-  const { leavingUser, index } = findLeavingUser(userlist);
-  leavingUser.rtc.close();
-  removeVideo(leavingUser.user);
-  state.connectedUsers.splice(index, 1);
-}
-
-function joiningClass(userlist) {
-  userlist.forEach(ul => {
-    state.connectedUsers.push(ul);
+  const joiningUsers = findJoiningUsers(userlist);
+  if (!joiningUsers.length) return;
+  joiningUsers.forEach(joiningUser => {
+    joiningUser.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
+    state.connectedUsers.push(joiningUser);
+    console.log('joiningUser', joiningUser);
+    addingListenerOnPC(joiningUser);
   });
-  isStarted = true;
-
-  console.log('creating peer connection');
-  createPeerConnection();
 }
+
+// function joiningClass(userlist) {
+//   userlist.forEach(ul => {
+//     state.connectedUsers.push(ul);
+//   });
+//   isStarted = true;
+
+//   console.log('creating peer connection');
+//   createPeerConnection();
+// }
 
 // 리스트 전체 비교를 통해 처리하게 바꾸기 *************************************
 function manageUserlist(userlist) {
   console.log('userList', userlist);
 
-  console.log(state.connectedUsers);
-  console.log('숫자 비교', userlist.length, state.connectedUsers.length);
-  console.log(isChannelReady);
-  if (userlist.length > state.connectedUsers.length) {
-    // user joined
-    if (!isChannelReady) {
-      // new users
-      joiningClass(userlist);
-    } else {
-      // existing users
-      addUser(userlist);
-    }
-  } else if (userlist.length < state.connectedUsers.length) {
-    // user left
-    console.log('user left');
-    removeUser(userlist);
-  }
+  // // if (!isChannelReady) {
+  // if (!isStarted) {
+  //   // new users
+  //   joiningClass(userlist);
+  // } else {
+  //   // existing users
+  //   addUser(userlist);
+  //   removeUser(userlist);
+  // }
+  addUser(userlist);
+  removeUser(userlist);
 }
 
-function createPeerConnection() {
-  console.log('connected Users =', state.connectedUsers);
-  state.connectedUsers.forEach(user => {
-    if (user.user !== state.myId) {
-      user.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
-      // addingListenerOnPC(user, true);
-      addingListenerOnPC(user, false);
-    }
-  });
-}
+// function createPeerConnection() {
+//   console.log('connected Users =', state.connectedUsers);
+//   state.connectedUsers.forEach(user => {
+//     if (user.user !== state.myId) {
+//       user.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
+//       // addingListenerOnPC(user, true);
+//       addingListenerOnPC(user, false);
+//     }
+//   });
+// }
 
 function makeOffer(user) {
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
@@ -569,13 +556,12 @@ function resetVariables() {
 socket.on('deliverUserList', userlist => {
   console.log('sendUserList', userlist);
   console.log(state.connectedUsers);
-  // 후에 connectedUserlist를 state로 관리하면 될듯  **********************************************
   bus.$emit('userlist-update', userlist);
-  if (userlist.length === 1 && !isStarted) {
-    console.log('start class?');
-    startClass(userlist);
-    return;
-  }
+  // if (userlist.length === 1 && !isStarted) {
+  //   console.log('start class?');
+  //   startClass(userlist);
+  //   return;
+  // }
   manageUserlist(userlist);
 });
 
