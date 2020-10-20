@@ -10,8 +10,6 @@ const socket = io('https://be.swm183.com:3000', {
   transports: ['websocket'],
 }).connect();
 
-let isStarted = false;
-let isChannelReady = false;
 // let currentResolution = 'START';
 let isScreenSharing;
 // let screenSharingUser;
@@ -24,9 +22,6 @@ let isVideoMuted = true;
 let isAudioMuted = true;
 const rtcIceServerConfiguration = {
   iceServers: [
-    // {
-    //   urls: ['stun:stun.l.google.com:19302'],
-    // },
     {
       urls: 'turn:13.125.214.253:3478',
       username: 'newteam183',
@@ -83,13 +78,6 @@ function sendMessage(type, message) {
   socket.emit(type, message);
 }
 
-// function startClass(userlist) {
-//   console.log('start Class?');
-//   isChannelReady = true;
-//   isStarted = true;
-//   state.connectedUsers.push(...userlist);
-// }
-
 function findJoiningUsers(userlist) {
   const joiningUsers = [];
   userlist.forEach(newUser => {
@@ -138,43 +126,12 @@ function addUser(userlist) {
   });
 }
 
-// function joiningClass(userlist) {
-//   userlist.forEach(ul => {
-//     state.connectedUsers.push(ul);
-//   });
-//   isStarted = true;
-
-//   console.log('creating peer connection');
-//   createPeerConnection();
-// }
-
-// 리스트 전체 비교를 통해 처리하게 바꾸기 *************************************
 function manageUserlist(userlist) {
   console.log('userList', userlist);
 
-  // // if (!isChannelReady) {
-  // if (!isStarted) {
-  //   // new users
-  //   joiningClass(userlist);
-  // } else {
-  //   // existing users
-  //   addUser(userlist);
-  //   removeUser(userlist);
-  // }
   addUser(userlist);
   removeUser(userlist);
 }
-
-// function createPeerConnection() {
-//   console.log('connected Users =', state.connectedUsers);
-//   state.connectedUsers.forEach(user => {
-//     if (user.user !== state.myId) {
-//       user.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
-//       // addingListenerOnPC(user, true);
-//       addingListenerOnPC(user, false);
-//     }
-//   });
-// }
 
 function makeOffer(user) {
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
@@ -192,7 +149,6 @@ function makeOffer(user) {
       });
 
       console.log('offer created for a user: ', user);
-      isChannelReady = true;
     } catch (e) {
       console.error('Failed to create pc session description', e);
     }
@@ -524,8 +480,6 @@ function resetVariables() {
     state.videos.removeChild(state.videos.lastElementChild);
   }
 
-  isStarted = false;
-  isChannelReady = false;
   // currentResolution = 'START';
   isScreenSharing = null;
   // screenSharingUser = null;
@@ -549,7 +503,6 @@ function resetVariables() {
   bus.$off('onDeliverDisconnection');
   bus.$off('change-screen-to-localstream');
   console.log('reset state.connectedUsers', state.connectedUsers);
-  console.log(isChannelReady);
 }
 
 // communication with signaling server
@@ -557,11 +510,6 @@ socket.on('deliverUserList', userlist => {
   console.log('sendUserList', userlist);
   console.log(state.connectedUsers);
   bus.$emit('userlist-update', userlist);
-  // if (userlist.length === 1 && !isStarted) {
-  //   console.log('start class?');
-  //   startClass(userlist);
-  //   return;
-  // }
   manageUserlist(userlist);
 });
 
@@ -575,10 +523,10 @@ socket.on('deliverSignal', message => {
     addTrackOnPC(sentFrom);
     console.log('answer 만드는 중');
     makeAnswer(sentFrom);
-  } else if (content.type === 'answer' && isStarted) {
+  } else if (content.type === 'answer') {
     console.log('got answer from: ', sentFrom);
     sentFrom.rtc.setRemoteDescription(new RTCSessionDescription(content.sdp));
-  } else if (content.type === 'candidate' && isStarted) {
+  } else if (content.type === 'candidate') {
     console.log('got candidate from: ', sentFrom);
     const candidate = new RTCIceCandidate({
       sdpMLineIndex: content.label,
@@ -610,8 +558,6 @@ socket.on('deliverConcenteration', cctData => {
   console.log(state.sortStudentListInterval, state.CCTDataInterval);
   CCT.sortUserListByCCT(state.connectedUsers, state.sortStudentListInterval);
   CCT.addCCTDataOnTotalCCT(state.CCTData, state.CCTDataInterval);
-  // rearrange
-  // CCT.rotateStudent(state.displayingStudentList, state.connectedUsers, state.rotateStudentInterval);
   currentTime = new Date(Date.now());
   rotateStudent();
 });
