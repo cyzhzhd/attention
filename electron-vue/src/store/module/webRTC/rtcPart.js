@@ -183,7 +183,8 @@ function createPeerConnection() {
   state.connectedUsers.forEach(user => {
     if (user.user !== state.myId) {
       user.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
-      addingListenerOnPC(user, true);
+      // addingListenerOnPC(user, true);
+      addingListenerOnPC(user, false);
     }
   });
 }
@@ -508,8 +509,9 @@ function muteAudio() {
 let currentTime = new Date(Date.now());
 let nextRotateTime = new Date(Date.now());
 
-function rotateStudent() {
-  if (CCT.timeCompare(currentTime, nextRotateTime) >= 0) {
+function rotateStudent(isImmediate = false) {
+  if (CCT.timeCompare(currentTime, nextRotateTime) >= 0 || isImmediate) {
+    console.log('새로운 학생과 연결!');
     if (state.displayingStudentList.length) {
       state.displayingStudentList.forEach(student => {
         console.log('연결했었던 유저', student);
@@ -521,10 +523,10 @@ function rotateStudent() {
     for (let i = 0; i < len; i += 1) {
       if (state.connectedUsers[i].isTeacher) {
         len += 1;
-        return;
+      } else {
+        connectWithTheUser(state.connectedUsers[i]);
+        state.displayingStudentList.push(state.connectedUsers[i]);
       }
-      connectWithTheUser(state.connectedUsers[i]);
-      state.displayingStudentList.push(state.connectedUsers[i]);
     }
     nextRotateTime = CCT.setTime(state.rotateStudentInterval);
   }
@@ -645,4 +647,5 @@ export default {
   // ShareScreen,
   muteVideo,
   muteAudio,
+  rotateStudent,
 };

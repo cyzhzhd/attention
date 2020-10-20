@@ -3,6 +3,7 @@
 import bus from '../../../utils/bus';
 import analyzeLib from './analyze/analyzeLib';
 import webRTC from './webRTC/rtcPart';
+import CCT from './webRTC/CCT';
 
 let interval;
 
@@ -95,10 +96,25 @@ const mutations = {
       numConnectedStudent,
       CCTDataInterval,
     } = options;
-    state.sortStudentListInterval = sortStudentListInterval;
-    state.rotateStudentInterval = rotateStudentInterval;
-    state.numConnectedStudent = numConnectedStudent;
-    state.CCTDataInterval = CCTDataInterval;
+
+    if (state.sortStudentListInterval !== sortStudentListInterval) {
+      state.sortStudentListInterval = sortStudentListInterval;
+      CCT.sortUserListByCCT(
+        state.connectedUsers,
+        state.sortStudentListInterval,
+      );
+    }
+    if (state.CCTDataInterval !== CCTDataInterval) {
+      state.CCTDataInterval = CCTDataInterval;
+      CCT.addCCTDataOnTotalCCT(state.CCTData, state.CCTDataInterval);
+    }
+    if (state.rotateStudentInterval !== rotateStudentInterval) {
+      state.rotateStudentInterval = rotateStudentInterval;
+      webRTC.rotateStudent(true);
+    } else if (state.numConnectedStudent !== numConnectedStudent) {
+      state.numConnectedStudent = numConnectedStudent;
+      webRTC.rotateStudent(true);
+    }
   },
 
   videoSetter(state, payload) {

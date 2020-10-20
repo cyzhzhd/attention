@@ -53,15 +53,15 @@ function sortByCCT(userlist) {
   });
 }
 
-function sortUserListByCCT(userlist, interval) {
-  if (timeCompare(currentTime, nextSortedTime) >= 0) {
+function sortUserListByCCT(userlist, interval, isImmediate = false) {
+  if (timeCompare(currentTime, nextSortedTime) >= 0 || isImmediate) {
     sortByCCT(userlist);
     nextSortedTime = setTime(interval);
   }
 }
 
-function addCCTDataOnTotalCCT(CCTData, interval) {
-  if (timeCompare(currentTime, nextRearrangedTime) >= 0) {
+function addCCTDataOnTotalCCT(CCTData, interval, isImmediate = false) {
+  if (timeCompare(currentTime, nextRearrangedTime) >= 0 || isImmediate) {
     const { num, ttl } = totalCCTContainer.CCTData.avr;
     const cct = totalCCTContainer.CCTData.CCT;
     const absenceTTL = cct.absence.reduce((val, acc) => acc + val, 0);
