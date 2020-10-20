@@ -454,6 +454,8 @@ let nextRotateTime = new Date(Date.now());
 
 function rotateStudent(isImmediate = false) {
   if (CCT.timeCompare(currentTime, nextRotateTime) >= 0 || isImmediate) {
+    console.log(isImmediate);
+    console.log(state.rotateStudentInterval);
     console.log('새로운 학생과 연결!');
     if (state.displayingStudentList.length) {
       state.displayingStudentList.forEach(student => {
@@ -462,10 +464,11 @@ function rotateStudent(isImmediate = false) {
       });
       state.displayingStudentList = [];
     }
-    let len = state.numConnectedStudent;
+    let len = Math.min(state.numConnectedStudent, state.connectedUsers.length);
     for (let i = 0; i < len; i += 1) {
+      console.log(state.connectedUsers[i]);
       if (state.connectedUsers[i].isTeacher) {
-        len += 1;
+        len = Math.min(len + 1, state.connectedUsers.length);
       } else {
         connectWithTheUser(state.connectedUsers[i]);
         state.displayingStudentList.push(state.connectedUsers[i]);
