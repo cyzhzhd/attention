@@ -8,7 +8,7 @@
 import * as tfjs from "@tensorflow/tfjs";
 import { landmarkModel } from "./landmark";
 import { detectorModel } from "./detector";
-import al from "./algorithm";
+import al from "./algorithm copy";
 
 let video;
 let stopFlag = true;
