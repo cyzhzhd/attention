@@ -40,9 +40,6 @@ export default {
   display: grid;
   grid-template-columns: 1fr;
 }
-.videos div video {
-  /* object-fit: cover; */
-}
 .videos div p {
   color: black;
 }

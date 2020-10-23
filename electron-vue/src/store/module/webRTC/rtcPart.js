@@ -75,16 +75,6 @@ function findJoiningUsers(userlist) {
   return userlist.filter(newOne => !findUser(newOne.user));
 }
 
-function removeUser(userlist) {
-  state.connectedUsers
-    .filter(user => !findUser(user.user, userlist))
-    .forEach((existingUser, idx) => {
-      existingUser.rtc.close();
-      removeVideo(existingUser.user);
-      state.connectedUsers.splice(idx, 1);
-    });
-}
-
 function findUser(user, userlist = state.connectedUsers) {
   for (const u of userlist) {
     if (u.user === user) {
@@ -94,13 +84,39 @@ function findUser(user, userlist = state.connectedUsers) {
   return false;
 }
 
+function removeUser(userlist) {
+  console.log('removeUser');
+  // state.connectedUsers.length에서 length가 매번 계산 되나?
+  for (let i = 0; i < state.connectedUsers.length; i += 1) {
+    if (!findUser(state.connectedUsers[i].user, userlist)) {
+      console.log(state.connectedUsers[i]);
+      state.connectedUsers[i].rtc.close();
+      removeVideo(state.connectedUsers[i].user);
+      state.connectedUsers.splice(i, 1);
+      i -= 1;
+    }
+  }
+  console.log('removeUser done');
+  // state.connectedUsers
+  //   .filter(user => !findUser(user.user, userlist))
+  //   .forEach(leavingUser => {
+  //     leavingUser.rtc.close();
+  //     removeVideo(leavingUser.user);
+  //   });
+  // state.connectedUsers = state.connectedUsers.filter(user =>
+  //   findUser(user.user, userlist),
+  // );
+}
+
 function addUser(userlist) {
+  console.log('addUser');
   findJoiningUsers(userlist).forEach(joiningUser => {
     joiningUser.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
     state.connectedUsers.push(joiningUser);
     console.log('joiningUser', joiningUser);
     addingListenerOnPC(joiningUser);
   });
+  console.log('addUser done');
 }
 
 function updateUserlist(userlist) {
@@ -423,12 +439,11 @@ function rotateStudent(isImmediate = false) {
     }
     let len = Math.min(state.numConnectedStudent, state.connectedUsers.length);
     for (let i = 0; i < len; i += 1) {
-      console.log(state.connectedUsers[i]);
       if (state.connectedUsers[i].isTeacher) {
         len = Math.min(len + 1, state.connectedUsers.length);
       } else {
         connectWithTheUser(state.connectedUsers[i]);
-        state.displayingStudentList.push(state.connectedUsers[i]);
+        // state.displayingStudentList.push(state.connectedUsers[i]);
       }
     }
     nextRotateTime = CCT.setTime(state.rotateStudentInterval);
