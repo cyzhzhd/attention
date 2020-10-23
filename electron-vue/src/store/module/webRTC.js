@@ -9,6 +9,7 @@ let interval;
 
 let analyzeStopFlag = true;
 
+// 초기값도 값형식에 맞추어 설정.
 const state = {
   classroomId: '',
   classId: '',
@@ -44,6 +45,9 @@ const getters = {
   },
   storedConnectedUsers(state) {
     return state.connectedUsers;
+  },
+  storedDisplayingStudentList(state) {
+    return state.displayingStudentList;
   },
 };
 
@@ -85,8 +89,8 @@ const mutations = {
     webRTC.disconnectWithTheUser(targetUser);
   },
 
-  sendChat(state, message) {
-    webRTC.sendChat(message);
+  sendChat(state, content) {
+    webRTC.sendMessage('sendChat', { content });
   },
 
   settingSetter(state, options) {
@@ -108,6 +112,7 @@ const mutations = {
       state.CCTDataInterval = CCTDataInterval;
       CCT.addCCTDataOnTotalCCT(state.CCTData, state.CCTDataInterval);
     }
+    // 동시에 바꿀 때 수정
     if (state.rotateStudentInterval !== rotateStudentInterval) {
       state.rotateStudentInterval = rotateStudentInterval;
       webRTC.rotateStudent(true);
@@ -180,6 +185,7 @@ const actions = {
     commit('settingSetter', options);
   },
 
+  // setOnClickTempButton
   ButtonSetter1({ commit }, button) {
     commit('buttonSetter1', button);
     state.tempButton1.addEventListener('click', () => {

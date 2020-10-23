@@ -1,5 +1,7 @@
 /* eslint-disable no-use-before-define */
 /* eslint no-param-reassign: "error" */
+/* eslint-disable no-restricted-syntax */
+import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 import resolutions from './resolution';
 import CCT from './CCT';
 import bus from '../../../../utils/bus';
@@ -10,12 +12,9 @@ const socket = io('https://be.swm183.com:3000', {
   transports: ['websocket'],
 }).connect();
 
-// let currentResolution = 'START';
 let isScreenSharing;
 // let screenSharingUser;
 let screenSharingTrack;
-
-let sendingTracks = [];
 
 let localStream;
 let isVideoMuted = true;
@@ -52,18 +51,13 @@ function mediaStreamConstraints(resolution) {
 
 async function getUserMedia() {
   try {
-    console.log(state.isTeacher);
-    if (state.isTeacher) {
-      localStream = await navigator.mediaDevices.getUserMedia(
-        mediaStreamConstraints(resolutions.hdConstraints),
-      );
-    } else {
-      localStream = await navigator.mediaDevices.getUserMedia(
-        mediaStreamConstraints(resolutions.vgaConstraints),
-      );
-    }
-    localStream.getTracks()[0].enabled = false;
-    localStream.getTracks()[1].enabled = false;
+    const option = mediaStreamConstraints(
+      state.isTeacher ? resolutions.hdConstraints : resolutions.vgaConstraints,
+    );
+    localStream = await navigator.mediaDevices.getUserMedia(option);
+    localStream.getTracks().forEach(track => {
+      track.enabled = false;
+    });
   } catch (error) {
     console.log('navigator.getUserMedia error: ', error);
   }
@@ -79,46 +73,30 @@ function sendMessage(type, message) {
 }
 
 function findJoiningUsers(userlist) {
-  const joiningUsers = [];
-  userlist.forEach(newUser => {
-    console.log(findUser(user => user.user === newUser.user));
-    if (findUser(user => user.user === newUser.user) === null)
-      joiningUsers.push(newUser);
-  });
-
-  return joiningUsers;
+  return userlist.filter(newOne => !findUser(newOne.user));
 }
 
 function removeUser(userlist) {
-  state.connectedUsers.forEach((existingUser, idx) => {
-    let hasFound = false;
-    userlist.forEach(newUser => {
-      if (existingUser.user === newUser.user) hasFound = true;
-    });
-    if (!hasFound) {
+  state.connectedUsers
+    .filter(user => !findUser(user.user, userlist))
+    .forEach((existingUser, idx) => {
       existingUser.rtc.close();
       removeVideo(existingUser.user);
       state.connectedUsers.splice(idx, 1);
-    }
-  });
+    });
 }
 
-function findUser(pred) {
-  let theUser = null;
-  state.connectedUsers.some(user => {
-    if (pred(user)) {
-      theUser = user;
-      return true;
+function findUser(user, userlist = state.connectedUsers) {
+  for (const u of userlist) {
+    if (u.user === user) {
+      return u;
     }
-    return false;
-  });
-  return theUser;
+  }
+  return false;
 }
 
 function addUser(userlist) {
-  const joiningUsers = findJoiningUsers(userlist);
-  if (!joiningUsers.length) return;
-  joiningUsers.forEach(joiningUser => {
+  findJoiningUsers(userlist).forEach(joiningUser => {
     joiningUser.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
     state.connectedUsers.push(joiningUser);
     console.log('joiningUser', joiningUser);
@@ -132,8 +110,9 @@ function manageUserlist(userlist) {
   addUser(userlist);
   removeUser(userlist);
 }
-
+// 함수 이름 재고
 function makeOffer(user) {
+  // function sendOfferSignal(user) {
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
   user.rtc.addEventListener('negotiationneeded', async () => {
     try {
@@ -155,6 +134,7 @@ function makeOffer(user) {
   });
 }
 
+// function setDivMaxHeight(div, maxHeight)
 function mangeVideoHeight(divs, height) {
   divs.forEach(div => {
     const video = div.childNodes[0];
@@ -196,46 +176,59 @@ function manageVideoLayout() {
 function setOnTrackEvent(user) {
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/track_event
   user.rtc.addEventListener('track', event => {
-    console.log('비디오가 추가될 때, evnet = ', event);
-    if (event) {
-      const childVideos = state.videos.childNodes;
-      let hasAdded = false;
-      childVideos.forEach(node => {
-        if (node.id === user.user) {
-          hasAdded = true;
-        }
-      });
-      if (!hasAdded) {
-        console.log('비디오 추가할때', user);
-        const src = event.streams[0];
-        let video;
-        if (user.isTeacher) {
-          video = state.teacherVideo;
-          video.controls = true;
-        } else {
-          const div = document.createElement('div');
-          div.id = user.user;
-          video = document.createElement('video');
-          video.style.width = '100%';
-          div.appendChild(video);
-          const p = document.createElement('p');
-          const foundUser = findUser(val => val.user === user.user);
-          const textNode = document.createTextNode(foundUser.name);
-          p.appendChild(textNode);
-          div.appendChild(p);
+    if (!event) return;
 
-          state.videos.appendChild(div);
-          if (state.isTeacher) {
-            manageVideoLayout();
-          }
-        }
-        video.srcObject = src;
-        video.autoplay = true;
-        video.playsinline = true;
-        video.userId = user.user;
+    console.log('비디오가 추가될 때, evnet = ', event);
+    const childVideos = state.videos.childNodes;
+    let hasAdded = false;
+    childVideos.forEach(node => {
+      if (node.id === user.user) {
+        hasAdded = true;
       }
+    });
+
+    if (hasAdded) {
+      return;
     }
+
+    console.log('비디오 추가할때', user);
+    const stream = event.streams[0];
+    console.log('event.streams --- 확인!', event.streams);
+    user.yourStreams = stream;
+    let video;
+    if (user.isTeacher) {
+      video = state.teacherVideo;
+      video.controls = true;
+    } else {
+      video = appendStudentVideoElement(user);
+    }
+
+    video.srcObject = stream;
+    video.autoplay = true;
+    video.playsinline = true;
+    video.userId = user.user;
   });
+}
+
+function appendStudentVideoElement(user) {
+  const div = document.createElement('div');
+  const video = document.createElement('video');
+  div.id = user.user;
+  video.style.width = '100%';
+  div.appendChild(video);
+
+  const p = document.createElement('p');
+  const foundUser = findUser(user.user);
+  const textNode = document.createTextNode(foundUser.name);
+  p.appendChild(textNode);
+  div.appendChild(p);
+  state.videos.appendChild(div);
+
+  if (state.isTeacher) {
+    manageVideoLayout();
+  }
+
+  return video;
 }
 
 // Roughly, disconnected means that the connection was interrupted but may come back without further action. The failed state is a little more permanent, you need to do an ICE restart to get out of it.
@@ -276,12 +269,13 @@ function addTrackOnPC(user) {
   if (!localStream) {
     return;
   }
-  console.log(user.user, '에 track을 추가하는 중.', localStream.getTracks());
+  console.log(user, '에 track을 추가하는 중.', localStream.getTracks());
   // await adjustResolution();
   console.log('addTrack event', user.rtc);
+  user.myTrack = [];
   localStream.getTracks().forEach(track => {
-    sendingTracks.push(user.rtc.addTrack(track, localStream));
-    console.log('track added sendingTracks', sendingTracks);
+    user.myTrack.push(user.rtc.addTrack(track, localStream));
+    console.log('track added sendingTracks', user);
     if (isScreenSharing) {
       substitueTrack(screenSharingTrack, true);
     }
@@ -297,41 +291,6 @@ function addingListenerOnPC(user, isOfferer = false) {
     addTrackOnPC(user);
   }
 }
-
-// async function adjustResolution(screenMode) {
-//   console.log(screenMode);
-//   try {
-//     if (screenMode) {
-//       localStream = await navigator.mediaDevices.getUserMedia(
-//         mediaStreamConstraints(resolutions.qvgaConstraints),
-//       );
-//       currentResolution = 'QVGA';
-//     } else {
-//       localStream = await navigator.mediaDevices.getUserMedia(
-//         mediaStreamConstraints(resolutions.startConstraints),
-//       );
-//       currentResolution = 'START';
-//     }
-//     console.log('change resolution to ', currentResolution);
-//   } catch (error) {
-//     console.log(error);
-//   }
-
-//   sendingTracks
-//     .filter(tracks => tracks.track.kind === 'video')
-//     .forEach(tracks => tracks.replaceTrack(localStream.getTracks()[1]));
-//   state.localVideo.srcObject = localStream;
-//   if (isVideoMuted) {
-//     localStream.getTracks()[1].enabled = false;
-//   } else {
-//     localStream.getTracks()[1].enabled = true;
-//   }
-//   if (isAudioMuted) {
-//     localStream.getTracks()[0].enabled = false;
-//   } else {
-//     localStream.getTracks()[0].enabled = true;
-//   }
-// }
 
 async function makeAnswer(sentFrom) {
   try {
@@ -354,17 +313,25 @@ async function makeAnswer(sentFrom) {
 }
 
 function substitueTrack(track, bool) {
-  sendingTracks
-    .filter(tracks => tracks.track.kind === 'video')
-    .forEach(tracks => tracks.replaceTrack(track));
+  state.connectedUsers.forEach(user => {
+    if (!user.myTrack) return;
+    user.myTrack
+      .filter(tracks => tracks.track.kind === 'video')
+      .forEach(tracks => tracks.replaceTrack(track));
+  });
   isScreenSharing = bool;
 }
 
-// function ShareScreen(track) {
-//   screenSharingTrack = track;
-//   sendMessage('shareScreen', {});
-//   substitueTrack(track, true);
-// }
+// 소문자로  ----**
+function ShareScreen(track) {
+  screenSharingTrack = track;
+  sendMessage('shareScreen', {});
+  substitueTrack(track, true);
+  ipcRenderer.send(
+    'sending-displayingStudentList',
+    state.displayingStudentList,
+  );
+}
 
 function connectWithTheUser(targetUser) {
   if (!!targetUser.rtc && targetUser.rtc.connectionState === 'connected') {
@@ -378,9 +345,7 @@ function connectWithTheUser(targetUser) {
 function disconnectWithTheUser(targetUser) {
   if (targetUser.user === state.myId) {
     alert('this is you');
-    return;
-  }
-  if (targetUser.rtc.connectionState === 'connected') {
+  } else if (targetUser.rtc.connectionState === 'connected') {
     targetUser.rtc.close();
     removeVideo(targetUser.user);
     sendMessage('sendSignal', {
@@ -393,39 +358,40 @@ function disconnectWithTheUser(targetUser) {
   }
 }
 
-function sendChat(message) {
-  sendMessage('sendChat', {
-    content: message,
-  });
-}
+// 굳이 안 써도 될듯 sendMessage 활용.
+// function sendChat(content) {
+//   sendMessage('sendChat', { content });
+// }
 
 function removeVideo(targetSessionId) {
   const childVideosNodeList = state.videos.childNodes;
-  // eslint-disable-next-line no-restricted-syntax
+  let selectedNode;
   for (const node of childVideosNodeList) {
     if (node.id === targetSessionId) {
-      state.videos.removeChild(node);
+      selectedNode = node;
       break;
     }
   }
-  if (state.isTeacher) {
-    manageVideoLayout();
+
+  if (selectedNode) {
+    state.videos.removeChild(selectedNode);
+
+    // 분기를 함수 안으로 넣음 --***
+    if (state.isTeacher) {
+      manageVideoLayout();
+      // relayoutVideoIfNeed();
+    }
   }
-
-  // adjustResolution();
-
-  // sendingTracks
-  //   .filter(tracks => tracks.track.kind === 'video')
-  //   .forEach(tracks => tracks.replaceTrack(localStream.getTracks()[1]));
 }
 
 function disconnectWebRTC() {
   if (localStream) {
-    localStream.getTracks().forEach(track => {
-      if (track.readyState === 'live') {
+    localStream
+      .getTracks()
+      .filter(t => t.readyState === 'live')
+      .forEach(track => {
         track.stop();
-      }
-    });
+      });
   }
 
   resetVariables();
@@ -440,6 +406,7 @@ function muteVideo() {
   isVideoMuted = !isVideoMuted;
 }
 
+// [0] 말고 다른 방법 찾기
 function muteAudio() {
   if (!isAudioMuted) {
     localStream.getTracks()[0].enabled = false;
@@ -449,8 +416,9 @@ function muteAudio() {
   isAudioMuted = !isAudioMuted;
 }
 
-let currentTime = new Date(Date.now());
-let nextRotateTime = new Date(Date.now());
+// let currentTime = (nextRotateTime = Date.now());
+let currentTime = new Date();
+let nextRotateTime = new Date();
 
 function rotateStudent(isImmediate = false) {
   if (CCT.timeCompare(currentTime, nextRotateTime) >= 0 || isImmediate) {
@@ -475,6 +443,17 @@ function rotateStudent(isImmediate = false) {
       }
     }
     nextRotateTime = CCT.setTime(state.rotateStudentInterval);
+    console.log('displayingStudentList', state.displayingStudentList);
+    // state.displayingStudentList.forEach(student => {
+    //   // const temp1 = { mediastream: student.yourStreams, name: student.name };
+    //   // const temp = JSON.parse(JSON.stringify(temp1));
+    //   const temp2 = JSON.parse(JSON.stringify(state.displayingStudentList));
+    //   // console.log('displayingStudentList', temp);
+    //   // ipcRenderer.send('sending-displayingStudentList', temp);
+    //   ipcRenderer.send('sending-displayingStudentList', temp2);
+    // });
+    const temp2 = JSON.parse(JSON.stringify(state.displayingStudentList));
+    ipcRenderer.send('sending-displayingStudentList', temp2);
   }
 }
 
@@ -483,12 +462,10 @@ function resetVariables() {
     state.videos.removeChild(state.videos.lastElementChild);
   }
 
-  // currentResolution = 'START';
   isScreenSharing = null;
   // screenSharingUser = null;
   screenSharingTrack = null;
 
-  sendingTracks = [];
   localStream = null;
   isVideoMuted = true;
   isAudioMuted = true;
@@ -516,10 +493,19 @@ socket.on('deliverUserList', userlist => {
   manageUserlist(userlist);
 });
 
+// const funcSignal = {
+//   offer() {
+
+//   }
+// };
+
 socket.on('deliverSignal', message => {
   console.log('message =', message);
   const { content } = message;
-  const sentFrom = findUser(user => user.user === message.user);
+  const sentFrom = findUser(message.user);
+  // const fn = funcSignal[content.type];
+  // fn && fn();
+
   if (content.type === 'offer') {
     console.log('got offer from =', sentFrom);
     sentFrom.rtc.setRemoteDescription(new RTCSessionDescription(content.sdp));
@@ -556,7 +542,7 @@ socket.on('deliverDisconnection', () => {
 socket.on('deliverConcenteration', cctData => {
   console.log(cctData);
   const { user, content } = cctData;
-  const foundUser = findUser(userInfo => userInfo.user === user);
+  const foundUser = findUser(user);
   CCT.allocateCCTData(foundUser, content);
   console.log(state.sortStudentListInterval, state.CCTDataInterval);
   CCT.sortUserListByCCT(state.connectedUsers, state.sortStudentListInterval);
@@ -566,6 +552,7 @@ socket.on('deliverConcenteration', cctData => {
 });
 
 bus.$on('change-screen-to-localstream', () => {
+  console.log('done screen sharing', localStream.getTracks());
   substitueTrack(localStream.getTracks()[1], false);
   screenSharingTrack = null;
 });
@@ -575,11 +562,11 @@ export default {
   emitEvent,
   disconnectWebRTC,
   getUserMedia,
-  sendChat,
+  // sendChat,
   sendMessage,
   connectWithTheUser,
   disconnectWithTheUser,
-  // ShareScreen,
+  ShareScreen,
   muteVideo,
   muteAudio,
   rotateStudent,

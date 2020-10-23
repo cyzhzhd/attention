@@ -88,8 +88,8 @@ function getDisplay(div) {
     .then(stream => {
       [screensharingTrack] = [stream.getTracks()[0]];
       console.log(screensharingTrack);
-      webRTC.ShareScreen(screensharingTrack);
       ipcRenderer.send('open-new-window-for-screensharing');
+      webRTC.ShareScreen(screensharingTrack);
     })
     .catch(error => {
       console.error(error);

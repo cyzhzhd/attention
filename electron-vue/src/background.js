@@ -1,6 +1,7 @@
 import { app, protocol, BrowserWindow, ipcMain } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
+import bus from '../utils/bus';
 // const isDevelopment = process.env.NODE_ENV !== 'production';
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -97,7 +98,7 @@ ipcMain.on('open-new-window-for-screensharing', () => {
   sharingPanel = new BrowserWindow({
     width: 600,
     height: 400,
-    frame: false,
+    // frame: false,
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
@@ -118,4 +119,10 @@ ipcMain.on('close-sharing-panel', () => {
   console.log('close-sharing-panel');
   win.webContents.send('close-sharing-panel');
   win.maximize();
+});
+
+ipcMain.on('sending-displayingStudentList', (event, message) => {
+  console.log('sending-displayingStudentList');
+  if (sharingPanel)
+    sharingPanel.webContents.send('displayingStudentList', message);
 });
