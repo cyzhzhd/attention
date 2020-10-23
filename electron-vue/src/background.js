@@ -86,46 +86,6 @@ if (isDevelopment) {
     });
   }
 }
-
-// let sharingPanel;
-// ipcMain.on('open-new-window-for-screensharing', () => {
-//   const modalPath =
-//     process.env.NODE_ENV === 'development'
-//       ? 'http://localhost:8080/#/ScreenSharingControlPanel'
-//       : `file://${__dirname}/index.html#ScreenSharingControlPanel`;
-
-//   sharingPanel = new BrowserWindow({
-//     width: 600,
-//     height: 400,
-//     // frame: false,
-//     webPreferences: {
-//       nodeIntegration: true,
-//       enableRemoteModule: true,
-//     },
-//   });
-//   // sharingPanel.setMenuBarVisibility(false);
-
-//   sharingPanel.on('close', () => {
-//     sharingPanel = null;
-//   });
-
-//   sharingPanel.loadURL(modalPath);
-//   sharingPanel.webContents.openDevTools();
-//   win.minimize();
-// });
-
-// ipcMain.on('close-sharing-panel', () => {
-//   console.log('close-sharing-panel');
-//   win.webContents.send('close-sharing-panel');
-//   win.maximize();
-// });
-
-// ipcMain.on('sending-displaying-studentList', (event, message) => {
-//   console.log('sending-displayingStudentList');
-//   if (sharingPanel)
-//     sharingPanel.webContents.send('displayingStudentList', message);
-// });
-
 // // 대분류(이벤트명), 중분류(type or topic), 소분류(stringified json)
 // // 프로세스명: 행위
 // ipcMain.on('process:recv', (event, message) => {
@@ -134,10 +94,7 @@ if (isDevelopment) {
 
 let originalWinLocation;
 ipcMain.on('attention:start-sharing-screen', (event, height) => {
-  console.log('attention:start-sharing-screen');
   const width = 250;
-  console.log('event', event);
-  console.log('height', height);
   originalWinLocation = win.getBounds();
   win.unmaximize();
   win.setBounds({ width, height });
@@ -145,8 +102,6 @@ ipcMain.on('attention:start-sharing-screen', (event, height) => {
 });
 
 ipcMain.on('attention:stop-sharing-screen', () => {
-  console.log('attention:start-sharing-screen');
-  console.log('originalWinLocation', originalWinLocation);
   win.setBounds(originalWinLocation);
   // win.setContentBounds({ width, height });
 });

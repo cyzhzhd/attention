@@ -89,9 +89,10 @@ function removeUser(userlist) {
   // state.connectedUsers.length에서 length가 매번 계산 되나?
   for (let i = 0; i < state.connectedUsers.length; i += 1) {
     if (!findUser(state.connectedUsers[i].user, userlist)) {
-      console.log(state.connectedUsers[i]);
-      state.connectedUsers[i].rtc.close();
-      removeVideo(state.connectedUsers[i].user);
+      disconnectWithTheUser(state.connectedUsers[i]);
+      // console.log(state.connectedUsers[i]);
+      // state.connectedUsers[i].rtc.close();
+      // removeVideo(state.connectedUsers[i].user);
       state.connectedUsers.splice(i, 1);
       i -= 1;
     }
@@ -355,23 +356,29 @@ function connectWithTheUser(targetUser) {
   }
 }
 
-function disconnectWithTheUser(targetUser) {
+function disconnectWithTheUser(targetUser, received = false) {
   if (targetUser.user === state.myId) {
     alert('this is you');
   } else if (targetUser.rtc.connectionState === 'connected') {
+    removeVideo(targetUser.user);
     const idx = state.displayingStudentList.findIndex(
       student => student.user === targetUser.user,
     );
+    if (idx < 0) {
+      return;
+    }
     state.displayingStudentList.splice(idx, 1);
     targetUser.rtc.close();
-    removeVideo(targetUser.user);
-    sendMessage('sendSignal', {
-      sendTo: targetUser.socket,
-      content: { type: 'disconnectWithTheUser' },
-    });
-
     targetUser.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
     addingListenerOnPC(targetUser);
+
+    if (received) {
+      return;
+    }
+    sendMessage('sendSignal', {
+      sendTo: targetUser.socket,
+      content: { type: 'disconnectWithThisUser' },
+    });
   }
 }
 
@@ -501,10 +508,11 @@ const funcSignal = {
     });
     sentFrom.rtc.addIceCandidate(candidate);
   },
-  disconnectWithTheUser(sentFrom) {
-    removeVideo(sentFrom.user);
-    sentFrom.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
-    addingListenerOnPC(sentFrom);
+  disconnectWithThisUser(sentFrom) {
+    disconnectWithTheUser(sentFrom, true);
+    // removeVideo(sentFrom.user);
+    // sentFrom.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
+    // addingListenerOnPC(sentFrom);
   },
 };
 
