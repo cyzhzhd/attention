@@ -36,21 +36,12 @@ export default {
 </script>
 
 <style scoped>
-.webRTC {
-  /* width: 89.5vw; */
-  height: 93vh;
-}
 .videos {
   display: grid;
   grid-template-columns: 1fr;
-  margin-top: 20px;
-}
-.localVideo {
-    object-fit: cover;
 }
 .videos div video {
-  width: 99%;
-  max-height: 750px;
+  /* object-fit: cover; */
 }
 .videos div p {
   color: black;

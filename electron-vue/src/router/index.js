@@ -44,12 +44,12 @@ const routes = [
     component: ClassRoomSettings,
   },
   {
-    path: '/classroom/:classroomId/:classroomName/dashboard',
+    path: '/dashboard/:classroomId/:classroomName',
     name: 'Dashboard',
     component: Dashboard,
   },
   {
-    path: '/classroom/:classroomId/:classId',
+    path: '/class/:classroomId/:classId',
     name: 'Class',
     component: Class,
   },

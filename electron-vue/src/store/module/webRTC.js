@@ -144,6 +144,7 @@ const actions = {
     commit('enterRoom', payload);
     const localStream = await webRTC.getUserMedia();
     state.localVideo.srcObject = localStream;
+    state.localVideo.style.width = '70vw';
     console.log('EnterRoom', state.localVideo.srcObject);
     analyzeLib.getVideoSrc(state.localVideo);
 

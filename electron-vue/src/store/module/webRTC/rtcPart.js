@@ -1,7 +1,6 @@
 /* eslint-disable no-use-before-define */
 /* eslint no-param-reassign: "error" */
 /* eslint-disable no-restricted-syntax */
-import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 import resolutions from './resolution';
 import CCT from './CCT';
 import bus from '../../../../utils/bus';
@@ -132,22 +131,30 @@ function makeOffer(user) {
   });
 }
 
-function setVideoMaxHeight(divs, maxHeight) {
+function setVideoMaxHeight(divs, maxHeight, objectFit = 'cover') {
   divs.forEach(div => {
     const video = div.childNodes[0];
-    video.style.maxHeight = maxHeight;
+    video.style.height = maxHeight;
+    video.style.objectFit = objectFit;
   });
 }
 
 function reLayoutVideoIfNeeded() {
   if (!state.isTeacher) return;
   console.log('---------------------------------------');
+  state.localVideo.style.width = '100%';
   const divs = state.videos.childNodes;
   console.log(divs);
   const { length } = divs;
+  if (isScreenSharing) {
+    state.videos.style.gridTemplateColumns = '1fr';
+    setVideoMaxHeight(divs, '', 'contain');
+    return;
+  }
   if (length === 1) {
     state.videos.style.gridTemplateColumns = '1fr';
     setVideoMaxHeight(divs, '750px');
+    state.localVideo.style.width = '70vw';
   } else if (length <= 2) {
     console.log('2이하');
     state.videos.style.gridTemplateColumns = '1fr 1fr';
@@ -197,6 +204,7 @@ function setOnTrackEvent(user) {
       video = appendStudentVideoElement(user);
     }
 
+    video.style.objectFit = 'cover';
     video.srcObject = stream;
     video.autoplay = true;
     video.playsinline = true;
@@ -313,10 +321,12 @@ function shareScreen(track) {
   screenSharingTrack = track;
   sendMessage('shareScreen', {});
   substitueTrack(track, true);
-  ipcRenderer.send(
-    'sending-displayingStudentList',
-    state.displayingStudentList,
-  );
+  // ipcRenderer.send(
+  //   'sending-displayingStudentList',
+  //   state.displayingStudentList,
+  // );
+  reLayoutVideoIfNeeded();
+  bus.$emit('rtcPart:start-sharing-screen');
 }
 
 function connectWithTheUser(targetUser) {
@@ -325,6 +335,7 @@ function connectWithTheUser(targetUser) {
   } else {
     targetUser.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
     addingListenerOnPC(targetUser, true);
+    state.displayingStudentList.push(targetUser);
   }
 }
 
@@ -332,6 +343,10 @@ function disconnectWithTheUser(targetUser) {
   if (targetUser.user === state.myId) {
     alert('this is you');
   } else if (targetUser.rtc.connectionState === 'connected') {
+    const idx = state.displayingStudentList.findIndex(
+      student => student.user === targetUser.user,
+    );
+    state.displayingStudentList.splice(idx, 1);
     targetUser.rtc.close();
     removeVideo(targetUser.user);
     sendMessage('sendSignal', {
@@ -417,17 +432,6 @@ function rotateStudent(isImmediate = false) {
       }
     }
     nextRotateTime = CCT.setTime(state.rotateStudentInterval);
-    console.log('displayingStudentList', state.displayingStudentList);
-    // state.displayingStudentList.forEach(student => {
-    //   // const temp1 = { mediastream: student.yourStreams, name: student.name };
-    //   // const temp = JSON.parse(JSON.stringify(temp1));
-    //   const temp2 = JSON.parse(JSON.stringify(state.displayingStudentList));
-    //   // console.log('displayingStudentList', temp);
-    //   // ipcRenderer.send('sending-displayingStudentList', temp);
-    //   ipcRenderer.send('sending-displayingStudentList', temp2);
-    // });
-    const temp2 = JSON.parse(JSON.stringify(state.displayingStudentList));
-    ipcRenderer.send('sending-displayingStudentList', temp2);
   }
 }
 
@@ -454,8 +458,6 @@ function resetVariables() {
     avr: { num: 0, ttl: 0 },
     CCT: { absence: [], focusPoint: [], sleep: [], turnHead: [], time: [] },
   };
-  bus.$off('onDeliverDisconnection');
-  bus.$off('change-screen-to-localstream');
 }
 
 // communication with signaling server
@@ -464,61 +466,39 @@ socket.on('deliverUserList', userlist => {
   updateUserlist(userlist);
 });
 
-// const funcSignal = {
-//   offer() {
-//     console.log('got offer from =', sentFrom);
-//     sentFrom.rtc.setRemoteDescription(new RTCSessionDescription(content.sdp));
-//     addTrackOnPC(sentFrom);
-//     console.log('answer 만드는 중');
-//     makeAnswer(sentFrom);
-//   },
-//   answer() {
-//     console.log('got answer from: ', sentFrom);
-//     sentFrom.rtc.setRemoteDescription(new RTCSessionDescription(content.sdp));
-//   },
-//   candidate() {
-//     console.log('got candidate from: ', sentFrom);
-//     const candidate = new RTCIceCandidate({
-//       sdpMLineIndex: content.label,
-//       candidate: content.candidate,
-//     });
-//     sentFrom.rtc.addIceCandidate(candidate);
-//   },
-//   disconnectWithTheUser() {
-//     removeVideo(sentFrom.user);
-//     sentFrom.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
-//     addingListenerOnPC(sentFrom);
-//   },
-// };
-
-socket.on('deliverSignal', message => {
-  console.log('message =', message);
-  const { content } = message;
-  const sentFrom = findUser(message.user);
-  // const fn = funcSignal[content.type];
-  // fn && fn();
-
-  if (content.type === 'offer') {
+const funcSignal = {
+  offer(sentFrom, content) {
     console.log('got offer from =', sentFrom);
     sentFrom.rtc.setRemoteDescription(new RTCSessionDescription(content.sdp));
     addTrackOnPC(sentFrom);
     console.log('answer 만드는 중');
     makeAnswer(sentFrom);
-  } else if (content.type === 'answer') {
+  },
+  answer(sentFrom, content) {
     console.log('got answer from: ', sentFrom);
     sentFrom.rtc.setRemoteDescription(new RTCSessionDescription(content.sdp));
-  } else if (content.type === 'candidate') {
+  },
+  candidate(sentFrom, content) {
     console.log('got candidate from: ', sentFrom);
     const candidate = new RTCIceCandidate({
       sdpMLineIndex: content.label,
       candidate: content.candidate,
     });
     sentFrom.rtc.addIceCandidate(candidate);
-  } else if (content.type === 'disconnectWithTheUser') {
+  },
+  disconnectWithTheUser(sentFrom) {
     removeVideo(sentFrom.user);
     sentFrom.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
     addingListenerOnPC(sentFrom);
-  }
+  },
+};
+
+socket.on('deliverSignal', message => {
+  console.log('message =', message);
+  const { content } = message;
+  const sentFrom = findUser(message.user);
+  const fn = funcSignal[content.type];
+  return fn && fn(sentFrom, content);
 });
 
 socket.on('deliverChat', message => {
@@ -543,12 +523,12 @@ socket.on('deliverConcenteration', cctData => {
   rotateStudent();
 });
 
-bus.$on('change-screen-to-localstream', () => {
+bus.$on('class:stop-sharing-screen', () => {
   console.log('done screen sharing', localStream.getTracks());
   substitueTrack(localStream.getTracks()[1], false);
   screenSharingTrack = null;
+  reLayoutVideoIfNeeded();
 });
-
 export default {
   initRTCPART,
   emitEvent,

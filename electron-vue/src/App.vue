@@ -1,9 +1,5 @@
 <template>
   <div class="app">
-    <!-- <div class="nav">
-      <router-link class="router" to="/">Home</router-link>
-      <router-link class="router" to="/about">About</router-link>
-    </div> -->
     <router-view class="router-view" />
   </div>
 </template>
@@ -16,10 +12,6 @@
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-
-  // display: grid;
-  // grid-template-columns: minmax(70px, 5%) 1fr;
-  // grid-template-areas: 'nav router-view';
 }
 
 .nav {
@@ -49,15 +41,4 @@
 .router-view {
   grid-area: 'router-view';
 }
-
-// html {
-//   font-family: 'Apple SD Gothic Neo', Roboto, 'Noto Sans KR', NanumGothic,
-//     'Malgun Gothic', sans-serif;
-//   color: #555;
-//   line-height: 1.2;
-//   word-wrap: break-word;
-// }
-// body {
-//   -webkit-font-smoothing: antialiased;
-// }
 </style>

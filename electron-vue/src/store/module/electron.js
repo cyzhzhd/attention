@@ -1,8 +1,8 @@
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
 /* eslint-disable no-use-before-define */
-// import { desktopCapturer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
-import { ipcRenderer, desktopCapturer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
-import bus from '../../../utils/bus';
+import { desktopCapturer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+// import { ipcRenderer, desktopCapturer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+// import bus from '../../../utils/bus';
 import webRTC from './webRTC/rtcPart';
 
 let screensharingTrack;
@@ -88,21 +88,21 @@ function getDisplay(div) {
     .then(stream => {
       [screensharingTrack] = [stream.getTracks()[0]];
       console.log(screensharingTrack);
-      ipcRenderer.send('open-new-window-for-screensharing');
-      webRTC.ShareScreen(screensharingTrack);
+      // ipcRenderer.send('open-new-window-for-screensharing');
+      webRTC.shareScreen(screensharingTrack);
     })
     .catch(error => {
       console.error(error);
     });
 }
 
-ipcRenderer.on('close-sharing-panel', () => {
-  bus.$emit('change-screen-to-localstream');
-  webRTC.sendMessage('stopShareScreen', {});
-  console.log(screensharingTrack);
-  screensharingTrack.stop();
-  screensharingTrack = null;
-});
+// ipcRenderer.on('close-sharing-panel', () => {
+//   bus.$emit('change-screen-to-localstream');
+//   webRTC.sendMessage('stopShareScreen', {});
+//   console.log(screensharingTrack);
+//   screensharingTrack.stop();
+//   screensharingTrack = null;
+// });
 export default {
   namespaced: true,
   state,
