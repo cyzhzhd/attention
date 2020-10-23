@@ -104,9 +104,7 @@ function addUser(userlist) {
   });
 }
 
-function manageUserlist(userlist) {
-  console.log('userList', userlist);
-
+function updateUserlist(userlist) {
   addUser(userlist);
   removeUser(userlist);
 }
@@ -134,40 +132,37 @@ function makeOffer(user) {
   });
 }
 
-// function setDivMaxHeight(div, maxHeight)
-function mangeVideoHeight(divs, height) {
+function setVideoMaxHeight(divs, maxHeight) {
   divs.forEach(div => {
     const video = div.childNodes[0];
-    video.style.maxHeight = height;
+    video.style.maxHeight = maxHeight;
   });
-  console.log(height);
-  // console.log(state.videos.getElements('video'));
-  // state.videos.getElements('video').style.maxHeight = height;
 }
 
-function manageVideoLayout() {
+function reLayoutVideoIfNeeded() {
+  if (!state.isTeacher) return;
   console.log('---------------------------------------');
   const divs = state.videos.childNodes;
   console.log(divs);
   const { length } = divs;
   if (length === 1) {
     state.videos.style.gridTemplateColumns = '1fr';
-    mangeVideoHeight(divs, '750px');
+    setVideoMaxHeight(divs, '750px');
   } else if (length <= 2) {
     console.log('2이하');
     state.videos.style.gridTemplateColumns = '1fr 1fr';
-    mangeVideoHeight(divs, '65vh');
+    setVideoMaxHeight(divs, '65vh');
   } else if (length <= 4) {
     console.log('4이하');
     state.videos.style.gridTemplateColumns = '1fr 1fr';
-    mangeVideoHeight(divs, '43vh');
+    setVideoMaxHeight(divs, '43vh');
   } else if (length <= 6) {
     console.log('6이하');
     state.videos.style.gridTemplateColumns = '1fr 1fr 1fr';
-    mangeVideoHeight(divs, '43vh');
+    setVideoMaxHeight(divs, '43vh');
   } else if (length <= 9) {
     state.videos.style.gridTemplateColumns = '1fr 1fr 1fr';
-    mangeVideoHeight(divs, '27vh');
+    setVideoMaxHeight(divs, '27vh');
   }
   console.log(length);
   console.log(state.videos);
@@ -177,7 +172,6 @@ function setOnTrackEvent(user) {
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/track_event
   user.rtc.addEventListener('track', event => {
     if (!event) return;
-
     console.log('비디오가 추가될 때, evnet = ', event);
     const childVideos = state.videos.childNodes;
     let hasAdded = false;
@@ -224,18 +218,13 @@ function appendStudentVideoElement(user) {
   div.appendChild(p);
   state.videos.appendChild(div);
 
-  if (state.isTeacher) {
-    manageVideoLayout();
-  }
-
+  reLayoutVideoIfNeeded();
   return video;
 }
 
 // Roughly, disconnected means that the connection was interrupted but may come back without further action. The failed state is a little more permanent, you need to do an ICE restart to get out of it.
 function setOnIceConnectionStateChange(user) {
   user.rtc.addEventListener('iceconnectionstatechange', () => {
-    console.log('iceconnectionstatechange -----------');
-    console.log('iceconnectionstatechange', user.rtc);
     if (user.rtc.iceConnectionState === 'failed') {
       console.log('restartICE');
       user.rtc.restartIce();
@@ -270,7 +259,6 @@ function addTrackOnPC(user) {
     return;
   }
   console.log(user, '에 track을 추가하는 중.', localStream.getTracks());
-  // await adjustResolution();
   console.log('addTrack event', user.rtc);
   user.myTrack = [];
   localStream.getTracks().forEach(track => {
@@ -296,9 +284,7 @@ async function makeAnswer(sentFrom) {
   try {
     console.log('make answer to: ', sentFrom);
     const sessionDescription = await sentFrom.rtc.createAnswer();
-
     sentFrom.rtc.setLocalDescription(sessionDescription);
-
     console.log('makeAnswer ', sessionDescription);
     sendMessage('sendSignal', {
       sendTo: sentFrom.socket,
@@ -323,7 +309,7 @@ function substitueTrack(track, bool) {
 }
 
 // 소문자로  ----**
-function ShareScreen(track) {
+function shareScreen(track) {
   screenSharingTrack = track;
   sendMessage('shareScreen', {});
   substitueTrack(track, true);
@@ -334,7 +320,7 @@ function ShareScreen(track) {
 }
 
 function connectWithTheUser(targetUser) {
-  if (!!targetUser.rtc && targetUser.rtc.connectionState === 'connected') {
+  if (targetUser.rtc && targetUser.rtc.connectionState === 'connected') {
     alert(`you are already connected with ${targetUser.name}`);
   } else {
     targetUser.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
@@ -350,18 +336,13 @@ function disconnectWithTheUser(targetUser) {
     removeVideo(targetUser.user);
     sendMessage('sendSignal', {
       sendTo: targetUser.socket,
-      content: 'disconnectWithTheUser',
+      content: { type: 'disconnectWithTheUser' },
     });
 
     targetUser.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
     addingListenerOnPC(targetUser);
   }
 }
-
-// 굳이 안 써도 될듯 sendMessage 활용.
-// function sendChat(content) {
-//   sendMessage('sendChat', { content });
-// }
 
 function removeVideo(targetSessionId) {
   const childVideosNodeList = state.videos.childNodes;
@@ -375,12 +356,7 @@ function removeVideo(targetSessionId) {
 
   if (selectedNode) {
     state.videos.removeChild(selectedNode);
-
-    // 분기를 함수 안으로 넣음 --***
-    if (state.isTeacher) {
-      manageVideoLayout();
-      // relayoutVideoIfNeed();
-    }
+    reLayoutVideoIfNeeded();
   }
 }
 
@@ -416,10 +392,8 @@ function muteAudio() {
   isAudioMuted = !isAudioMuted;
 }
 
-// let currentTime = (nextRotateTime = Date.now());
 let currentTime = new Date();
 let nextRotateTime = new Date();
-
 function rotateStudent(isImmediate = false) {
   if (CCT.timeCompare(currentTime, nextRotateTime) >= 0 || isImmediate) {
     console.log(isImmediate);
@@ -482,21 +456,39 @@ function resetVariables() {
   };
   bus.$off('onDeliverDisconnection');
   bus.$off('change-screen-to-localstream');
-  console.log('reset state.connectedUsers', state.connectedUsers);
 }
 
 // communication with signaling server
 socket.on('deliverUserList', userlist => {
-  console.log('sendUserList', userlist);
-  console.log(state.connectedUsers);
   bus.$emit('userlist-update', userlist);
-  manageUserlist(userlist);
+  updateUserlist(userlist);
 });
 
 // const funcSignal = {
 //   offer() {
-
-//   }
+//     console.log('got offer from =', sentFrom);
+//     sentFrom.rtc.setRemoteDescription(new RTCSessionDescription(content.sdp));
+//     addTrackOnPC(sentFrom);
+//     console.log('answer 만드는 중');
+//     makeAnswer(sentFrom);
+//   },
+//   answer() {
+//     console.log('got answer from: ', sentFrom);
+//     sentFrom.rtc.setRemoteDescription(new RTCSessionDescription(content.sdp));
+//   },
+//   candidate() {
+//     console.log('got candidate from: ', sentFrom);
+//     const candidate = new RTCIceCandidate({
+//       sdpMLineIndex: content.label,
+//       candidate: content.candidate,
+//     });
+//     sentFrom.rtc.addIceCandidate(candidate);
+//   },
+//   disconnectWithTheUser() {
+//     removeVideo(sentFrom.user);
+//     sentFrom.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
+//     addingListenerOnPC(sentFrom);
+//   },
 // };
 
 socket.on('deliverSignal', message => {
@@ -522,7 +514,7 @@ socket.on('deliverSignal', message => {
       candidate: content.candidate,
     });
     sentFrom.rtc.addIceCandidate(candidate);
-  } else if (content === 'disconnectWithTheUser') {
+  } else if (content.type === 'disconnectWithTheUser') {
     removeVideo(sentFrom.user);
     sentFrom.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
     addingListenerOnPC(sentFrom);
@@ -562,11 +554,10 @@ export default {
   emitEvent,
   disconnectWebRTC,
   getUserMedia,
-  // sendChat,
   sendMessage,
   connectWithTheUser,
   disconnectWithTheUser,
-  ShareScreen,
+  shareScreen,
   muteVideo,
   muteAudio,
   rotateStudent,
