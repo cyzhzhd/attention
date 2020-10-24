@@ -37,6 +37,10 @@ function addClassroom(jwt, options) {
   return axios.post(`${config.baseUrl}/user/class`, options, setHeader(jwt));
 }
 
+function leaveClassroom(jwt, options) {
+  return axios.delete(`${config.baseUrl}/user/class`, setHeader(jwt, options));
+}
+
 function deleteClassroom(jwt, options) {
   return axios.delete(`${config.baseUrl}/class`, setHeader(jwt, options));
 }
@@ -75,6 +79,7 @@ export {
   fetchClassroomInfo,
   createClassroom,
   addClassroom,
+  leaveClassroom,
   deleteClassroom,
   fetchClassInfo,
   createClass,

@@ -28,7 +28,7 @@ const routes = [
     component: AddClassRoom,
   },
   {
-    path: '/classroom/:classroomId/:classroomName/:classId',
+    path: '/classroom/:classroomId',
     name: 'ClassRoom',
     component: ClassRoom,
   },
@@ -43,7 +43,7 @@ const routes = [
     component: ClassRoomSettings,
   },
   {
-    path: '/dashboard/:classroomId/:classroomName',
+    path: '/dashboard/:classroomId/:classId',
     name: 'Dashboard',
     component: Dashboard,
   },

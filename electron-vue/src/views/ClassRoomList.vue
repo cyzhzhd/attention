@@ -40,9 +40,6 @@
                   name: 'ClassRoom',
                   params: {
                     classroomId: room._id,
-                    classroomName: room.name,
-                    classId: room.session,
-                    teacher: room.teacher,
                   },
                 }"
                 action
@@ -73,22 +70,17 @@
     </div>
     <vue-context ref="menu">
       <template slot-scope="child">
-        <li>
+        <li v-if="$store.state.user.isTeacher">
           <a @click.prevent="manageClassRoom(child.data)">팀 관리</a>
         </li>
-        <li>
-          <a @click.prevent="leaveTeam(child.data)">팀 나가기</a>
-        </li>
-        <li>
+        <li v-if="$store.state.user.isTeacher">
           <a @click.prevent="deleteClassRoom(child.data)">팀 삭제</a>
+        </li>
+        <li v-else>
+          <a @click.prevent="leaveTeam(child.data)">팀 나가기</a>
         </li>
       </template>
     </vue-context>
-    <handoverModal
-      v-bind:showModal="modalList.handOverModal"
-      v-bind:classRoomId="classRoomId"
-      v-on:closemodal="controlModal('handOverModal')"
-    ></handoverModal>
     <div class="modal-wrapper" v-on:click="controlModal('confirmModal')">
       <small-modal
         v-if="modalList.confirmModal"
@@ -125,7 +117,6 @@
 import VueContext from 'vue-context';
 import 'vue-context/src/sass/vue-context.scss';
 import SideNavigationPanel from '../components/common/SideNavigationPanel.vue';
-import handoverModal from '../components/ClassRoomList/handoverModal.vue';
 import createClassRoomModal from '../components/ClassRoomList/createClassRoomModal.vue';
 import smallModal from '../components/common/smallModal.vue';
 
@@ -133,7 +124,6 @@ export default {
   name: 'roomList',
   components: {
     VueContext,
-    handoverModal,
     smallModal,
     createClassRoomModal,
     SideNavigationPanel,
@@ -159,18 +149,14 @@ export default {
       });
     },
 
-    //   leaveTeam(room) {
-    //     if (room.host === this.uid) {
-    //       this.classRoomId = room.classroomId;
-    //       this.modalList.handOverModal = true;
-    //     } else {
-    //       const options = {
-    //         classRoomId: room.classroomId,
-    //         uid: this.uid,
-    //       };
-    //       this.$http.post('https://be.swm183.com:3000/firebase/leaveTeam', options);
-    //     }
-    //   },
+    async leaveTeam(room) {
+      console.log(room);
+      const options = {
+        class: room.classroomId,
+      };
+      await this.$store.dispatch('LEAVE_CLASSROOM', options);
+      this.getClassRoomList();
+    },
 
     deleteClassRoom(room) {
       this.modalList.confirmModal = true;
@@ -200,7 +186,7 @@ export default {
     addListOnClassRoom(classList) {
       classList.forEach(async joinedClass => {
         const options = {
-            class:joinedClass,
+            class: joinedClass,
         }
         await this.$store.dispatch('FETCH_CLASS_ROOM_INFO', options);
       });

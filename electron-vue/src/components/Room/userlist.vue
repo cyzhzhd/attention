@@ -3,7 +3,6 @@
     <div class="userlist">
       <ul>
         <li
-          class="userlist-onlie"
           v-for="userInfo in storedConnectedUsers"
           v-bind:key="userInfo._id"
         >
@@ -15,6 +14,7 @@
                   'url(' + require('../../assets/img/room/profile.png') + ')',
               }"
             ></figure>
+            <!-- <figure class="CCTIcon"></figure> -->
             {{ userInfo.name }}
           </div>
         </li>

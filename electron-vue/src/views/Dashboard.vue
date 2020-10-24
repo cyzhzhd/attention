@@ -60,7 +60,7 @@ export default {
     return {
       classroomId: this.$route.params.classroomId,
       classList: [],
-      classId: 'all',
+      classId: this.$route.params.classId,
       type: {
         focusPoint: true,
         absence: false,

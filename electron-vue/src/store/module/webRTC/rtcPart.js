@@ -493,6 +493,7 @@ const funcSignal = {
     console.log('got offer from =', sentFrom);
     sentFrom.rtc.setRemoteDescription(new RTCSessionDescription(content.sdp));
     addTrackOnPC(sentFrom);
+    state.displayingStudentList.push(sentFrom);
     console.log('answer 만드는 중');
     makeAnswer(sentFrom);
   },
