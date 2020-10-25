@@ -98,10 +98,12 @@ function analysis(detection, landmarks, angle, timestamp) {
     // send to server part
     const nowTime = new Date();
     if (nowTime.getTime() - timeVar.temp.getTime() > teacherData.period * 1000) {
-        judge.focusPoint -= judge.sleepPer / 2.5;
-        // rtcPart.sendMessage('sendConcentration', {
-        //     content: judge,
-        // });
+        if (!judge.attend) judge.focusPoint = 0;
+        else if (!judge.sleep) judge.focusPoint = 5;
+        else judge.focusPoint -= judge.sleepPer / 2.5;
+        rtcPart.sendMessage('sendConcentration', {
+            content: judge,
+        });
         console.log(judge);
         varInit();
     }
@@ -170,7 +172,6 @@ function getPoint(landmarks, angle) {
 export default {
     analysis,
     varInit,
-
 }
 
 function calcDist(p1, p2) {
