@@ -5,7 +5,7 @@
     </div>
     <div ref="videos" class="videos">
       <div>
-        <canvas class="canvas" id="canvas"></canvas>
+        <!-- <canvas class="canvas" id="canvas"></canvas> -->
         <video
           ref="localVideo"
           class="localVideo"

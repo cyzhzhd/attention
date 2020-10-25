@@ -94,7 +94,7 @@ function analysis(detection, landmarks, angle, timestamp) {
     if (nowTime.getTime() - timeVar.temp.getTime() > teacherData.period * 1000) {
         if (!judge.attend) judge.focusPoint = 0;
         else if (judge.sleep) judge.focusPoint = 5;
-        else judge.focusPoint -= judge.sleepPer / 2.5;
+        else judge.focusPoint -= (judge.sleepPer / 2.5).toFixed(2);
         rtcPart.sendMessage('sendConcentration', {
             content: judge,
         });
