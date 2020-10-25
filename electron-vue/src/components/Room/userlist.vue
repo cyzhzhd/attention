@@ -1,18 +1,9 @@
 <template>
   <div class="userlist-vue">
-    <div class="online-total">
-      <p class="button" @click.prevent="activeTotalUserList">
-        <a href="#">all</a>
-      </p>
-      <p class="button" @click.prevent="activeOnlineUserList">
-        <a href="#">online</a>
-      </p>
-    </div>
     <div class="userlist">
-      <ul v-if="hasOnlineActive">
+      <ul>
         <li
-          class="userlist-onlie"
-          v-for="userInfo in logInUser"
+          v-for="userInfo in storedConnectedUsers"
           v-bind:key="userInfo._id"
         >
           <div @click.prevent="$refs.menu.open($event, userInfo)" @click.stop>
@@ -23,17 +14,9 @@
                   'url(' + require('../../assets/img/room/profile.png') + ')',
               }"
             ></figure>
+            <!-- <figure class="CCTIcon"></figure> -->
             {{ userInfo.name }}
           </div>
-        </li>
-      </ul>
-      <ul v-else>
-        <li
-          class="userlist-total"
-          v-for="userInfo in totalUser"
-          v-bind:key="userInfo.uid"
-        >
-          {{ userInfo.userName }}
         </li>
       </ul>
     </div>
@@ -52,21 +35,18 @@
 
 <script>
 import VueContext from 'vue-context';
-import { mapActions } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 import 'vue-context/src/sass/vue-context.scss';
-import bus from '../../../utils/bus';
 
 export default {
   name: 'userlist',
-
   components: { VueContext },
-
+  computed: {
+    ...mapGetters('webRTC', ['storedConnectedUsers'])
+  },
   data() {
     return {
       roomId: this.$route.params.roomId,
-      logInUser: [],
-      totalUser: [],
-      hasOnlineActive: true,
     };
   },
   methods: {
@@ -78,47 +58,21 @@ export default {
       console.log('disconnect with ', data);
       this.DisconnectWithTheUser(data);
     },
-
-    activeOnlineUserList() {
-      this.hasOnlineActive = true;
-    },
-    activeTotalUserList() {
-      this.hasOnlineActive = false;
-    },
     ...mapActions('webRTC', ['ConnectWithTheUser', 'DisconnectWithTheUser']),
-  },
-  created() {
-    // bus이용해서 바뀔때마다 업데이트?
-    bus.$on('userlist-update', userlist => {
-      console.log(userlist);
-      this.logInUser = userlist;
-    });
-  },
-
-  beforeDestroy() {
-    bus.$off('userlist-update');
-    this.logInUser = [];
   },
 };
 </script>
 
 <style>
 .userlist-vue {
-  /* display: flex; */
   background-color: #e4f6f1;
   min-height: 100%;
-  /* min-height: 91vh; */
-  /* height: 100vh; */
-  /* height: 500px; */
-  /* overflow-y: auto; */
 }
 .userlist {
   position: absolute;
-  /* min-height: 60vh; */
   height: 82.5vh;
   width: 100px;
   margin-top: 10px;
-  /* overflow-y: auto; */
   overflow-y: auto;
 }
 
@@ -134,23 +88,6 @@ export default {
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
-}
-.userlist-onlie {
-  cursor: pointer;
-}
-.userlist-total {
-  /* padding-top: 0.5rem; */
-  padding-bottom: 0.5rem;
-  cursor: pointer;
-}
-.online-total {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-
-  margin-top: 20px;
-  height: 70px;
 }
 .button {
   background-color: #c9caca;

@@ -9,6 +9,7 @@ import actions from './actions';
 import webRTC from './module/webRTC';
 import electron from './module/electron';
 import modal from './module/modal';
+import dashboard from './module/Dashboard';
 
 Vue.use(Vuex);
 
@@ -22,5 +23,6 @@ export default new Vuex.Store({
     webRTC,
     electron,
     modal,
+    dashboard,
   },
 });

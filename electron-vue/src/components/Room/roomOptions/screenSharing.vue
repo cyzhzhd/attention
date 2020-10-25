@@ -53,7 +53,7 @@ export default {
       });
     });
 
-    bus.$on('closeModal', () => this.closeModal());
+    // bus.$on('closeModal', () => this.closeModal());
   },
 
   beforeDestroy() {

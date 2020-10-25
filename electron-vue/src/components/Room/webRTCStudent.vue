@@ -23,7 +23,7 @@
 import { mapActions } from 'vuex';
 
 export default {
-  name: 'WebRTC',
+  name: 'WebRTCStudent',
   methods: {
     ...mapActions('webRTC', ['SetUser', 'VideoSetter']),
   },
@@ -40,7 +40,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .webRTC {
   height: 93vh;
   display: grid;
@@ -70,16 +70,7 @@ export default {
   margin-top: 15px;
 }
 .videos video {
-  position: relative;
-  z-index: 2;
-  /* width: 99%; */
-  max-height: 21vh;
-  /* padding: 0 5px; */
-}
-.videos canvas {
-  position: absolute;
-  z-index: 1;
-  /* width: 99%; */
+  width: 100%;
   max-height: 21vh;
   /* padding: 0 5px; */
 }

@@ -9,14 +9,6 @@ import store from './store';
 Vue.config.productionTip = false;
 Vue.prototype.$http = axios;
 
-Vue.prototype.$setJWT = jwt => {
-  Vue.prototype.$jwt = jwt;
-};
-
-Vue.prototype.$setUser = user => {
-  Vue.prototype.$user = user;
-};
-
 new Vue({
   router,
   store,

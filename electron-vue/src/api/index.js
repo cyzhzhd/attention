@@ -37,6 +37,10 @@ function addClassroom(jwt, options) {
   return axios.post(`${config.baseUrl}/user/class`, options, setHeader(jwt));
 }
 
+function leaveClassroom(jwt, options) {
+  return axios.delete(`${config.baseUrl}/user/class`, setHeader(jwt, options));
+}
+
 function deleteClassroom(jwt, options) {
   return axios.delete(`${config.baseUrl}/class`, setHeader(jwt, options));
 }
@@ -49,6 +53,25 @@ function createClass(jwt, options) {
   return axios.post(`${config.baseUrl}/session`, options, setHeader(jwt));
 }
 
+function fetchConcentration(jwt, url, options) {
+  return axios.get(
+    `${config.baseUrl}/concentration/${url}`,
+    setHeader(jwt, options),
+  );
+}
+
+function fetchUserList(jwt, options) {
+  return axios.get(`${config.baseUrl}/class/users`, setHeader(jwt, options));
+}
+
+function finishClass(jwt, options) {
+  return axios.delete(`${config.baseUrl}/session`, setHeader(jwt, options));
+}
+
+function fetchClassList(jwt, options) {
+  return axios.get(`${config.baseUrl}/class/sessions`, setHeader(jwt, options));
+}
+
 export {
   fetchJWT,
   fetchUserInfo,
@@ -56,7 +79,12 @@ export {
   fetchClassroomInfo,
   createClassroom,
   addClassroom,
+  leaveClassroom,
   deleteClassroom,
   fetchClassInfo,
   createClass,
+  fetchConcentration,
+  fetchUserList,
+  finishClass,
+  fetchClassList,
 };

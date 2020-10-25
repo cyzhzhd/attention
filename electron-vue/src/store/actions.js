@@ -5,9 +5,13 @@ import {
   fetchClassroomInfo,
   createClassroom,
   addClassroom,
+  leaveClassroom,
   deleteClassroom,
   fetchClassInfo,
   createClass,
+  fetchConcentration,
+  finishClass,
+  fetchClassList,
 } from '../api';
 
 function setError(commit, error) {
@@ -58,18 +62,38 @@ export default {
       .then(() => 'success')
       .catch(({ response }) => setError(commit, response.data));
   },
+  LEAVE_CLASSROOM({ commit, state }, options) {
+    return leaveClassroom(state.jwt, options)
+      .then(() => 'success')
+      .catch(({ response }) => setError(commit, response.data));
+  },
   DELETE_CLASSROOM({ commit, state }, options) {
     return deleteClassroom(state.jwt, options)
       .then(() => 'sucess')
       .catch(({ response }) => setError(commit, response.data));
   },
-  FETCH_CLASS_LIST({ state }, options) {
+  FETCH_CLASS_INFO({ state }, options) {
     return fetchClassInfo(state.jwt, options)
       .then(({ data }) => data)
       .catch(error => console.error(error));
   },
   CREATE_CLASS({ state }, options) {
     return createClass(state.jwt, options)
+      .then(({ data }) => data)
+      .catch(error => console.error(error));
+  },
+  FETCH_CONCENTRATION({ state }, options) {
+    return fetchConcentration(state.jwt, options.url, options.params)
+      .then(({ data }) => data)
+      .catch(error => console.error(error));
+  },
+  FINISH_CLASS({ state }, options) {
+    return finishClass(state.jwt, options)
+      .then(({ data }) => data)
+      .catch(error => console.error(error));
+  },
+  FETCH_CLASSLIST({ state }, options) {
+    return fetchClassList(state.jwt, options)
       .then(({ data }) => data)
       .catch(error => console.error(error));
   },

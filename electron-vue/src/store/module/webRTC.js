@@ -1,23 +1,36 @@
-import bus from '../../../utils/bus';
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
 /* eslint-disable no-use-before-define */
+import bus from '../../../utils/bus';
 import analyzeLib from './analyze/analyzeLib';
 import webRTC from './webRTC/rtcPart';
+import CCT from './webRTC/CCT';
 
 let interval;
 
 let analyzeStopFlag = true;
 
+// 초기값도 값형식에 맞추어 설정.
 const state = {
   classroomId: '',
   classId: '',
   jwt: '',
+  isTeacher: '',
+  connectedUsers: [],
+  displayingStudentList: [],
   localVideo: '',
   videos: '',
   teacherVideo: '',
   tempButton1: '',
   tempButton2: '',
   myId: '',
+  CCTData: {
+    avr: { num: 0, ttl: 0 },
+    CCT: { absence: [], focusPoint: [], sleep: [], turnHead: [], time: [] },
+  },
+  sortStudentListInterval: 10,
+  rotateStudentInterval: 30,
+  numConnectedStudent: 3,
+  CCTDataInterval: 30,
 };
 
 const getters = {
@@ -27,6 +40,15 @@ const getters = {
   storedLocalVideo(state) {
     return state.localVideo;
   },
+  storedCCTData(state) {
+    return state.CCTData;
+  },
+  storedConnectedUsers(state) {
+    return state.connectedUsers;
+  },
+  storedDisplayingStudentList(state) {
+    return state.displayingStudentList;
+  },
 };
 
 const mutations = {
@@ -34,51 +56,72 @@ const mutations = {
     state.myId = id;
   },
   enterRoom(state, payload) {
-
     state.classroomId = payload.classroomId;
     state.classId = payload.classId;
     state.jwt = payload.jwt;
-
-    const options = {
-      token: state.jwt,
-      class: state.classroomId,
-      session: state.classId,
-    };
-    webRTC.emitEvent('joinSession', options);
+    state.isTeacher = payload.isTeacher;
 
     // signal to server every 2 sec for keeping connection
-    interval = setInterval(
-      () => webRTC.emitEvent('pingSession', options),
-      2000,
-    );
+    interval = setInterval(() => webRTC.sendMessage('pingSession', {}), 2000);
     bus.$on('onDeliverDisconnection', () => {
       clearInterval(interval);
       webRTC.disconnectWebRTC();
     });
   },
-  leaveRoom(state) {
-    const options = {
-      token: state.jwt,
-      class: state.classroomId,
-      session: state.classId,
-    };
-    webRTC.emitEvent('leaveSession', options);
+  leaveRoom() {
+    webRTC.sendMessage('leaveSession', {});
 
     clearInterval(interval);
     webRTC.disconnectWebRTC();
+  },
+
+  finishClass(state) {
+    console.log('finishClass');
+    console.log(state.classId);
+    webRTC.sendMessage('requestDisconnection', { sendTo: state.classId });
   },
 
   connectWithTheUser(state, targetUser) {
     webRTC.connectWithTheUser(targetUser);
   },
 
-  sendChat(state, message) {
-    webRTC.sendChat(message);
-  },
-
   disconnectWithTheUser(state, targetUser) {
     webRTC.disconnectWithTheUser(targetUser);
   },
+
+  sendChat(state, content) {
+    webRTC.sendMessage('sendChat', { content });
+  },
+
+  settingSetter(state, options) {
+    const {
+      sortStudentListInterval,
+      rotateStudentInterval,
+      numConnectedStudent,
+      CCTDataInterval,
+    } = options;
+
+    if (state.sortStudentListInterval !== sortStudentListInterval) {
+      state.sortStudentListInterval = sortStudentListInterval;
+      CCT.sortUserListByCCT(
+        state.connectedUsers,
+        state.sortStudentListInterval,
+      );
+    }
+    if (state.CCTDataInterval !== CCTDataInterval) {
+      state.CCTDataInterval = CCTDataInterval;
+      CCT.addCCTDataOnTotalCCT(state.CCTData, state.CCTDataInterval);
+    }
+    // 동시에 바꿀 때 수정
+    if (state.rotateStudentInterval !== rotateStudentInterval) {
+      state.rotateStudentInterval = rotateStudentInterval;
+      webRTC.rotateStudent(true);
+    } else if (state.numConnectedStudent !== numConnectedStudent) {
+      state.numConnectedStudent = numConnectedStudent;
+      webRTC.rotateStudent(true);
+    }
+  },
+
   videoSetter(state, payload) {
     state.videos = payload.videos;
     state.localVideo = payload.localVideo;
@@ -98,31 +141,32 @@ const actions = {
   },
 
   async EnterRoom({ commit }, payload) {
+    commit('enterRoom', payload);
     const localStream = await webRTC.getUserMedia();
     state.localVideo.srcObject = localStream;
+
+    if (payload.isTeacher) {
+      state.localVideo.style.width = '70vw';
+    } else {
+      state.localVideo.style.width = '100%';
+    }
+    console.log('EnterRoom', state.localVideo.srcObject);
     analyzeLib.getVideoSrc(state.localVideo);
-    commit('enterRoom', payload);
+
+    webRTC.sendMessage('joinSession', {});
   },
 
   LeaveRoom({ commit }) {
     commit('leaveRoom');
   },
 
+  FinishClass({ commit }) {
+    commit('finishClass');
+  },
+
   SendChat({ commit }, message) {
     commit('sendChat', message);
   },
-
-  // async ShareScreen() {
-  //   // on chrome
-  //   const screenStream = await navigator.mediaDevices.getDisplayMedia({
-  //     cursor: true,
-  //   });
-  //   console.log(screenStream);
-  //   // screenTrack = screenStream.getTracks();
-  //   // substitueTrack(screenTrack[0]);
-
-  //   // socket.emit('screenSharing', state.classroomId, sessionId);
-  // },
 
   VideoSetter({ commit }, payload) {
     commit('videoSetter', payload);
@@ -142,6 +186,12 @@ const actions = {
   DisconnectWithTheUser({ commit }, targetUser) {
     commit('disconnectWithTheUser', targetUser);
   },
+
+  SettingSetter({ commit }, options) {
+    commit('settingSetter', options);
+  },
+
+  // setOnClickTempButton
   ButtonSetter1({ commit }, button) {
     commit('buttonSetter1', button);
     state.tempButton1.addEventListener('click', () => {

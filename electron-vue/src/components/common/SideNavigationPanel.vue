@@ -4,11 +4,7 @@
       <img src="../../assets/img/common/attention-logo.png" />
     </div>
     <div class="side-navigation-body">
-      <router-link class="side-navigation-item" to="/">홈</router-link>
-      <router-link class="side-navigation-item" to="/ClassRoomList"
-        >교실 목록</router-link
-      >
-      <div class="side-navigation-item">수업 목록</div>
+      <slot name="section"></slot>
     </div>
     <div class="side-navigation-footer">
       <div class="current-user-profile"></div>
@@ -16,6 +12,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 export default {};
