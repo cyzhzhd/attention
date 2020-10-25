@@ -543,8 +543,11 @@ socket.on('deliverUserList', userlist => {
     startClass(userlist);
     return;
   }
+  findUser()
   manageUserlist(userlist);
 });
+
+// socket.on('')
 
 socket.on('deliverSignal', message => {
   console.log('message =', message);
@@ -579,7 +582,7 @@ socket.on('deliverChat', message => {
 
 socket.on('deliverDisconnection', () => {
   console.log('got deliverDisconnection');
-  bus.$emit('onDeliverDisconnection');
+  bus.$emit('onDisconnection');
   alert('연결이 끊겼습니다. 방을 나갔다 다시 들어와주세요.');
 });
 

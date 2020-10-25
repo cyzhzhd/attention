@@ -5,6 +5,7 @@
     </div>
     <div ref="videos" class="videos">
       <div>
+        <canvas class="canvas" id="canvas"></canvas>
         <video
           ref="localVideo"
           class="localVideo"
@@ -58,6 +59,8 @@ export default {
 }
 
 .videos {
+  /* position: relative;
+  z-index: 2; */
   grid-area: 'videos';
   display: flex;
   flex-direction: column;
@@ -67,6 +70,15 @@ export default {
   margin-top: 15px;
 }
 .videos video {
+  position: relative;
+  z-index: 2;
+  /* width: 99%; */
+  max-height: 21vh;
+  /* padding: 0 5px; */
+}
+.videos canvas {
+  position: absolute;
+  z-index: 1;
   /* width: 99%; */
   max-height: 21vh;
   /* padding: 0 5px; */
