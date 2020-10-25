@@ -13,7 +13,7 @@ let judge = {
     attend: true,    // absence ratio for x sec
     attendPer: 100,
     sleep: false,      // sleep ratio for x sec
-    sleepPer: 100,
+    sleepPer: 40,
     // distraction: false,
     focusPoint: 100,   // focus point
 }
@@ -76,22 +76,16 @@ function analysis(detection, landmarks, angle, timestamp) {
     }
     // detect part
     judge.attendPer = getDetectPer(detection).toFixed(2);
-    if (judge.attendPer < teacherData.threshold[0]) {
-        judge.attend = false;
-    }
+    if (judge.attendPer < teacherData.threshold[0]) judge.attend = false;
     else {
         judge.attend = true;
         if (landmarks) {
             // sleep part
             judge.sleepPer = getSleepPer(landmarks).toFixed(2);
-            if (judge.sleepPer > teacherData.threshold[1]) {
-                judge.sleep = true;
-            }
-            else {
-                judge.sleep = false;
-                // point part
-                judge.focusPoint -= getPoint(landmarks, angle);
-            }
+            if (judge.sleepPer > teacherData.threshold[1]) judge.sleep = true;
+            else judge.sleep = false;
+            // point part
+            judge.focusPoint -= getPoint(landmarks, angle);
         }
     }
 
@@ -99,7 +93,7 @@ function analysis(detection, landmarks, angle, timestamp) {
     const nowTime = new Date();
     if (nowTime.getTime() - timeVar.temp.getTime() > teacherData.period * 1000) {
         if (!judge.attend) judge.focusPoint = 0;
-        else if (!judge.sleep) judge.focusPoint = 5;
+        else if (judge.sleep) judge.focusPoint = 5;
         else judge.focusPoint -= judge.sleepPer / 2.5;
         rtcPart.sendMessage('sendConcentration', {
             content: judge,
