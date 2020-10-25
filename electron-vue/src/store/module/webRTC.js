@@ -157,6 +157,9 @@ const actions = {
   },
 
   LeaveRoom({ commit }) {
+    analyzeStopFlag = true;
+    analyzeLib.startAnalyze(analyzeStopFlag);
+    console.log('집중력 분석 중단');
     commit('leaveRoom');
   },
 
@@ -220,3 +223,4 @@ export default {
   mutations,
   actions,
 };
+

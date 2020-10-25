@@ -136,10 +136,7 @@ export default {
         modelName === 'showingChatModal'
       ) {
         bus.$emit('openChat');
-      } else if (
-        this.modalList[modelName] &&
-        modelName === 'showingCCTModal'
-      ) {
+      } else if (this.modalList[modelName] && modelName === 'showingCCTModal') {
         bus.$emit('openCCTGraph');
       }
     },
@@ -163,6 +160,7 @@ export default {
       //   this.FinishClass();
       //   await this.$store.dispatch('FINISH_CLASS', options);
       // }
+
       this.LeaveRoom();
       this.$router.go(-1);
     },

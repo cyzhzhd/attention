@@ -41,9 +41,9 @@ let point = {
     deadP: [0, 0.15],    // up down 0~0.15
     deadY: [-0.18, 0.18],   // left right -0.2~0.2
     deadR: [-0.23, 0.23], // spin l, spin r -0.25~0.25
-    weightP: 7,
-    weightY: 7,
-    weightR: 3,
+    weightP: 2,
+    weightY: 2,
+    weightR: 1,
     centerArr0: [],
     centerArr1: [],
     center: [0, 0],
@@ -82,6 +82,7 @@ function analysis(detection, landmarks, angle, timestamp) {
         if (landmarks) {
             // sleep part
             judge.sleepPer = getSleepPer(landmarks).toFixed(2);
+            // console.log(judge.sleepPer);
             if (judge.sleepPer > teacherData.threshold[1]) judge.sleep = true;
             else judge.sleep = false;
             // point part
@@ -120,11 +121,14 @@ function getSleepPer(landmarks) {
     const perR = (inHR + outHR) / (2 * wR);
     const EAR = (perL + perR) / 2;
 
+    // console.log(EAR);
+
     studentData.blinkSize = (EAR < studentData.blinkSize) ? EAR : studentData.blinkSize;
     studentData.eyeSize = (EAR > studentData.eyeSize) ? EAR : studentData.eyeSize;
+    if (studentData.eyeSize > 0.3) studentData.eyeSize = 0.3;
 
     const EAR_nom = 100 * (EAR - studentData.blinkSize) / (studentData.eyeSize - studentData.blinkSize);
-
+    // console.log(EAR_nom);
     if (EAR_nom < sleep.threshold) sleep.arr.push(1);
     else sleep.arr.push(0);
     return sleep.arr.reduce((a, b) => a + b) * 100 / sleep.arr.length;
