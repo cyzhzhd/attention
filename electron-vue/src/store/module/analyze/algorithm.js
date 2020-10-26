@@ -136,7 +136,7 @@ function analysis(detection, landmarks, angle, timestamp) {
     // console.log(judge.absence);
     // detectVar.arrDetect.splice(0, detectVar.cutIndex);
     detectVar.arrDetect.length = 0;
-    rtcPart.sendMessage('sendConcentration', {
+    rtcPart.sendSignalToServer('sendConcentration', {
       content: judge,
     });
     console.log(

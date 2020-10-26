@@ -62,23 +62,33 @@ const mutations = {
     state.isTeacher = payload.isTeacher;
 
     // signal to server every 2 sec for keeping connection
-    interval = setInterval(() => webRTC.sendMessage('pingSession', {}), 2000);
+    if (state.isTeacher) {
+      interval = setInterval(
+        () => webRTC.sendSignalToServer('pingSession', {}),
+        2000,
+      );
+    }
     bus.$on('onDeliverDisconnection', () => {
-      clearInterval(interval);
-      webRTC.disconnectWebRTC();
+      if (state.isTeacher) {
+        clearInterval(interval);
+      }
+      webRTC.leaveClass();
+      alert('방과 연결이 끊겼습니다');
     });
   },
   leaveRoom() {
-    webRTC.sendMessage('leaveSession', {});
+    webRTC.sendSignalToServer('leaveSession', {});
 
     clearInterval(interval);
-    webRTC.disconnectWebRTC();
+    webRTC.leaveClass();
   },
 
   finishClass(state) {
     console.log('finishClass');
     console.log(state.classId);
-    webRTC.sendMessage('requestDisconnection', { sendTo: state.classId });
+    webRTC.sendSignalToServer('requestDisconnection', {
+      sendTo: state.classId,
+    });
   },
 
   connectWithTheUser(state, targetUser) {
@@ -90,7 +100,7 @@ const mutations = {
   },
 
   sendChat(state, content) {
-    webRTC.sendMessage('sendChat', { content });
+    webRTC.sendSignalToServer('sendChat', { content });
   },
 
   settingSetter(state, options) {
@@ -142,7 +152,7 @@ const actions = {
 
   async EnterRoom({ commit }, payload) {
     commit('enterRoom', payload);
-    const localStream = await webRTC.getUserMedia();
+    const localStream = await webRTC.getLocalStream();
     state.localVideo.srcObject = localStream;
 
     if (payload.isTeacher) {
@@ -153,13 +163,10 @@ const actions = {
     console.log('EnterRoom', state.localVideo.srcObject);
     analyzeLib.getVideoSrc(state.localVideo);
 
-    webRTC.sendMessage('joinSession', {});
+    webRTC.sendSignalToServer('joinSession', {});
   },
 
   LeaveRoom({ commit }) {
-    analyzeStopFlag = true;
-    analyzeLib.startAnalyze(analyzeStopFlag);
-    console.log('집중력 분석 중단');
     commit('leaveRoom');
   },
 
@@ -207,8 +214,6 @@ const actions = {
   ButtonSetter2({ commit }, button) {
     commit('buttonSetter2', button);
     state.tempButton2.addEventListener('click', () => {
-      const now = new Date();
-      analyzeLib.eyeSetting(true, now);
       console.log('button clicked2!');
     });
   },
@@ -223,4 +228,3 @@ export default {
   mutations,
   actions,
 };
-
