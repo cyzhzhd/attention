@@ -98,6 +98,9 @@ function addJoiningUser(userlist) {
   findJoiningUsers(userlist).forEach(joiningUser => {
     console.log('joiningUser', joiningUser.name);
     state.connectedUsers.push(joiningUser);
+    if (state.isTeacher) {
+      CCT.CCTSetter(joiningUser);
+    }
   });
 }
 
@@ -326,7 +329,7 @@ function connectWithTheUser(targetUser) {
 function disconnectWithTheUser(targetUser, received = false) {
   if (targetUser.user === state.myId) {
     alert('this is you');
-  } else if (targetUser.rtc.connectionState === 'connected') {
+  } else if (targetUser.rtc && targetUser.rtc.connectionState === 'connected') {
     removeVideo(targetUser.user);
     const idx = state.displayingStudentList.findIndex(
       student => student.user === targetUser.user,
@@ -444,7 +447,6 @@ function resetVariables() {
 
 // communication with signaling server
 socket.on('deliverUserList', userlist => {
-  bus.$emit('userlist-update', userlist);
   updateUserlist(userlist);
 });
 
@@ -472,9 +474,6 @@ const funcSignal = {
   },
   disconnectWithThisUser(sentFrom) {
     disconnectWithTheUser(sentFrom, true);
-    // removeVideo(sentFrom.user);
-    // sentFrom.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
-    // setRTCPeerConnection(sentFrom);
   },
 };
 
@@ -496,6 +495,7 @@ socket.on('deliverDisconnection', () => {
 });
 
 socket.on('deliverConcenteration', cctData => {
+  currentTime = new Date();
   console.log(cctData);
   const { user, content } = cctData;
   const foundUser = findUser(user);
@@ -503,7 +503,6 @@ socket.on('deliverConcenteration', cctData => {
   console.log(state.sortStudentListInterval, state.CCTDataInterval);
   CCT.sortUserListByCCT(state.connectedUsers, state.sortStudentListInterval);
   CCT.addCCTDataOnTotalCCT(state.CCTData, state.CCTDataInterval);
-  currentTime = new Date(Date.now());
   rotateStudent();
 });
 

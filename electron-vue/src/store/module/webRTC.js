@@ -62,16 +62,21 @@ const mutations = {
     state.isTeacher = payload.isTeacher;
 
     // signal to server every 2 sec for keeping connection
-    if (state.isTeacher) {
-      interval = setInterval(
-        () => webRTC.sendSignalToServer('pingSession', {}),
-        2000,
-      );
-    }
+    interval = setInterval(
+      () => webRTC.sendSignalToServer('pingSession', {}),
+      2000,
+    );
+    // if (state.isTeacher) {
+    //   interval = setInterval(
+    //     () => webRTC.sendSignalToServer('pingSession', {}),
+    //     2000,
+    //   );
+    // }
     bus.$on('onDeliverDisconnection', () => {
-      if (state.isTeacher) {
-        clearInterval(interval);
-      }
+      clearInterval(interval);
+      // if (state.isTeacher) {
+      //   clearInterval(interval);
+      // }
       webRTC.leaveClass();
       alert('방과 연결이 끊겼습니다');
     });
@@ -160,7 +165,6 @@ const actions = {
     } else {
       state.localVideo.style.width = '100%';
     }
-    console.log('EnterRoom', state.localVideo.srcObject);
     analyzeLib.getVideoSrc(state.localVideo);
 
     webRTC.sendSignalToServer('joinSession', {});
