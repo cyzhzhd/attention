@@ -127,11 +127,12 @@ const mutations = {
       state.CCTDataInterval = CCTDataInterval;
       CCT.addCCTDataOnTotalCCT(state.CCTData, state.CCTDataInterval);
     }
-    // 동시에 바꿀 때 수정
-    if (state.rotateStudentInterval !== rotateStudentInterval) {
+
+    if (
+      state.rotateStudentInterval !== rotateStudentInterval ||
+      state.numConnectedStudent !== numConnectedStudent
+    ) {
       state.rotateStudentInterval = rotateStudentInterval;
-      webRTC.rotateStudent(true);
-    } else if (state.numConnectedStudent !== numConnectedStudent) {
       state.numConnectedStudent = numConnectedStudent;
       webRTC.rotateStudent(true);
     }

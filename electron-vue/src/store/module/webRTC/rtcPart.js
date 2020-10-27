@@ -414,10 +414,9 @@ function rotateStudent(isImmediate = false) {
         len = Math.min(len + 1, state.connectedUsers.length);
       } else {
         connectWithTheUser(state.connectedUsers[i]);
-        state.displayingStudentList.push(state.connectedUsers[i]);
       }
     }
-    nextRotateTime = CCT.setTime(state.rotateStudentInterval);
+    nextRotateTime = CCT.setNextExecuteTime(state.rotateStudentInterval);
   }
 }
 
