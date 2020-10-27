@@ -179,16 +179,6 @@ function setOnTrackEvent(user) {
     if (!event) return;
     if (event.track.kind === 'audio') return;
     console.log('비디오가 추가될 때, evnet = ', event);
-    // const childVideos = state.videos.childNodes;
-    // let hasAdded = false;
-    // childVideos.forEach(node => {
-    //   if (node.id === user.user) {
-    //     hasAdded = true;
-    //   }
-    // });
-    // if (hasAdded) {
-    //   return;
-    // }
 
     const stream = event.streams[0];
     // user.yourStreams = stream;
@@ -259,7 +249,6 @@ function setOnIceCandidate(user) {
 
 function addTrackOnPC(user) {
   if (!localStream) return;
-  // console.log('addTrackOnPC', localStream);
   console.log('addTrack event on ', user);
   user.myTrack = [];
   localStream.getTracks().forEach(track => {
@@ -346,10 +335,13 @@ function disconnectWithTheUser(targetUser, received = false) {
         content: { type: 'disconnectWithThisUser' },
       });
     }
+  } else {
+    removeVideo(targetUser.user);
   }
 }
 
 function removeVideo(targetSessionId) {
+  if (!state.videos) return;
   const childVideosNodeList = state.videos.childNodes;
   for (const node of childVideosNodeList) {
     if (node.id === targetSessionId) {
@@ -395,14 +387,28 @@ function muteAudio() {
   isAudioMuted = !isAudioMuted;
 }
 
+function signalOfferRequest(user) {
+  sendSignalToServer('offerRequest', {
+    sendTo: user.socket,
+    content: {
+      type: 'offerRequest',
+    },
+  });
+}
+
 let currentTime = new Date();
 let nextRotateTime = new Date();
 function rotateStudent(isImmediate = false) {
   if (CCT.timeCompare(currentTime, nextRotateTime) >= 0 || isImmediate) {
     console.log(state.rotateStudentInterval);
-    console.log('새로운 학생과 연결!');
+    console.log(
+      '새로운 학생과 연결!',
+      state.displayingStudentList,
+      state.displayingStudentList.length,
+    );
     if (state.displayingStudentList.length >= 0) {
-      state.displayingStudentList.forEach(student => {
+      const disconnectList = [...state.displayingStudentList];
+      disconnectList.forEach(student => {
         console.log('연결했었던 유저', student);
         disconnectWithTheUser(student);
       });
@@ -413,7 +419,7 @@ function rotateStudent(isImmediate = false) {
       if (state.connectedUsers[i].isTeacher) {
         len = Math.min(len + 1, state.connectedUsers.length);
       } else {
-        connectWithTheUser(state.connectedUsers[i]);
+        signalOfferRequest(state.connectedUsers[i]);
       }
     }
     nextRotateTime = CCT.setNextExecuteTime(state.rotateStudentInterval);
@@ -421,10 +427,6 @@ function rotateStudent(isImmediate = false) {
 }
 
 function resetVariables() {
-  while (state.videos.lastElementChild) {
-    state.videos.removeChild(state.videos.lastElementChild);
-  }
-
   isScreenSharing = null;
   screenSharingTrack = null;
 
@@ -450,6 +452,9 @@ socket.on('deliverUserList', userlist => {
 });
 
 const funcSignal = {
+  offerRequest(sentFrom) {
+    connectWithTheUser(sentFrom);
+  },
   offer(sentFrom, content) {
     console.log('got offer from =', sentFrom);
     setRTCPeerConnection(sentFrom);

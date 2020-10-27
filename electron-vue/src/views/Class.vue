@@ -88,8 +88,8 @@ export default {
       this.$refs.closeBtn.style.display = 'block';
 
       // 연결된 유저 수 * 비디오 높이 + 버튼 높이 보내기
-      const offset = 220;
-      const height = offset + 205 * (this.storedDisplayingStudentList.length) + 25;
+      const offset = 290;
+      const height = offset + 205 * (this.storedDisplayingStudentList.length);
       console.log(height, (this.storedDisplayingStudentList.length + 1));
       console.log(this.storedDisplayingStudentList);
       ipcRenderer.send('attention:start-sharing-screen', height);

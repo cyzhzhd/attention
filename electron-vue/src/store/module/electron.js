@@ -88,7 +88,6 @@ function getDisplay(div) {
     .then(stream => {
       [screensharingTrack] = [stream.getTracks()[0]];
       console.log(screensharingTrack);
-      // ipcRenderer.send('open-new-window-for-screensharing');
       webRTC.shareScreen(screensharingTrack);
     })
     .catch(error => {
@@ -96,13 +95,6 @@ function getDisplay(div) {
     });
 }
 
-// ipcRenderer.on('close-sharing-panel', () => {
-//   bus.$emit('change-screen-to-localstream');
-//   webRTC.sendMessage('stopShareScreen', {});
-//   console.log(screensharingTrack);
-//   screensharingTrack.stop();
-//   screensharingTrack = null;
-// });
 export default {
   namespaced: true,
   state,
