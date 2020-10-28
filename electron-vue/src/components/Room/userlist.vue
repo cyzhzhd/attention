@@ -7,6 +7,22 @@
           v-bind:key="userInfo._id"
         >
           <div @click.prevent="$refs.menu.open($event, userInfo)" @click.stop>
+            <div class="CCTIcon">
+              <figure class="hpBar" v-if="userInfo.CCTData.avr.num > 0" :style="{
+                  backgroundImage:
+                    'url(' + require('../../assets/img/room/energy.png') + ')',
+                }"></figure>
+              <figure class="backGround"  v-if="userInfo.CCTData.avr.num > 0" :style="{
+                  backgroundImage:
+                    'url(' + require('../../assets/img/room/energy-background.png') + ')',
+                  width: `${20 - (userInfo.CCTData.CCT.focusPoint[userInfo.CCTData.avr.num - 1])/5}px`,
+                }"></figure>
+              <figure class="hpBar"  v-if="userInfo.CCTData.avr.num === 0" :style="{
+                  backgroundImage:
+                    'url(' + require('../../assets/img/room/energyRed.png') + ')',
+                  width: `${20 - (userInfo.CCTData.CCT.focusPoint[userInfo.CCTData.avr.num - 1])/5}px`,
+                }"></figure>
+            </div>
             <figure
               class="userlist-profile"
               :style="{
@@ -14,7 +30,6 @@
                   'url(' + require('../../assets/img/room/profile.png') + ')',
               }"
             ></figure>
-            <!-- <figure class="CCTIcon"></figure> -->
             {{ userInfo.name }}
           </div>
         </li>
@@ -85,6 +100,25 @@ export default {
 
   height: 0;
   padding-bottom: 80%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+.hpBar {
+  width: 20px;
+}
+.backGround {
+  z-index: 101;
+  margin-top: -20px;
+  /* width: 10px; */
+}
+.CCTIcon{
+  position: absolute;
+  z-index: 100;
+  transform: rotate(90deg);
+}
+.CCTIcon figure {
+  height: 20px;
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
