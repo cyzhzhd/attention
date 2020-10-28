@@ -1,41 +1,76 @@
 <template>
   <div class="wrapper">
-    <side-navigation-panel>
-      <div slot="section">
-        <router-link class="side-navigation-item" to="/">홈</router-link>
-        <router-link class="side-navigation-item" to="/ClassRoomList">교실 목록</router-link>
-        <div class="side-navigation-item" @click="$router.go(-1)">수업 목록</div>
+    <main-header></main-header>
+    <div class="contents-dashboard">
+      <div class="dashboard-sidebar">
+        <div class="dashboard-sidebar-title">Dashboard</div>
+        <drop-down-box v-bind:type="DDBClass">
+          <div slot="header">전체</div>
+          <div slot="type">
+            <div
+              id="week-dropdown"
+              class="dropdown-box-contents dropdown-box-contents-close"
+            >
+              <div
+                class="dropdown-list-item"
+                v-for="classInfo in classList"
+                @click="changeClassId(classInfo._id)"
+                :key="classInfo._id"
+                :value="classInfo._id"
+              >
+                {{ classInfo.name }}
+              </div>
+            </div>
+          </div>
+        </drop-down-box>
+        <div class="search-button-wrapper">
+          <div class="search-button">찾기</div>
+        </div>
       </div>
-    </side-navigation-panel>
-    <div class="main-panel">
-      <div>
-        <ul>
-          <li v-for="student in studentList" v-bind:key="student.user">
-            <div @click="displaySelectedUser(student)">
-            {{ student.name }}
+
+      <div class="dashboard-contents">
+        <ul class="user-list-wrapper">
+          <li
+            class="user-item"
+            v-for="student in studentList"
+            v-bind:key="student.user"
+            @click="displaySelectedUser(student)"
+          >
+            <img
+              src="../assets/img/DashBoard/userprofile-dashboard.svg"
+              class="user-profile"
+            />
+            <div class="username">
+              {{ student.name }}
             </div>
           </li>
         </ul>
-      </div>
-      <div>
-        <form>
-          수업 차시
-          <select name="dropdown" v-model="classId">
-            <option value="all" selected>전체</option>
-            <option v-for="classInfo in classList" :key="classInfo._id" :value="classInfo._id">
-              {{ classInfo.name }}
-            </option>
-          </select>
-        </form>
-      </div>
-      <div>
-        <div class="CCTButtons">
-          <div @click="displaySelectedType('focusPoint')">Focus Point</div>
-          <div @click="displaySelectedType('absence')">Absence</div>
-          <div @click="displaySelectedType('sleep')">Sleep</div>
-          <div @click="displaySelectedType('turnHead')">TurnHead</div>
+        <div class="dashboard">
+          <div class="dashboard-filter-list">
+            <div
+              class="dashboard-filter"
+              @click="displaySelectedType('focusPoint')"
+            >
+              Focus Point
+            </div>
+            <div
+              class="dashboard-filter"
+              @click="displaySelectedType('absence')"
+            >
+              Absence
+            </div>
+            <div class="dashboard-filter" @click="displaySelectedType('sleep')">
+              Sleep
+            </div>
+            <div
+              class="dashboard-filter"
+              @click="displaySelectedType('turnHead')"
+            >
+              TurnHead
+            </div>
+          </div>
+          <chart class="dashboard-graph" v-bind:classId="classId"></chart>
         </div>
-        <chart v-bind:classId="classId"></chart>
       </div>
     </div>
   </div>
@@ -43,24 +78,27 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
-import SideNavigationPanel from '../components/common/SideNavigationPanel.vue';
+import MainHeader from '../components/common/MainHeader.vue';
+import DropDownBox from '../components/common/DropDownBox.vue';
 import chart from '../components/Dashboard/Chart.vue';
 import bus from '../../utils/bus';
 
 export default {
-  name: "Dashboard",
+  name: 'Dashboard',
   components: {
     chart,
-    SideNavigationPanel,
+    MainHeader,
+    DropDownBox,
   },
   computed: {
-    ...mapGetters('dashboard', ["studentList"]),
+    ...mapGetters('dashboard', ['studentList']),
   },
   data() {
     return {
       classroomId: this.$route.params.classroomId,
       classList: [],
       classId: this.$route.params.classId,
+      DDBClass: 'class',
       type: {
         focusPoint: true,
         absence: false,
@@ -68,9 +106,12 @@ export default {
         turnHead: false,
       },
       displayingUser: [],
-    }
+    };
   },
   methods: {
+    changeClassId(classId) {
+      this.classId = classId;
+    },
     createStudentList() {
       console.log('createStudentList start --------------');
       const options = {
@@ -78,14 +119,16 @@ export default {
         params: {
           class: this.classroomId,
         },
-      }
+      };
       this.SetStudentList(options);
       console.log('createStudentList end --------------');
     },
     displaySelectedUser(student) {
-      const index = this.displayingUser.findIndex((user) => user.user === student.user);
-      if(index === -1) {
-        this.displayingUser.push({user: student.user, name: student.name});
+      const index = this.displayingUser.findIndex(
+        (user) => user.user === student.user,
+      );
+      if (index === -1) {
+        this.displayingUser.push({ user: student.user, name: student.name });
       } else {
         this.displayingUser.splice(index, 1);
       }
@@ -102,13 +145,13 @@ export default {
     this.createStudentList();
     const options = {
       class: this.classroomId,
-    }
+    };
     this.classList = await this.$store.dispatch('FETCH_CLASSLIST', options);
     console.log(this.classList);
     console.log('classId', this.classId);
   },
-}
+};
 </script>
 <style scoped>
-@import '../assets/css/Dashboard.css';
+@import '../assets/css/Dashboard2.css';
 </style>

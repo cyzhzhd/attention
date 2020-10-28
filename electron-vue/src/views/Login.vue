@@ -1,96 +1,70 @@
 <template>
-  <div class="login-page">
-    <nav class="login-signup">
-      <ul class="menu">
-        <li class="menu-item" @click.prevent="activeLogIn">
-          <a href="#" class="menu-link">Log In</a>
-        </li>
-        <li class="menu-item" @click.prevent="activeSignUp">
-          <a href="#" class="menu-link">Sign Up</a>
-        </li>
-      </ul>
-    </nav>
-    <div class="login-form" v-if="hasLogInActivated">
-      <h2>Login</h2>
-      <form
-        class="login-form"
-        @submit.prevent="LogIn(login.email, login.password)"
-      >
-        <input
-          type="email"
-          class="login-email"
-          v-model.trim="login.email"
-          placeholder="Enter your email address"
-        />
-        <input
-          type="password"
-          class="login-password"
-          v-model.trim="login.password"
-          placeholder="password"
-        />
-        <button type="submit" variant="primary" :disabled="!login.email">
-          Login
-        </button>
-      </form>
+  <div class="sign-in-page">
+    <sign-in-cover></sign-in-cover>
+    <div class="sign-in-wrapper">
+      <div class="sign-in-contents-wrapper">
+        <div class="sign-in-header">
+          <div>시작해볼까요?</div>
+        </div>
+        <div class="tab-contents">
+          <form @submit.prevent="LogIn(login.email, login.password)">
+            <div class="input-wrapper">
+              <label class="input-label">이메일</label>
+              <input
+                type="email"
+                v-model.trim="login.email"
+                placeholder="이메일를 입력하세요"
+                class="input"
+              />
+            </div>
+
+            <div class="input-wrapper">
+              <label class="input-label">비밀번호</label>
+              <input
+                type="password"
+                v-model.trim="login.password"
+                placeholder="비밀번호를 입력하세요"
+                class="input"
+              />
+            </div>
+
+            <p class="error-message">{{ errorMessage }}</p>
+          </form>
+        </div>
+
+        <div class="sign-in-button-wrapper">
+          <img class="arrow" src="../assets/img/login-signup/arrow.png" />
+          <div
+            class="sign-in-button"
+            role="button"
+            @click="LogIn(login.email, login.password)"
+            :disabled="!login.email"
+          >
+            로그인
+          </div>
+        </div>
+        <div class="go-to-signup">
+          <router-link :to="{ name: 'SignIn' }"
+            >아이디가 없으세요? 이 곳을 클릭하세요.</router-link
+          >
+        </div>
+      </div>
     </div>
-    <div class="signup-form" v-else>
-      <h2>Sign Up</h2>
-      <form class="signup-form" @submit.prevent="SignUp()">
-        <input
-          type="email"
-          class="signup-email"
-          v-model.trim="signup.email"
-          placeholder="Enter your email address"
-        />
-        <input
-          type="password"
-          class="signup-password"
-          v-model.trim="signup.password"
-          placeholder="password"
-        />
-        <input
-          type="password"
-          class="signup-password-check"
-          v-model.trim="signup.passwordCheck"
-          placeholder="password-check"
-        />
-        <input
-          type="text"
-          class="signup-displayname"
-          v-model.trim="signup.displayName"
-          placeholder="displayname"
-        />
-        <form>
-          가입 유형
-          <select name="dropdown" v-model="signup.type">
-            <option value="학생" selected>학생</option>
-            <option value="선생님">선생님</option>
-          </select>
-        </form>
-        <button type="submit" variant="primary" :disabled="!signup.email">
-          Sign Up
-        </button>
-      </form>
-    </div>
-    <p class="error-message">{{ errorMessage }}</p>
   </div>
 </template>
 
 <script>
+import SignInCover from '../components/sign-in/sign-in-cover.vue';
+
 export default {
   name: 'loginPage',
+  components: {
+    SignInCover,
+  },
   data() {
     return {
       login: { email: '', password: '' },
-      signup: {
-        email: '',
-        password: '',
-        passwordCheck: '',
-        displayName: '',
-        type: '학생',
-      },
-      errorMessage: this.$store.state.errorMessage,
-      hasLogInActivated: true,
+      errorMessage: '',
     };
   },
   methods: {
@@ -99,80 +73,21 @@ export default {
         email: this.login.email,
         password: this.login.password,
       };
-      const jwt = await this.$store.dispatch("FETCH_JWT", options);
-      const info = await this.$store.dispatch("FETCH_USER_INFO");
+      const jwt = await this.$store.dispatch('FETCH_JWT', options);
+      const info = await this.$store.dispatch('FETCH_USER_INFO');
 
-      if(jwt && info) {
+      if (jwt && info) {
         this.$router.push({
           name: 'ClassRoomList',
-          });
+        });
       } else {
-        this.errorMessage = this.$store.state.errorMessage;
+        this.errorMessage = this.$store.getters.GET_ERRORMESSAGE;
       }
-    },
-
-    async SignUp() {
-      const isPasswordSame = this.signup.password === this.signup.passwordCheck;
-      if (isPasswordSame) {
-        const isTeacher = this.signup.type === '학생' ? 0 : 1;
-        const options = {
-          email: this.signup.email,
-          password: this.signup.password,
-          name: this.signup.displayName,
-          isTeacher,
-        };
-
-        const data = await this.$store.dispatch('SIGN_UP_USER', options);
-        if(data) {
-          this.login.email = this.signup.email;
-          this.signup.email = '';
-          this.signup.password = '';
-          this.signup.passwordCheck = '';
-          this.signup.displayName = '';
-          this.hasLogInActivated = true;
-        } else {
-          this.errorMessage = this.$store.state.errorMessage;
-        }
-      } else {
-        this.errorMessage = '비밀번호를 다시 확인해주세요.';
-      }
-    },
-
-    activeLogIn() {
-      this.errorMessage = '';
-      this.hasLogInActivated = true;
-    },
-    activeSignUp() {
-      this.errorMessage = '';
-      this.hasLogInActivated = false;
     },
   },
 };
 </script>
 
 <style scoped>
-.menu {
-  display: flex;
-}
-.menu-item {
-  background: white;
-  width: 50%;
-  transition: 0.5s;
-}
-.menu-item:hover {
-  background: #42b983;
-  width: 60%;
-}
-.menu-link {
-  display: block;
-  padding: 1em;
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #555;
-  text-decoration: none;
-  text-align: center;
-}
-.menu-link:hover {
-  color: white;
-}
+@import '../assets/css/login.css';
 </style>

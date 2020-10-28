@@ -13,6 +13,9 @@ export default {
       state.errorMessage = '비밀번호는 8자리 이상이어야 합니다.';
     if (error === 'duplicate_email')
       state.errorMessage = '이미 가입한 이메일입니다.';
+    if (error === 'register_failed')
+      state.errorMessage = '닉네임을 입력해주세요.';
+
     console.log(error);
   },
   SET_USER(state, userInfo) {

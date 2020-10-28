@@ -3,18 +3,22 @@
     <side-navigation-panel>
       <div slot="section">
         <router-link class="side-navigation-item" to="/">홈</router-link>
-        <router-link class="side-navigation-item" to="/ClassRoomList">교실 목록</router-link>
-        <router-link class="side-navigation-item" 
-          :to="{ name: 'Dashboard', params: { classroomId, classId: 'all' }}" >
+        <router-link class="side-navigation-item" to="/ClassRoomList"
+          >교실 목록</router-link
+        >
+        <router-link
+          class="side-navigation-item"
+          :to="{ name: 'Dashboard', params: { classroomId, classId: 'all' } }"
+        >
           대시 보드
         </router-link>
       </div>
     </side-navigation-panel>
     <div class="main-panel">
-      <header class="main-panel-header">
+      <!-- <header class="main-panel-header">
         <div class="main-panel-header-title">수업 목록</div>
         <div class="main-panel-header-class-name">2학년 1반</div>
-      </header>
+      </header> -->
       <div class="main-panel-contents">
         <div class="main-panel-class-list">
           <router-link
@@ -40,39 +44,56 @@
             <div class="class-list-header-item">선생님</div>
           </div>
           <section>
-            <li v-for='classInfo in displayingClassList' :key="classInfo._id">
+            <li v-for="classInfo in displayingClassList" :key="classInfo._id">
               <div class="class-item">
                 <div class="class-item-header">
                   <div class="class-item-teacher-profile"></div>
                   <div class="class-item-header-item">{{ classInfo.name }}</div>
-                  <div class="class-item-header-item"> {{ classInfo.time}} </div>
+                  <div class="class-item-header-item">{{ classInfo.time }}</div>
                   <div class="class-item-header-item-teacher-name">
                     {{ classInfo.teacherName }} 선생님
                   </div>
                 </div>
-                <div v-if=classInfo.endTime>
+                <div v-if="classInfo.endTime">
                   <router-link
-                    class="classroom-card-title" 
-                    :to="{ name: 'Dashboard', params: {
+                    class="classroom-card-title"
+                    :to="{
+                      name: 'Dashboard',
+                      params: {
                         classroomId,
-                        classId: classInfo._id
-                      }}" action >
-                    <img src="../assets/img/ClassRoom/test.png" class="class-item-preview-finished"/>
+                        classId: classInfo._id,
+                      },
+                    }"
+                    action
+                  >
+                    <img
+                      src="../assets/img/ClassRoom/test.png"
+                      class="class-item-preview-finished"
+                    />
                   </router-link>
                 </div>
                 <div v-else>
                   <router-link
                     class="classroom-card-title"
-                    :to="{ name: 'Class', params: {
+                    :to="{
+                      name: 'Class',
+                      params: {
                         classroomId: classroomId,
-                        classId: classInfo._id }}" action>
-                    <img src="../assets/img/ClassRoom/test.png" class="class-item-preview"/>
+                        classId: classInfo._id,
+                      },
+                    }"
+                    action
+                  >
+                    <img
+                      src="../assets/img/ClassRoom/test.png"
+                      class="class-item-preview"
+                    />
                   </router-link>
                 </div>
               </div>
             </li>
           </section>
-          <section v-if=noClass>
+          <section v-if="noClass">
             위의 수업 만들기를 클릭해 수업을 만들 수 있답니다~
           </section>
           <div class="class-item-class-start-button" role="button">
@@ -104,17 +125,17 @@ export default {
   methods: {
     async fetchClassList() {
       const options = {
-          class: this.classroomId,
+        class: this.classroomId,
       };
       this.classList = await this.$store.dispatch('FETCH_CLASSLIST', options);
-      if(this.classList.length === 0) {
+      if (this.classList.length === 0) {
         this.noClass = true;
         return;
       }
-      this.classList.reverse().forEach(classInfo => {
+      this.classList.reverse().forEach((classInfo) => {
         const { date, time } = this.getTime(classInfo.scheduledStartTime);
         classInfo.time = `${date} ${time}`;
-      })
+      });
       this.displayingClassList = this.classList.slice(0, 4);
     },
 

@@ -1,4 +1,4 @@
-.enter-modal-wrapper {
+/* .enter-modal-wrapper {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -17,7 +17,6 @@
 .add-header-wrapper {
   margin: 10px;
   text-align: center;
-  /* padding: 24px 0; */
   margin-bottom: 30px;
   font-family: 'GmarketSansLight';
   font-weight: bold;
@@ -92,4 +91,4 @@
 .enter-button:hover {
   background-color: #00d39d;
   color: #fff;
-}
+} */

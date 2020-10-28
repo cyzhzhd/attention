@@ -1,38 +1,16 @@
 <template>
   <div class="wrapper">
-    <side-navigation-panel>
-      <div slot="section">
-        <router-link class="side-navigation-item" to="/">홈</router-link>
-      </div>
-    </side-navigation-panel>
-    <div class="main-panel">
-      <header class="main-panel-header">
-        <div class="main-panel-header-title">교실 목록</div>
-        <div class="main-panel-header-icon">
-          <img src="../assets/img/ClassRoomList/blackboard.png" />
-        </div>
-      </header>
+    <main-header></main-header>
+    <div class="contents">
+      <!-- <crl-drop-down-box></crl-drop-down-box> -->
+      <CRLDropDownBox></CRLDropDownBox>
       <section class="main-panel-contents">
-        <ul class="main-panel-classroom-list">
-          <router-link
-            class="create-classroom-title"
-            :to="{ name: 'AddClassRoom' }"
-            action
+        <ul class="contents-grid-wrapper">
+          <li
+            class="classroom-card"
+            v-for="room in $store.state.classroom"
+            :key="room._id"
           >
-            <div class="create-classroom-card">
-              <div class="create-classroom-plus-icon">
-                <img src="../assets/img/common/plus.png" />
-              </div>
-              <p v-if="$store.state.user.isTeacher">
-                교실 만들기
-              </p>
-              <p v-else>
-                교실 추가하기
-              </p>
-            </div>
-          </router-link>
-
-          <li class="classroom-card" v-for="room in $store.state.classroom" :key="room._id">
             <div class="classroom-card-header">
               <router-link
                 class="classroom-card-title"
@@ -44,11 +22,20 @@
                 }"
                 action
               >
-                {{ room.name }}
                 <img
-                  class="classroom-card-background"
+                  class="classroom-thumbnail"
                   src="../assets/img/ClassRoomList/charisse-kenion-ts-E3IVKv8o-unsplash.jpg"
                 />
+                <div class="classroom-info">
+                  <div class="classroom-title">{{ room.name }}</div>
+                  <div class="classroom-member-count">
+                    총 {{ room.students.length }}명
+                  </div>
+                  <div class="classroom-teacher-thumbnail"></div>
+                  <div class="classroom-teacher-name">
+                    {{ room.teacherName }}
+                  </div>
+                </div>
               </router-link>
               <div
                 class="classroom-card-more-button"
@@ -106,18 +93,15 @@
         </h6>
       </small-modal>
     </div>
-    <createClassRoomModal
-      v-bind:showingModal="modalList.addClassRoomModal"
-      v-on:closeModal="controlModal"
-    ></createClassRoomModal>
   </div>
 </template>
 
 <script>
 import VueContext from 'vue-context';
 import 'vue-context/src/sass/vue-context.scss';
-import SideNavigationPanel from '../components/common/SideNavigationPanel.vue';
-import createClassRoomModal from '../components/ClassRoomList/createClassRoomModal.vue';
+import bus from '../../utils/bus';
+import MainHeader from '../components/common/MainHeader.vue';
+import CRLDropDownBox from '../components/ClassRoomList/CRLDropDownBox.vue';
 import smallModal from '../components/common/smallModal.vue';
 
 export default {
@@ -125,8 +109,8 @@ export default {
   components: {
     VueContext,
     smallModal,
-    createClassRoomModal,
-    SideNavigationPanel,
+    MainHeader,
+    CRLDropDownBox,
   },
 
   data() {
@@ -167,7 +151,7 @@ export default {
       if (this.textConfirm === '확인') {
         this.controlModal('confirmModal');
         const options = {
-            class: this.classRoomId,
+          class: this.classRoomId,
         };
         await this.$store.dispatch('DELETE_CLASSROOM', options);
         this.getClassRoomList();
@@ -184,17 +168,17 @@ export default {
     },
 
     addListOnClassRoom(classList) {
-      classList.forEach(async joinedClass => {
+      classList.forEach(async (joinedClass) => {
         const options = {
-            class: joinedClass,
-        }
+          class: joinedClass,
+        };
         await this.$store.dispatch('FETCH_CLASS_ROOM_INFO', options);
       });
     },
 
     async getClassRoomList() {
       this.$store.state.classroom = [];
-      await this.$store.dispatch("FETCH_USER_INFO");
+      await this.$store.dispatch('FETCH_USER_INFO');
       const { ownClasses } = this.$store.state.user;
       this.addListOnClassRoom(ownClasses);
 
@@ -208,9 +192,17 @@ export default {
     console.log('object');
     this.getClassRoomList();
   },
+  mounted() {
+    bus.$on('classroomList:created-room', () => {
+      this.getClassRoomList();
+    });
+  },
+  beforeDestroy() {
+    bus.$off('classroomList:created-room');
+  },
 };
 </script>
 
 <style scoped>
-@import '../assets/css/ClassRoomList.css';
+@import '../assets/css/ClassRoomList2.css';
 </style>

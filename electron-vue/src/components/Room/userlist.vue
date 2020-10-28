@@ -7,7 +7,7 @@
           v-bind:key="userInfo._id"
         >
           <div @click.prevent="$refs.menu.open($event, userInfo)" @click.stop>
-            <div class="CCTIcon">
+            <div class="CCTIcon" v-if="$store.state.user.isTeacher">
               <figure class="hpBar" v-if="userInfo.CCTData.avr.num > 0" :style="{
                   backgroundImage:
                     'url(' + require('../../assets/img/room/energy.png') + ')',
