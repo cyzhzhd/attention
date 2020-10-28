@@ -388,7 +388,8 @@ function muteAudio() {
 }
 
 function signalOfferRequest(user) {
-  sendSignalToServer('offerRequest', {
+  console.log(user);
+  sendSignalToServer('sendSignal', {
     sendTo: user.socket,
     content: {
       type: 'offerRequest',
@@ -453,6 +454,7 @@ socket.on('deliverUserList', userlist => {
 
 const funcSignal = {
   offerRequest(sentFrom) {
+    console.log(sentFrom);
     connectWithTheUser(sentFrom);
   },
   offer(sentFrom, content) {
