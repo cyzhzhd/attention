@@ -5,7 +5,7 @@
     </div>
     <div ref="videos" class="videos">
       <div>
-        <!-- <canvas class="canvas" id="canvas"></canvas> -->
+        <canvas id="fcanvas" width="100" height="80"></canvas>
         <video
           ref="localVideo"
           class="localVideo"
@@ -57,10 +57,8 @@ export default {
   width: 100%;
   max-height: 67vh;
 }
-
 .videos {
-  /* position: relative;
-  z-index: 2; */
+  /* position: absolute; */
   grid-area: 'videos';
   display: flex;
   flex-direction: column;
@@ -68,6 +66,24 @@ export default {
   justify-content: center;
   /* grid-template-columns: 1fr; */
   margin-top: 15px;
+}
+.videos video {
+  position: relative;
+  z-index: 1;
+  /* width: 100%; */
+  max-height: 21vh;
+  /* padding: 0 5px; */
+}
+/* .videos canvas {
+  position: absolute;
+  z-index: 2;
+  max-height: 21vh;
+} */
+
+.videos #fcanvas {
+  position: absolute;
+  z-index: 2;
+  max-height: 21vh;
 }
 .videos div p {
   color: black;

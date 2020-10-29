@@ -4,6 +4,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-plusplus */
 /* eslint-disable dot-notation */
+/* eslint-disable prefer-const */
 
 import * as tfjs from '@tensorflow/tfjs';
 import { landmarkModel } from './landmark';
@@ -28,9 +29,6 @@ async function getVideoSrc(videoSrc) {
 
 function startAnalyze(stopFlagInput) {
   stopFlag = stopFlagInput;
-  // const canvas = document.getElementById("canvas");
-  // const ctx = canvas.getContext("2d");
-  // document.body.append(canvas);
   setTimeout(async function faceDetection() {
     if (stopFlag) {
       al.varInit();
@@ -39,20 +37,32 @@ function startAnalyze(stopFlagInput) {
     // console.log(timestamp1)
     const pixel = tfjs.browser.fromPixels(video);
     const img = pixel.reshape([-1, pixel.shape[0], pixel.shape[1], 3]);
+    // console.log(pixel.shape[0], pixel.shape[1]);
     const detectImg = tfjs.image.resizeBilinear(img, [128, 128]);
     const [bbox, conf] = await detectorModel.predict(detectImg);
     const [angle, landmark] = await landmarkModel.predict(bbox, img);
     const timeInit = new Date();
     al.analysis(bbox, landmark, angle, timeInit);
-    // drawAll(canvas, ctx, bbox, conf, landmark, 100)
+    drawLandmark(bbox, conf, landmark);
     tfjs.dispose([landmark, detectImg, angle, pixel, img]);
     setTimeout(faceDetection, 0);
   }, 0);
 }
 
+function drawLandmark(bbox, conf, landmark) {
+  // console.log("suc");
+  const canvas = document.getElementById("fcanvas");
+  // console.log(canvas);
+  const ctx = canvas.getContext("2d");
+  document.body.append(canvas);
+
+  drawAll(canvas, ctx, bbox, conf, landmark, 100);
+}
+
+
 function drawAll(canvas, ctx, bbox, conf, landmarkObj, result) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  console.log('ddd');
+  // console.log('ddd');
   ctx.fillStyle = '#FF0000';
   ctx.strokeStyle = '#FF0000';
   ctx.font = '30px Arial';

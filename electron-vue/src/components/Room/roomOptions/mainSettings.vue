@@ -18,14 +18,17 @@
           </button>
         </div>
         <div>
-          학생 목록 정렬 주기 <input type="text" v-model.trim="sortStudentListInterval">
-          <br>
-          전체 집중력 그래프 표시 주기 <input type="text" v-model.trim="CCTDataInterval">
-          <br>
-          학생 연결 주기 <input type="text" v-model.trim="rotateStudentInterval">
-          <br>
-          연결 학생 수 <input type="text" v-model.trim="numConnectedStudent">
-          <br>
+          학생 목록 정렬 주기
+          <input type="text" v-model.trim="sortStudentListInterval" />
+          <br />
+          전체 집중력 그래프 표시 주기
+          <input type="text" v-model.trim="CCTDataInterval" />
+          <br />
+          학생 연결 주기
+          <input type="text" v-model.trim="rotateStudentInterval" />
+          <br />
+          연결 학생 수 <input type="text" v-model.trim="numConnectedStudent" />
+          <br />
           <button @click="applySettings">적용</button>
         </div>
       </h4>
@@ -57,7 +60,7 @@ export default {
       CCTDataInterval: 30,
       rotateStudentInterval: 30,
       numConnectedStudent: 3,
-    }
+    };
   },
   computed: {
     ...mapGetters('webRTC', ['storedLocalVideo']),
@@ -72,7 +75,7 @@ export default {
         rotateStudentInterval: Number(this.rotateStudentInterval),
         numConnectedStudent: Number(this.numConnectedStudent),
         CCTDataInterval: Number(this.CCTDataInterval),
-      }
+      };
       this.SettingSetter(options);
     },
     ...mapActions('webRTC', ['ButtonSetter2', 'SettingSetter']),
@@ -92,4 +95,5 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+</style>
