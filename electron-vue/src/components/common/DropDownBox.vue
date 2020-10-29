@@ -20,7 +20,8 @@ export default {
     return {
       dropDownStatus: {
         semester: false,
-        classroom: false,
+        createClassroom: false,
+        addClassroom: false,
         class: false,
       },
     };
@@ -30,7 +31,9 @@ export default {
       let element = null;
       if (name === 'semester') {
         element = document.getElementById('semester-dropdown');
-      } else if (name === 'classroom') {
+      } else if (name === 'createClassroom') {
+        element = document.getElementById('create-classroom-dropdown');
+      } else if (name === 'addClassroom') {
         element = document.getElementById('create-classroom-dropdown');
       } else if (name === 'class') {
         element = document.getElementById('week-dropdown');
@@ -50,7 +53,6 @@ export default {
     },
   },
   mounted() {
-    console.log('DropDownBox mounted');
     bus.$on('classroomList:created-room', (name) => {
       console.log(name);
       this.onClickDropdown(name);

@@ -15,8 +15,11 @@
       </div>
     </drop-down-box>
 
-    <drop-down-box v-bind:type="type.classroom">
-      <div slot="header">교실 만들기</div>
+    <drop-down-box
+      v-bind:type="type.createClassroom"
+      v-if="$store.state.user.isTeacher"
+    >
+      <div slot="header">교실 생성하기</div>
       <div slot="type">
         <div
           id="create-classroom-dropdown"
@@ -54,8 +57,32 @@
               </div>
             </div>
 
-            <div class="create-classroom-button" @click="createRoom()">
+            <div class="create-classroom-button" @click="createClassRoom()">
               만들기
+            </div>
+          </div>
+        </div>
+      </div>
+    </drop-down-box>
+    <drop-down-box v-bind:type="type.addClassroom" v-else>
+      <div slot="header">교실 추가하기</div>
+      <div slot="type">
+        <div
+          id="create-classroom-dropdown"
+          class="dropdown-box-contents dropdown-box-contents-close"
+        >
+          <div class="create-classroom-form">
+            <div class="create-classroom-input-wrapper">
+              <div class="create-classroom-input-label">교실코드</div>
+              <input
+                type="text"
+                class="create-classroom-input"
+                v-model.trim="roomCode"
+              />
+            </div>
+            <p class="error-message">{{ errorMessage }}</p>
+            <div class="create-classroom-button" @click="addClassRoom()">
+              추가하기
             </div>
           </div>
         </div>
@@ -76,12 +103,14 @@ export default {
     return {
       type: {
         semester: 'semester',
-        classroom: 'classroom',
+        createClassroom: 'createClassroom',
+        addClassroom: 'addClassroom',
       },
       tags: '국어',
       roomName: '',
       classType: 'public',
-      roomCodeAdd: '',
+      roomCode: '',
+      errorMessage: '',
     };
   },
   methods: {
@@ -89,7 +118,7 @@ export default {
       console.log(type);
       this.type = type;
     },
-    async createRoom() {
+    async createClassRoom() {
       const options = {
         name: this.roomName,
         tags: this.tags,
@@ -99,14 +128,20 @@ export default {
       this.roomName = '';
       this.tags = '국어';
       this.classType = 'public';
-      bus.$emit('classroomList:created-room', 'classroom');
+      bus.$emit('classroomList:created-room', 'createClassroom');
     },
 
     async addClassRoom() {
       const options = {
-        class: this.roomCodeAdd,
+        class: this.roomCode,
       };
-      await this.$store.dispatch('ADD_CLASSROOM', options);
+      const isSuccess = await this.$store.dispatch('ADD_CLASSROOM', options);
+      if (isSuccess) {
+        this.roomCode = '';
+        bus.$emit('classroomList:created-room', 'addClassroom');
+      } else {
+        this.errorMessage = '코드를 다시 확인해주세요.';
+      }
     },
   },
 };
@@ -177,5 +212,9 @@ export default {
   font-size: 18px;
   display: flex;
   align-items: center;
+}
+
+.error-message {
+  color: red;
 }
 </style>

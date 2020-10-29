@@ -47,7 +47,7 @@ body {
   display: flex;
 }
 
-.dropdown-box {
+/* .dropdown-box {
   width: 120px;
   height: 40px;
   border: 1px solid #9097fd;
@@ -55,11 +55,11 @@ body {
   padding: 0 16px;
   cursor: pointer;
   position: relative;
-}
+} */
 
-.dropdown-box + .dropdown-box {
+/* .dropdown-box + .dropdown-box {
   margin-top: 20px;
-}
+} */
 
 .dropdown-icon {
   width: 24px;
