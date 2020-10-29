@@ -54,7 +54,7 @@ function drawLandmark(bbox, conf, landmark) {
   const canvas = document.getElementById("fcanvas");
   // console.log(canvas);
   const ctx = canvas.getContext("2d");
-  document.body.append(canvas);
+  // document.body.append(canvas);
 
   drawAll(canvas, ctx, bbox, conf, landmark, 100);
 }

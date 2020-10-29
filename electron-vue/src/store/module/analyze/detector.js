@@ -112,4 +112,4 @@ async function nonMaximalSuppression(bboxes, confs, min_conf) {
   return [bbox, maxConf];
 }
 
-export const detectorModel = new DetectorModel(640, 480);
+export const detectorModel = new DetectorModel(240, 180);
