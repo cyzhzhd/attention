@@ -69,11 +69,6 @@ export default {
   /* grid-template-columns: 1fr; */
   margin-top: 15px;
 }
-.videos video {
-  width: 100%;
-  max-height: 21vh;
-  /* padding: 0 5px; */
-}
 .videos div p {
   color: black;
 }
