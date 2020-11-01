@@ -59,6 +59,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background-size: cover;
   background-image: url(../img/login-signup/background-right.svg);
 }
 

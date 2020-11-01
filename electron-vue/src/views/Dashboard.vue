@@ -69,7 +69,12 @@
               TurnHead
             </div>
           </div>
-          <chart class="dashboard-graph" v-bind:classId="classId"></chart>
+          <div class="dashboard-graph">
+            <chart
+              class="dashboard-graph-chart"
+              v-bind:classId="classId"
+            ></chart>
+          </div>
         </div>
       </div>
     </div>
@@ -125,7 +130,7 @@ export default {
     },
     displaySelectedUser(student) {
       const index = this.displayingUser.findIndex(
-        (user) => user.user === student.user,
+        user => user.user === student.user,
       );
       if (index === -1) {
         this.displayingUser.push({ user: student.user, name: student.name });
