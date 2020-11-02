@@ -11,10 +11,13 @@
               id="week-dropdown"
               class="dropdown-box-contents dropdown-box-contents-close"
             >
+              <div class="dropdown-list-item" @click="setCCTData('all')">
+                전체
+              </div>
               <div
                 class="dropdown-list-item"
                 v-for="classInfo in classList"
-                @click="ChangeClassId(classInfo._id)"
+                @click="setCCTData(classInfo._id)"
                 :key="classInfo._id"
                 :value="classInfo._id"
               >
@@ -70,7 +73,7 @@
             </div>
           </div>
           <div class="dashboard-graph">
-            <chart class="dashboard-graph-chart"></chart>
+            <line-chart :chart-data="datacollection"></line-chart>
           </div>
         </div>
       </div>
@@ -82,18 +85,23 @@
 import { mapGetters, mapActions } from 'vuex';
 import MainHeader from '../components/common/MainHeader.vue';
 import DropDownBox from '../components/common/DropDownBox.vue';
-import chart from '../components/Dashboard/Chart.vue';
-import bus from '../../utils/bus';
+import LineChart from '../components/Dashboard/LineChart.vue';
 
 export default {
   name: 'Dashboard',
   components: {
-    chart,
+    LineChart,
     MainHeader,
     DropDownBox,
   },
   computed: {
-    ...mapGetters('dashboard', ['studentList', 'displayingUserList']),
+    ...mapGetters('dashboard', [
+      'studentList',
+      'displayingUserList',
+      'classId',
+      'datacollection',
+      'CCTType',
+    ]),
   },
   data() {
     return {
@@ -116,11 +124,38 @@ export default {
     },
     displaySelectedUser(student) {
       this.ChangeDisplayingUserList(student);
-      bus.$emit('changeDisplayingData');
+      // this.DisplayData();
     },
     displaySelectedType(dataType) {
       this.ChangeCCTType(dataType);
-      bus.$emit('changeDisplayingData');
+      // this.DisplayData();
+    },
+    async setCCTData(classId) {
+      let options;
+      if (classId === 'all') {
+        options = {
+          url: 'class',
+          params: { class: this.$route.params.classroomId },
+        };
+      } else {
+        options = { url: 'session', params: { session: classId } };
+      }
+
+      const concentrations = await this.$store.dispatch(
+        'FETCH_CONCENTRATION',
+        options,
+      );
+      await this.DistributeCCTData(concentrations);
+      await this.GetLabels();
+      await this.FillStudentList();
+      console.log(this.displayingUserList.length);
+      if (!this.displayingUserList.length) {
+        const keys = Object.keys(this.studentList);
+        const { name, user } = this.studentList[keys[0]];
+        this.ChangeDisplayingUserList({ name, user });
+        console.log(this.displayingUserList);
+      }
+      this.DisplayData();
     },
 
     ...mapActions('dashboard', [
@@ -128,6 +163,11 @@ export default {
       'SetStudentList',
       'ChangeDisplayingUserList',
       'ChangeCCTType',
+      'ChangeDisplayingUserList',
+      'GetLabels',
+      'FillStudentList',
+      'DistributeCCTData',
+      'DisplayData',
     ]),
   },
   async created() {
@@ -137,9 +177,9 @@ export default {
     };
     this.classList = await this.$store.dispatch('FETCH_CLASSLIST', options);
   },
-  mounted() {
-    this.ChangeClassId(this.$route.params.classId);
-  },
+  // mounted() {
+  //   this.ChangeClassId(this.$route.params.classId);
+  // },
 };
 </script>
 <style scoped>
