@@ -9,7 +9,7 @@
           muted
           playsinline
         ></video>
-        <p>Me</p>
+        <p class="name-tag">Me</p>
       </div>
     </div>
   </div>
@@ -42,5 +42,8 @@ export default {
 }
 .videos div p {
   color: black;
+}
+.name-tag {
+  
 }
 </style>

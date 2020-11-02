@@ -1,7 +1,7 @@
 <template>
   <div class="small">
     <line-chart :chart-data="datacollection"></line-chart>
-    <button @click="drawChart()">Show</button>
+    <!-- <button @click="drawChart()">Show</button> -->
   </div>
 </template>
 
@@ -237,6 +237,10 @@ export default {
         labels: this.timeRange,
         datasets: [
         ],
+                options: {
+            responsive: true,
+            maintainAspectRatio: false,
+        }
       };
       userList.forEach(userInfo => {
         const keys = Object.keys(type);
@@ -271,7 +275,9 @@ export default {
 
 <style>
   .small {
-    max-width: 400px;
-    margin: 150px auto;
+    /* max-width: 500px; */
+    height: 30vh;
+    width: 60vw;
+    /* margin: 150px auto; */
   }
 </style>
