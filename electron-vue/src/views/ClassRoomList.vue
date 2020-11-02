@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <main-header></main-header>
-    <div class="contents">
+    <div class="classroom-list-contents">
       <!-- <crl-drop-down-box></crl-drop-down-box> -->
       <CRLDropDownBox></CRLDropDownBox>
       <section class="main-panel-contents">

@@ -63,7 +63,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .canvas {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, auto));

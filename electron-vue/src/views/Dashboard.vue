@@ -14,7 +14,7 @@
               <div
                 class="dropdown-list-item"
                 v-for="classInfo in classList"
-                @click="changeClassId(classInfo._id)"
+                @click="ChangeClassId(classInfo._id)"
                 :key="classInfo._id"
                 :value="classInfo._id"
               >
@@ -70,10 +70,7 @@
             </div>
           </div>
           <div class="dashboard-graph">
-            <chart
-              class="dashboard-graph-chart"
-              v-bind:classId="classId"
-            ></chart>
+            <chart class="dashboard-graph-chart"></chart>
           </div>
         </div>
       </div>
@@ -96,29 +93,18 @@ export default {
     DropDownBox,
   },
   computed: {
-    ...mapGetters('dashboard', ['studentList']),
+    ...mapGetters('dashboard', ['studentList', 'displayingUserList']),
   },
   data() {
     return {
       classroomId: this.$route.params.classroomId,
       classList: [],
-      classId: this.$route.params.classId,
       DDBClass: 'class',
-      type: {
-        focusPoint: true,
-        absence: false,
-        sleep: false,
-        turnHead: false,
-      },
-      displayingUser: [],
     };
   },
   methods: {
-    changeClassId(classId) {
-      this.classId = classId;
-    },
-    createStudentList() {
-      console.log('createStudentList start --------------');
+    setStudentList() {
+      console.log('setStudentList start --------------');
       const options = {
         jwt: this.$store.state.jwt,
         params: {
@@ -126,34 +112,33 @@ export default {
         },
       };
       this.SetStudentList(options);
-      console.log('createStudentList end --------------');
+      console.log('setStudentList end --------------');
     },
     displaySelectedUser(student) {
-      const index = this.displayingUser.findIndex(
-        user => user.user === student.user,
-      );
-      if (index === -1) {
-        this.displayingUser.push({ user: student.user, name: student.name });
-      } else {
-        this.displayingUser.splice(index, 1);
-      }
-      bus.$emit('changeDisplayingData', this.displayingUser, this.type);
+      this.ChangeDisplayingUserList(student);
+      bus.$emit('changeDisplayingData');
     },
     displaySelectedType(dataType) {
-      this.type[dataType] = !this.type[dataType];
-      bus.$emit('changeDisplayingData', this.displayingUser, this.type);
+      this.ChangeCCTType(dataType);
+      bus.$emit('changeDisplayingData');
     },
 
-    ...mapActions('dashboard', ['SetStudentList']),
+    ...mapActions('dashboard', [
+      'ChangeClassId',
+      'SetStudentList',
+      'ChangeDisplayingUserList',
+      'ChangeCCTType',
+    ]),
   },
   async created() {
-    this.createStudentList();
+    this.setStudentList();
     const options = {
       class: this.classroomId,
     };
     this.classList = await this.$store.dispatch('FETCH_CLASSLIST', options);
-    console.log(this.classList);
-    console.log('classId', this.classId);
+  },
+  mounted() {
+    this.ChangeClassId(this.$route.params.classId);
   },
 };
 </script>

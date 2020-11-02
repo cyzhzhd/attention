@@ -12,7 +12,7 @@ body {
   flex-direction: column;
 }
 
-.contents {
+.classroom-list-contents {
   width: 100%;
   height: calc(100vh - 80px);
   flex: 1;

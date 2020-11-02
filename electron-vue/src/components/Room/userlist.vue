@@ -2,26 +2,51 @@
   <div class="userlist-vue">
     <div class="userlist">
       <ul>
-        <li
-          v-for="userInfo in storedConnectedUsers"
-          v-bind:key="userInfo._id"
-        >
+        <li v-for="userInfo in storedConnectedUsers" v-bind:key="userInfo._id">
           <div @click.prevent="$refs.menu.open($event, userInfo)" @click.stop>
             <div class="CCTIcon" v-if="$store.state.user.isTeacher">
-              <figure class="hpBar" v-if="userInfo.CCTData.avr.num > 0" :style="{
+              <figure
+                class="hpBar"
+                v-if="userInfo.CCTData.avr.num > 0"
+                :style="{
                   backgroundImage:
                     'url(' + require('../../assets/img/room/energy.png') + ')',
-                }"></figure>
-              <figure class="backGround"  v-if="userInfo.CCTData.avr.num > 0" :style="{
+                }"
+              ></figure>
+              <figure
+                class="backGround"
+                v-if="userInfo.CCTData.avr.num > 0"
+                :style="{
                   backgroundImage:
-                    'url(' + require('../../assets/img/room/energy-background.png') + ')',
-                  width: `${20 - (userInfo.CCTData.CCT.focusPoint[userInfo.CCTData.avr.num - 1])/5}px`,
-                }"></figure>
-              <figure class="hpBar"  v-if="userInfo.CCTData.avr.num === 0" :style="{
+                    'url(' +
+                    require('../../assets/img/room/energy-background.png') +
+                    ')',
+                  width: `${
+                    20 -
+                    userInfo.CCTData.CCT.focusPoint[
+                      userInfo.CCTData.avr.num - 1
+                    ] /
+                      5
+                  }px`,
+                }"
+              ></figure>
+              <figure
+                class="hpBar"
+                v-if="userInfo.CCTData.avr.num === 0"
+                :style="{
                   backgroundImage:
-                    'url(' + require('../../assets/img/room/energyRed.png') + ')',
-                  width: `${20 - (userInfo.CCTData.CCT.focusPoint[userInfo.CCTData.avr.num - 1])/5}px`,
-                }"></figure>
+                    'url(' +
+                    require('../../assets/img/room/energyRed.png') +
+                    ')',
+                  width: `${
+                    20 -
+                    userInfo.CCTData.CCT.focusPoint[
+                      userInfo.CCTData.avr.num - 1
+                    ] /
+                      5
+                  }px`,
+                }"
+              ></figure>
             </div>
             <figure
               class="userlist-profile"
@@ -57,7 +82,7 @@ export default {
   name: 'userlist',
   components: { VueContext },
   computed: {
-    ...mapGetters('webRTC', ['storedConnectedUsers'])
+    ...mapGetters('webRTC', ['storedConnectedUsers']),
   },
   data() {
     return {
@@ -78,7 +103,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .userlist-vue {
   background-color: #e4f6f1;
   min-height: 100%;
@@ -112,7 +137,7 @@ export default {
   margin-top: -20px;
   /* width: 10px; */
 }
-.CCTIcon{
+.CCTIcon {
   position: absolute;
   z-index: 100;
   transform: rotate(90deg);
@@ -135,5 +160,6 @@ export default {
   text-decoration: none;
   margin-top: 7px;
   color: black;
-}</style
->>
+}
+</style>
+>
