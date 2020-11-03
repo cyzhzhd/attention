@@ -128,7 +128,7 @@ export default {
       this.roomName = '';
       this.tags = '국어';
       this.classType = 'public';
-      bus.$emit('classroomList:created-room', 'createClassroom');
+      bus.$emit('dropDownBox:onClickDropDown', 'createClassroom');
     },
 
     async addClassRoom() {
@@ -138,7 +138,7 @@ export default {
       const isSuccess = await this.$store.dispatch('ADD_CLASSROOM', options);
       if (isSuccess) {
         this.roomCode = '';
-        bus.$emit('classroomList:created-room', 'addClassroom');
+        bus.$emit('dropDownBox:onClickDropDown', 'addClassroom');
       } else {
         this.errorMessage = '코드를 다시 확인해주세요.';
       }

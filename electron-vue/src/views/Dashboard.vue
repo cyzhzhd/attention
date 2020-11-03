@@ -4,20 +4,23 @@
     <div class="contents-dashboard">
       <div class="dashboard-sidebar">
         <div class="dashboard-sidebar-title">Dashboard</div>
-        <drop-down-box v-bind:type="DDBClass">
-          <div slot="header">전체</div>
+        <drop-down-box v-bind:type="weekDropdown">
+          <div slot="header">{{ selectedClassName }}</div>
           <div slot="type">
             <div
               id="week-dropdown"
               class="dropdown-box-contents dropdown-box-contents-close"
             >
-              <div class="dropdown-list-item" @click="setCCTData('all')">
+              <div
+                class="dropdown-list-item"
+                @click="setSelectedClassInfo('all', '전체')"
+              >
                 전체
               </div>
               <div
                 class="dropdown-list-item"
                 v-for="classInfo in classList"
-                @click="setCCTData(classInfo._id)"
+                @click="setSelectedClassInfo(classInfo._id, classInfo.name)"
                 :key="classInfo._id"
                 :value="classInfo._id"
               >
@@ -27,12 +30,12 @@
           </div>
         </drop-down-box>
         <div class="search-button-wrapper">
-          <div class="search-button">찾기</div>
+          <div class="search-button" @click="setCCTData()">찾기</div>
         </div>
       </div>
 
       <div class="dashboard-contents">
-        <ul class="user-list-wrapper">
+        <ul class="user-list-wrapper" v-if="!displayingAllClass">
           <li
             class="user-item"
             v-for="student in studentList"
@@ -50,30 +53,14 @@
         </ul>
         <div class="dashboard">
           <div class="dashboard-filter-list">
-            <div
-              class="dashboard-filter"
-              @click="displaySelectedType('focusPoint')"
-            >
-              Focus Point
-            </div>
-            <div
-              class="dashboard-filter"
-              @click="displaySelectedType('absence')"
-            >
-              Absence
-            </div>
-            <div class="dashboard-filter" @click="displaySelectedType('sleep')">
-              Sleep
-            </div>
-            <div
-              class="dashboard-filter"
-              @click="displaySelectedType('turnHead')"
-            >
-              TurnHead
-            </div>
+            <div @click="displaySelectedType('focusPoint')">focus point</div>
+            <div @click="displaySelectedType('attendPer')">attend</div>
+            <div @click="displaySelectedType('sleepPer')">sleep</div>
           </div>
           <div class="dashboard-graph">
-            <line-chart :chart-data="datacollection"></line-chart>
+            <div class="small">
+              <line-chart :chart-data="datacollection"></line-chart>
+            </div>
           </div>
         </div>
       </div>
@@ -86,6 +73,7 @@ import { mapGetters, mapActions } from 'vuex';
 import MainHeader from '../components/common/MainHeader.vue';
 import DropDownBox from '../components/common/DropDownBox.vue';
 import LineChart from '../components/Dashboard/LineChart.vue';
+import bus from '../../utils/bus';
 
 export default {
   name: 'Dashboard',
@@ -98,19 +86,25 @@ export default {
     ...mapGetters('dashboard', [
       'studentList',
       'displayingUserList',
-      'classId',
       'datacollection',
-      'CCTType',
     ]),
   },
   data() {
     return {
       classroomId: this.$route.params.classroomId,
       classList: [],
-      DDBClass: 'class',
+      weekDropdown: 'weekDropdown',
+      selectedClassName: '전체',
+      selectedClassId: '',
+      displayingAllClass: true,
     };
   },
   methods: {
+    setSelectedClassInfo(classId, className) {
+      this.selectedClassName = className;
+      this.selectedClassId = classId;
+      bus.$emit('dropDownBox:onClickDropDown', 'weekDropdown');
+    },
     setStudentList() {
       console.log('setStudentList start --------------');
       const options = {
@@ -124,50 +118,63 @@ export default {
     },
     displaySelectedUser(student) {
       this.ChangeDisplayingUserList(student);
-      // this.DisplayData();
+      this.DisplayData();
     },
     displaySelectedType(dataType) {
       this.ChangeCCTType(dataType);
-      // this.DisplayData();
+      this.DisplayData(this.selectedClassName);
     },
-    async setCCTData(classId) {
+    async setCCTData() {
+      console.log('setCCTData start --------------');
       let options;
-      if (classId === 'all') {
+      if (this.selectedClassId === 'all') {
         options = {
           url: 'class',
           params: { class: this.$route.params.classroomId },
         };
+        const concentrations = await this.$store.dispatch(
+          'FETCH_CONCENTRATION',
+          options,
+        );
+        const payload = {
+          classList: this.classList,
+          CCTData: concentrations,
+        };
+        this.DrawChartAllClass(payload);
+        this.displayingAllClass = true;
       } else {
-        options = { url: 'session', params: { session: classId } };
-      }
+        options = { url: 'session', params: { session: this.selectedClassId } };
 
-      const concentrations = await this.$store.dispatch(
-        'FETCH_CONCENTRATION',
-        options,
-      );
-      await this.DistributeCCTData(concentrations);
-      await this.GetLabels();
-      await this.FillStudentList();
-      console.log(this.displayingUserList.length);
-      if (!this.displayingUserList.length) {
-        const keys = Object.keys(this.studentList);
-        const { name, user } = this.studentList[keys[0]];
-        this.ChangeDisplayingUserList({ name, user });
-        console.log(this.displayingUserList);
+        const concentrations = await this.$store.dispatch(
+          'FETCH_CONCENTRATION',
+          options,
+        );
+        this.DistributeCCTData(concentrations);
+        this.CreateLabels();
+        this.FillStudentList();
+        console.log(this.displayingUserList.length);
+        if (!this.displayingUserList.length) {
+          const keys = Object.keys(this.studentList);
+          const { name, user } = this.studentList[keys[0]];
+          this.ChangeDisplayingUserList({ name, user });
+          console.log(this.displayingUserList);
+        }
+        this.DisplayData();
+
+        this.displayingAllClass = false;
+        console.log('setCCTData end --------------');
       }
-      this.DisplayData();
     },
 
     ...mapActions('dashboard', [
-      'ChangeClassId',
-      'SetStudentList',
       'ChangeDisplayingUserList',
       'ChangeCCTType',
-      'ChangeDisplayingUserList',
-      'GetLabels',
-      'FillStudentList',
+      'CreateLabels',
       'DistributeCCTData',
       'DisplayData',
+      'DrawChartAllClass',
+      'FillStudentList',
+      'SetStudentList',
     ]),
   },
   async created() {
@@ -177,9 +184,10 @@ export default {
     };
     this.classList = await this.$store.dispatch('FETCH_CLASSLIST', options);
   },
-  // mounted() {
-  //   this.ChangeClassId(this.$route.params.classId);
-  // },
+  mounted() {
+    this.setSelectedClassInfo('all', '전체');
+    this.setCCTData();
+  },
 };
 </script>
 <style scoped>

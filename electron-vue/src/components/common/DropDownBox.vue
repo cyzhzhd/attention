@@ -22,7 +22,7 @@ export default {
         semester: false,
         createClassroom: false,
         addClassroom: false,
-        class: false,
+        weekDropdown: true,
       },
     };
   },
@@ -35,7 +35,7 @@ export default {
         element = document.getElementById('create-classroom-dropdown');
       } else if (name === 'addClassroom') {
         element = document.getElementById('create-classroom-dropdown');
-      } else if (name === 'class') {
+      } else if (name === 'weekDropdown') {
         element = document.getElementById('week-dropdown');
       }
       console.log(this.dropDownStatus);
@@ -53,13 +53,13 @@ export default {
     },
   },
   mounted() {
-    bus.$on('classroomList:created-room', (name) => {
+    bus.$on('dropDownBox:onClickDropDown', (name) => {
       console.log(name);
       this.onClickDropdown(name);
     });
   },
   beforeDestroy() {
-    bus.$off('classroomList:created-room');
+    bus.$off('dropDownBox:onClickDropDown');
   },
 };
 </script>

@@ -9,9 +9,8 @@ const state = {
   displayingUserList: [],
   CCTType: {
     focusPoint: true,
-    absence: false,
-    sleep: false,
-    turnHead: false,
+    attendPer: false,
+    sleepPer: false,
   },
   datacollection: null,
   timeRange: [],
@@ -20,17 +19,11 @@ const state = {
 };
 
 const getters = {
-  classId(state) {
-    return state.classId;
-  },
   studentList(state) {
     return state.studentList;
   },
   displayingUserList(state) {
     return state.displayingUserList;
-  },
-  CCTType(state) {
-    return state.CCTType;
   },
   datacollection(state) {
     return state.datacollection;
@@ -38,24 +31,57 @@ const getters = {
 };
 
 const mutations = {
-  changeClassId(state, classId) {
-    state.classId = classId;
+  addDataSet(userInfo, key) {
+    const { user, name } = userInfo;
+    console.log(key);
+    console.log(state.data[user]);
+    return {
+      label: `${name} - ${key}`,
+      borderColor: chooseColor(key),
+      data: state.data[user][key],
+      fill: false,
+    };
   },
-  setStudentList(state, studentList) {
-    state.studentList = {};
-    console.log(state.studentList);
-    console.log(studentList);
-    studentList.forEach((student) => {
-      const { _id, name, email } = student;
-      const id = _id;
-      state.studentList[id] = {
-        user: id,
-        name,
-        email,
-        cctTotal: [],
-        cctTime: [],
-      };
+  calculateCCTData(state) {
+    console.log('calculateCCTData start --------------');
+    state.displayingUserList.forEach((userInfo) => {
+      const { user } = userInfo;
+      if (!state.hasCalculated[user]) {
+        const student = state.studentList[user];
+        console.log('calculating -------------------', student);
+        divideDataPerMinute(student);
+
+        state.data[student.user] = {
+          focusPoint: [],
+          attendPer: [],
+          sleepPer: [],
+        };
+        student.cctTime.forEach((cctTime) => {
+          const cctArrLength = cctTime.concentrationArr.length || 1;
+          let attendPerTTL = 0;
+          let focusPointTTL = 0;
+          let sleepPerTTL = 0;
+          cctTime.concentrationArr.forEach((cctArr) => {
+            attendPerTTL += cctArr.attendPer;
+            focusPointTTL += cctArr.focusPoint;
+            sleepPerTTL += cctArr.sleepPer;
+          });
+          const focusPointMean = focusPointTTL / cctArrLength;
+          const attendPerMean = attendPerTTL / cctArrLength;
+          const sleepPerMean = sleepPerTTL / cctArrLength;
+          cctTime.concentrationMean = {
+            attendPer: attendPerMean,
+            focusPoint: focusPointMean,
+            sleepPer: sleepPerMean,
+          };
+          state.data[student.user].focusPoint.push(focusPointMean);
+          state.data[student.user].attendPer.push(attendPerMean);
+          state.data[student.user].sleepPer.push(sleepPerMean);
+        });
+        state.hasCalculated[user] = true;
+      }
     });
+    console.log('calculateCCTData end --------------');
   },
   changeDisplayingUserList(state, userInfo) {
     const { name, user } = userInfo;
@@ -72,102 +98,13 @@ const mutations = {
   changeCCTType(state, dataType) {
     state.CCTType[dataType] = !state.CCTType[dataType];
   },
-  fillStudentList(state) {
-    const keys = Object.keys(state.studentList);
-    state.timeRange.forEach((label) => {
-      keys.forEach((key) => {
-        state.studentList[key].cctTime.push({
-          time: label,
-          concentrationArr: [],
-          concentrationMean: {},
-        });
-      });
-    });
-  },
-  getLabels(state) {
+  createLabels(state) {
+    console.log('createLabels start --------------');
     const { startTime, endTime } = getTimeSpan();
     const labels = makeRange(startTime, endTime);
     state.timeRange = labels;
+    console.log('createLabels end --------------');
   },
-
-  resetData(state) {
-    const keys = Object.keys(state.studentList);
-    if (keys) {
-      keys.forEach((key) => {
-        state.studentList[key].cctTotal = [];
-        state.studentList[key].cctTime = [];
-      });
-    }
-    state.data = {};
-    state.hasCalculated = {};
-  },
-  distributeCCTData(state, concentrations) {
-    concentrations.forEach((concentration) => {
-      state.studentList[concentration.user].cctTotal.push(concentration);
-    });
-    console.log(state.studentList);
-  },
-
-  calculateCCTData(state) {
-    console.log('calculateCCTData start --------------');
-    state.displayingUserList.forEach((userInfo) => {
-      const { user } = userInfo;
-      if (!state.hasCalculated[user]) {
-        const student = state.studentList[user];
-        console.log('calculating -------------------', student);
-        divideDataPerMinute(student);
-
-        state.data[student.user] = {
-          focusPoint: [],
-          absence: [],
-          sleep: [],
-          turnHead: [],
-        };
-        student.cctTime.forEach((cctTime) => {
-          const cctArrLength = cctTime.concentrationArr.length || 1;
-          let absenceTTL = 0;
-          let focusPointTTL = 0;
-          let sleepTTL = 0;
-          let turnHeadTTL = 0;
-          cctTime.concentrationArr.forEach((cctArr) => {
-            absenceTTL += cctArr.absence;
-            focusPointTTL += cctArr.focusPoint;
-            sleepTTL += cctArr.sleep;
-            turnHeadTTL += cctArr.turnHead;
-          });
-          const focusPointMean = focusPointTTL / cctArrLength;
-          const absenceMean = (absenceTTL / cctArrLength) * 100;
-          const sleepMean = (sleepTTL / cctArrLength) * 100;
-          const turnHeadMean = (turnHeadTTL / cctArrLength) * 100;
-          cctTime.concentrationMean = {
-            absence: absenceMean,
-            focusPoint: focusPointMean,
-            sleep: sleepMean,
-            turnHead: turnHeadMean,
-          };
-          state.data[student.user].focusPoint.push(focusPointMean);
-          state.data[student.user].absence.push(absenceMean);
-          state.data[student.user].sleep.push(sleepMean);
-          state.data[student.user].turnHead.push(turnHeadMean);
-        });
-        state.hasCalculated[user] = true;
-      }
-    });
-    console.log('calculateCCTData end --------------');
-  },
-
-  addDataSet(userInfo, key) {
-    const { user, name } = userInfo;
-    console.log(key);
-    console.log(state.data[user]);
-    return {
-      label: `${name} - ${key}`,
-      borderColor: chooseColor(key),
-      data: state.data[user][key],
-      fill: false,
-    };
-  },
-
   drawChart(state) {
     console.log('drawChart start --------------');
     state.datacollection = {
@@ -175,8 +112,8 @@ const mutations = {
       datasets: [],
       options: {
         // responsive: false,
-        responsive: true,
-        maintainAspectRatio: false,
+        // responsive: true,
+        // maintainAspectRatio: false,
       },
     };
     state.displayingUserList.forEach((userInfo) => {
@@ -196,17 +133,102 @@ const mutations = {
     });
     console.log('drawChart end --------------');
   },
+  drawChartAllClass(state) {
+    console.log('drawChartAllClass start --------------');
+    state.datacollection = {
+      labels: state.timeRange,
+      datasets: [],
+    };
+
+    const keys = Object.keys(state.CCTType);
+    keys.forEach((key) => {
+      if (state.CCTType[key]) {
+        const dataset = {
+          label: `${key}`,
+          borderColor: chooseColor(key),
+          data: state.data[key],
+          fill: false,
+        };
+        state.datacollection.datasets.push(dataset);
+      }
+    });
+    console.log('drawChartAllClass end --------------');
+  },
+  distributeCCTData(state, concentrations) {
+    console.log('distributeCCTData start --------------');
+    concentrations.forEach((concentration) => {
+      state.studentList[concentration.user].cctTotal.push(concentration);
+    });
+    console.log(state.studentList);
+    console.log('distributeCCTData end --------------');
+  },
+  distributeCCTDataAllClass(state, payload) {
+    const { classList, CCTData } = payload;
+    state.timeRange = [];
+    classList.forEach((classInfo) => {
+      const startDay = classInfo.startTime.slice(5, 10);
+      const classTopic = classInfo.name;
+      state.timeRange.push(`${startDay} \n ${classTopic}`);
+    });
+    state.data = {
+      focusPoint: [],
+      attendPer: [],
+      sleepPer: [],
+    };
+    CCTData.forEach((cct) => {
+      state.data.focusPoint.push(cct.avgFocusPoint);
+      state.data.attendPer.push(cct.avgAttendPer);
+      state.data.sleepPer.push(cct.avgSleepPer);
+    });
+  },
+  fillStudentList(state) {
+    console.log('fillStudentList start --------------');
+    const keys = Object.keys(state.studentList);
+    state.timeRange.forEach((label) => {
+      keys.forEach((key) => {
+        state.studentList[key].cctTime.push({
+          time: label,
+          concentrationArr: [],
+          concentrationMean: {},
+        });
+      });
+    });
+    console.log('fillStudentList end --------------');
+  },
+  resetData(state) {
+    console.log('-------- reset data start--------');
+    const keys = Object.keys(state.studentList);
+    if (keys) {
+      keys.forEach((key) => {
+        state.studentList[key].cctTotal = [];
+        state.studentList[key].cctTime = [];
+      });
+    }
+    state.data = {};
+    state.hasCalculated = {};
+    console.log('-------- reset data end--------');
+  },
+  setStudentList(state, studentList) {
+    state.studentList = {};
+    console.log(state.studentList);
+    console.log(studentList);
+    studentList.forEach((student) => {
+      const { _id, name, email } = student;
+      const id = _id;
+      state.studentList[id] = {
+        user: id,
+        name,
+        email,
+        cctTotal: [],
+        cctTime: [],
+      };
+    });
+  },
 };
 
 const actions = {
-  ChangeClassId({ commit }, classId) {
-    commit('changeClassId', classId);
-  },
-  SetStudentList({ commit }, options) {
-    console.log(options);
-    return fetchUserList(options.jwt, options.params)
-      .then(({ data }) => commit('setStudentList', data))
-      .catch((error) => console.error(error));
+  CreateLabels({ commit }) {
+    commit('createLabels');
   },
   ChangeDisplayingUserList({ commit }, userInfo) {
     commit('changeDisplayingUserList', userInfo);
@@ -214,28 +236,30 @@ const actions = {
   ChangeCCTType({ commit }, dataType) {
     commit('changeCCTType', dataType);
   },
-  async DistributeCCTData({ commit }, concentrations) {
-    console.log('distributeCCTData start --------------');
+  DistributeCCTData({ commit }, concentrations) {
     commit('resetData');
     commit('distributeCCTData', concentrations);
-    console.log('distributeCCTData end --------------');
   },
-
+  DisplayData({ commit }, selectedType) {
+    if (selectedType === '전체') {
+      commit('drawChartAllClass');
+    } else {
+      commit('calculateCCTData');
+      commit('drawChart');
+    }
+  },
+  DrawChartAllClass({ commit }, payload) {
+    commit('distributeCCTDataAllClass', payload);
+    commit('drawChartAllClass');
+  },
   FillStudentList({ commit }) {
-    console.log('fillStudentList start --------------');
     commit('fillStudentList');
-    console.log('fillStudentList end --------------');
   },
-
-  GetLabels({ commit }) {
-    console.log('getLabels start --------------');
-    commit('getLabels');
-    console.log('getLabels end --------------');
-  },
-
-  DisplayData({ commit }) {
-    commit('calculateCCTData');
-    commit('drawChart');
+  SetStudentList({ commit }, options) {
+    console.log(options);
+    return fetchUserList(options.jwt, options.params)
+      .then(({ data }) => commit('setStudentList', data))
+      .catch((error) => console.error(error));
   },
 };
 
@@ -289,9 +313,9 @@ function divideDataPerMinute(student) {
 }
 
 function chooseColor(key) {
-  if (key === 'absence') return 'rgba(255, 255, 0, 1)';
+  if (key === 'attendPer') return 'rgba(255, 255, 0, 1)';
   if (key === 'focusPoint') return 'rgba(255, 0, 0, 1)';
-  if (key === 'sleep') return 'rgba(0, 255, 0, 1)';
+  if (key === 'sleepPer') return 'rgba(0, 255, 0, 1)';
   return 'rgba(0, 0, 255, 1)';
 }
 

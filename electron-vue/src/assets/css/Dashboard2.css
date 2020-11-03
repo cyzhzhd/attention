@@ -144,6 +144,7 @@ body {
   font-size: 24px;
   border-radius: 50%;
   color: #fff;
+  cursor: pointer;
 }
 
 .dashboard-contents {
@@ -198,7 +199,8 @@ body {
   margin-bottom: 30px;
 }
 
-.dashboard-filter {
+.dashboard-filter-list div {
+  cursor: pointer;
   font-weight: 900;
   color: #9097fd;
   font-size: 24px;
@@ -212,4 +214,9 @@ body {
 .dashboard-graph-chart {
   width: 100%;
   height: 100%;
+}
+.small {
+  width: 500px;
+  height: 300px;
+  /* overflow-x: auto; */
 }
