@@ -59,7 +59,7 @@
           </div>
           <div class="dashboard-graph">
             <div class="small">
-              <line-chart :chart-data="datacollection"></line-chart>
+              <line-chart :chart-data="datacollection" :options="{responsive: true, maintainAspectRatio: false}"></line-chart>
             </div>
           </div>
         </div>
@@ -69,6 +69,7 @@
 </template>
 
 <script>
+
 import { mapGetters, mapActions } from 'vuex';
 import MainHeader from '../components/common/MainHeader.vue';
 import DropDownBox from '../components/common/DropDownBox.vue';
@@ -95,7 +96,7 @@ export default {
       classList: [],
       weekDropdown: 'weekDropdown',
       selectedClassName: '전체',
-      selectedClassId: '',
+      selectedClassId: this.$route.params.classId,
       displayingAllClass: true,
     };
   },
@@ -185,7 +186,16 @@ export default {
     this.classList = await this.$store.dispatch('FETCH_CLASSLIST', options);
   },
   mounted() {
-    this.setSelectedClassInfo('all', '전체');
+    if(this.selectedClassId === "all"){
+      this.setSelectedClassInfo(this.selectedClassId, '전체');
+    } else {
+      /* eslint no-underscore-dangle: "error" */
+      const index = this.classList.findIndex(classInfo => {
+        const {_id} = classInfo;
+        return _id === this.selectedClassId;
+      });
+      this.setSelectedClassInfo(this.selectedClassId, this.classList[index].name);
+    }
     this.setCCTData();
   },
 };

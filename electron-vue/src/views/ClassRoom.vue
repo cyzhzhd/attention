@@ -56,12 +56,13 @@
               <div class="class-card-thumbnail"></div>
             </div>
             <div class="class-card-right">
-              <div
+              <div v-if="classInfo.endTime"
                 class="class-card-enter-button"
-                @click="enterClass(classInfo._id)"
-              >
-                입장
-              </div>
+                @click="enterDashboard(classInfo._id)"
+              > 대시보드 </div>
+              <div v-else
+                class="class-card-enter-button"
+                @click="enterClass(classInfo._id)"> 입장 </div>
             </div>
           </li>
         </ul>
@@ -121,6 +122,15 @@ export default {
         },
       });
     },
+    enterDashboard(classId) {
+          this.$router.push({
+            name: 'Dashboard',
+            params: {
+              classroomId: this.classroomId,
+              classId,
+            },        
+          });
+    }
   },
   async mounted() {
     this.fetchClassList();
