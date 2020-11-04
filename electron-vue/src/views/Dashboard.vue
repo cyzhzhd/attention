@@ -36,6 +36,7 @@
 
       <div class="dashboard-contents">
         <ul class="user-list-wrapper" v-if="!displayingAllClass">
+          <!-- <ul class="user-list-wrapper"> -->
           <li
             class="user-item"
             v-for="student in studentList"
@@ -45,6 +46,7 @@
             <img
               src="../assets/img/DashBoard/userprofile-dashboard.svg"
               class="user-profile"
+              v-bind:id="student.user"
             />
             <div class="username">
               {{ student.name }}
@@ -53,13 +55,37 @@
         </ul>
         <div class="dashboard">
           <div class="dashboard-filter-list">
-            <div @click="displaySelectedType('focusPoint')">focus point</div>
-            <div @click="displaySelectedType('attendPer')">attend</div>
-            <div @click="displaySelectedType('sleepPer')">sleep</div>
+            <div
+              class="dataType-selected"
+              ref="type_focusPoint"
+              @click="displaySelectedType('focusPoint')"
+            >
+              focus point
+            </div>
+            <div ref="type_attendPer" @click="displaySelectedType('attendPer')">
+              attend
+            </div>
+            <div ref="type_sleepPer" @click="displaySelectedType('sleepPer')">
+              sleep
+            </div>
           </div>
           <div class="dashboard-graph">
-            <div class="small">
-              <line-chart :chart-data="datacollection" :options="{responsive: true, maintainAspectRatio: false}"></line-chart>
+            <line-chart
+              :chart-data="datacollection"
+              :options="options"
+            ></line-chart>
+          </div>
+          <div class="time-interval" v-if="!displayingAllClass">
+            <div ref="interval_1" @click="displayWithTimeInterval(1)">1분</div>
+            <div
+              ref="interval_5"
+              class="interval-selected"
+              @click="displayWithTimeInterval(5)"
+            >
+              5분
+            </div>
+            <div ref="interval_10" @click="displayWithTimeInterval(10)">
+              10분
             </div>
           </div>
         </div>
@@ -69,7 +95,6 @@
 </template>
 
 <script>
-
 import { mapGetters, mapActions } from 'vuex';
 import MainHeader from '../components/common/MainHeader.vue';
 import DropDownBox from '../components/common/DropDownBox.vue';
@@ -98,6 +123,15 @@ export default {
       selectedClassName: '전체',
       selectedClassId: this.$route.params.classId,
       displayingAllClass: true,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+      },
+      selectedType: {
+        focusPoint: true,
+        attendPer: false,
+        sleepPer: false,
+      },
     };
   },
   methods: {
@@ -122,13 +156,31 @@ export default {
       this.DisplayData();
     },
     displaySelectedType(dataType) {
+      if (this.selectedType[dataType]) {
+        this.selectedType[dataType] = !this.selectedType[dataType];
+        this.$refs[`type_${dataType}`].classList.remove('dataType-selected');
+      } else {
+        this.selectedType[dataType] = !this.selectedType[dataType];
+        this.$refs[`type_${dataType}`].classList.add('dataType-selected');
+      }
       this.ChangeCCTType(dataType);
       this.DisplayData(this.selectedClassName);
+    },
+    displayWithTimeInterval(interval) {
+      [1, 5, 10].forEach((num) =>
+        this.$refs[`interval_${num}`].classList.remove('interval-selected'),
+      );
+      this.$refs[`interval_${interval}`].classList.add('interval-selected');
+      this.ChangeInterval(interval);
+      this.CreateLabels();
+      this.CreateCCTForm();
+      this.DisplayData();
     },
     async setCCTData() {
       console.log('setCCTData start --------------');
       let options;
       if (this.selectedClassId === 'all') {
+        this.displayingAllClass = true;
         options = {
           url: 'class',
           params: { class: this.$route.params.classroomId },
@@ -142,8 +194,8 @@ export default {
           CCTData: concentrations,
         };
         this.DrawChartAllClass(payload);
-        this.displayingAllClass = true;
       } else {
+        this.displayingAllClass = false;
         options = { url: 'session', params: { session: this.selectedClassId } };
 
         const concentrations = await this.$store.dispatch(
@@ -152,7 +204,8 @@ export default {
         );
         this.DistributeCCTData(concentrations);
         this.CreateLabels();
-        this.FillStudentList();
+        this.CreateCCTForm();
+
         console.log(this.displayingUserList.length);
         if (!this.displayingUserList.length) {
           const keys = Object.keys(this.studentList);
@@ -161,20 +214,19 @@ export default {
           console.log(this.displayingUserList);
         }
         this.DisplayData();
-
-        this.displayingAllClass = false;
-        console.log('setCCTData end --------------');
       }
+      console.log('setCCTData end --------------');
     },
 
     ...mapActions('dashboard', [
       'ChangeDisplayingUserList',
       'ChangeCCTType',
+      'ChangeInterval',
       'CreateLabels',
       'DistributeCCTData',
       'DisplayData',
       'DrawChartAllClass',
-      'FillStudentList',
+      'CreateCCTForm',
       'SetStudentList',
     ]),
   },
@@ -186,15 +238,18 @@ export default {
     this.classList = await this.$store.dispatch('FETCH_CLASSLIST', options);
   },
   mounted() {
-    if(this.selectedClassId === "all"){
+    if (this.selectedClassId === 'all') {
       this.setSelectedClassInfo(this.selectedClassId, '전체');
     } else {
       /* eslint no-underscore-dangle: "error" */
-      const index = this.classList.findIndex(classInfo => {
-        const {_id} = classInfo;
+      const index = this.classList.findIndex((classInfo) => {
+        const { _id } = classInfo;
         return _id === this.selectedClassId;
       });
-      this.setSelectedClassInfo(this.selectedClassId, this.classList[index].name);
+      this.setSelectedClassInfo(
+        this.selectedClassId,
+        this.classList[index].name,
+      );
     }
     this.setCCTData();
   },

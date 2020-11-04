@@ -175,6 +175,12 @@ body {
 .user-profile {
   width: 70px;
   height: 70px;
+  cursor: pointer;
+}
+.user-selected {
+  width: 90px;
+  height: 90px;
+  background-color: blue;
 }
 
 .username {
@@ -201,24 +207,34 @@ body {
 
 .dashboard-filter-list div {
   cursor: pointer;
+  flex: 1 0;
   font-weight: 900;
   color: #9097fd;
   font-size: 24px;
+  border: 0.5px solid gray;
+}
+.dataType-selected {
+  background-color: blue;
 }
 
 .dashboard-graph {
   flex: 1;
   background-color: #fff;
 }
-
-.dashboard-graph-chart {
+.time-interval {
+  display: flex;
+  align-items: center;
   width: 100%;
-  height: 100%;
+  justify-content: flex-end;
 }
-.small {
-  /* width: 100%;
-  height: 100%; */
-  width: 1000px;
-  height: 550px;
-  /* overflow-x: auto; */
+.time-interval div {
+  cursor: pointer;
+  font-weight: 900;
+  width: 5rem;
+  color: #9097fd;
+  font-size: 24px;
+  border: 0.5px solid gray;
+}
+.interval-selected {
+  background-color: blue;
 }

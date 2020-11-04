@@ -16,6 +16,7 @@ const state = {
   timeRange: [],
   data: {},
   hasCalculated: {},
+  interval: 5,
 };
 
 const getters = {
@@ -28,13 +29,14 @@ const getters = {
   datacollection(state) {
     return state.datacollection;
   },
+  interval(state) {
+    return state.interval;
+  },
 };
 
 const mutations = {
   addDataSet(userInfo, key) {
     const { user, name } = userInfo;
-    console.log(key);
-    console.log(state.data[user]);
     return {
       label: `${name} - ${key}`,
       borderColor: chooseColor(key),
@@ -44,24 +46,24 @@ const mutations = {
   },
   calculateCCTData(state) {
     console.log('calculateCCTData start --------------');
-    state.displayingUserList.forEach(userInfo => {
+    state.displayingUserList.forEach((userInfo) => {
       const { user } = userInfo;
       if (!state.hasCalculated[user]) {
         const student = state.studentList[user];
         console.log('calculating -------------------', student);
-        divideDataPerMinute(student);
+        divideDataPerInterval(student);
 
         state.data[student.user] = {
           focusPoint: [],
           attendPer: [],
           sleepPer: [],
         };
-        student.cctTime.forEach(cctTime => {
+        student.cctTime.forEach((cctTime) => {
           const cctArrLength = cctTime.concentrationArr.length || 1;
           let attendPerTTL = 0;
           let focusPointTTL = 0;
           let sleepPerTTL = 0;
-          cctTime.concentrationArr.forEach(cctArr => {
+          cctTime.concentrationArr.forEach((cctArr) => {
             attendPerTTL += cctArr.attendPer;
             focusPointTTL += cctArr.focusPoint;
             sleepPerTTL += cctArr.sleepPer;
@@ -86,39 +88,60 @@ const mutations = {
   changeDisplayingUserList(state, userInfo) {
     const { name, user } = userInfo;
     const index = state.displayingUserList.findIndex(
-      displayingUser => displayingUser.user === user,
+      (displayingUser) => displayingUser.user === user,
     );
 
+    console.log(document.getElementById(user));
     if (index === -1) {
       state.displayingUserList.push({ user, name });
+      document.getElementById(user).classList.add('user-selected');
     } else {
       state.displayingUserList.splice(index, 1);
+      document.getElementById(user).classList.remove('user-selected');
     }
   },
   changeCCTType(state, dataType) {
     state.CCTType[dataType] = !state.CCTType[dataType];
   },
+  changeInterval(state, interval) {
+    state.interval = interval;
+    state.hasCalculated = {};
+  },
   createLabels(state) {
     console.log('createLabels start --------------');
-    const { startTime, endTime } = getTimeSpan();
-    const labels = makeRange(startTime, endTime);
+    const { startTime, endTime } = getTimeSpan(state.studentList);
+    const labels = makeRange(startTime, endTime, state.interval);
     state.timeRange = labels;
     console.log('createLabels end --------------');
+  },
+  createCCTForm(state) {
+    console.log('createCCTForm start --------------');
+    const keys = Object.keys(state.studentList);
+    if (keys) {
+      keys.forEach((key) => {
+        state.studentList[key].cctTime = [];
+      });
+    }
+    state.timeRange.forEach((label) => {
+      keys.forEach((key) => {
+        state.studentList[key].cctTime.push({
+          time: label,
+          concentrationArr: [],
+          concentrationMean: {},
+        });
+      });
+    });
+    console.log('createCCTForm end --------------');
   },
   drawChart(state) {
     console.log('drawChart start --------------');
     state.datacollection = {
       labels: state.timeRange,
       datasets: [],
-      options: {
-        responsive: false,
-        // responsive: true,
-        maintainAspectRatio: false,
-      },
     };
-    state.displayingUserList.forEach(userInfo => {
+    state.displayingUserList.forEach((userInfo) => {
       const keys = Object.keys(state.CCTType);
-      keys.forEach(key => {
+      keys.forEach((key) => {
         if (state.CCTType[key]) {
           const { user, name } = userInfo;
           const dataset = {
@@ -138,15 +161,10 @@ const mutations = {
     state.datacollection = {
       labels: state.timeRange,
       datasets: [],
-      options: {
-        responsive: false,
-        // responsive: true,
-        maintainAspectRatio: false,
-      },
     };
 
     const keys = Object.keys(state.CCTType);
-    keys.forEach(key => {
+    keys.forEach((key) => {
       if (state.CCTType[key]) {
         const dataset = {
           label: `${key}`,
@@ -161,7 +179,7 @@ const mutations = {
   },
   distributeCCTData(state, concentrations) {
     console.log('distributeCCTData start --------------');
-    concentrations.forEach(concentration => {
+    concentrations.forEach((concentration) => {
       state.studentList[concentration.user].cctTotal.push(concentration);
     });
     console.log(state.studentList);
@@ -170,7 +188,7 @@ const mutations = {
   distributeCCTDataAllClass(state, payload) {
     const { classList, CCTData } = payload;
     state.timeRange = [];
-    classList.forEach(classInfo => {
+    classList.forEach((classInfo) => {
       const startDay = classInfo.startTime.slice(5, 10);
       const classTopic = classInfo.name;
       state.timeRange.push(`${startDay} \n ${classTopic}`);
@@ -180,31 +198,17 @@ const mutations = {
       attendPer: [],
       sleepPer: [],
     };
-    CCTData.forEach(cct => {
+    CCTData.forEach((cct) => {
       state.data.focusPoint.push(cct.avgFocusPoint);
       state.data.attendPer.push(cct.avgAttendPer);
       state.data.sleepPer.push(cct.avgSleepPer);
     });
   },
-  fillStudentList(state) {
-    console.log('fillStudentList start --------------');
-    const keys = Object.keys(state.studentList);
-    state.timeRange.forEach(label => {
-      keys.forEach(key => {
-        state.studentList[key].cctTime.push({
-          time: label,
-          concentrationArr: [],
-          concentrationMean: {},
-        });
-      });
-    });
-    console.log('fillStudentList end --------------');
-  },
   resetData(state) {
     console.log('-------- reset data start--------');
     const keys = Object.keys(state.studentList);
     if (keys) {
-      keys.forEach(key => {
+      keys.forEach((key) => {
         state.studentList[key].cctTotal = [];
         state.studentList[key].cctTime = [];
       });
@@ -217,7 +221,7 @@ const mutations = {
     state.studentList = {};
     console.log(state.studentList);
     console.log(studentList);
-    studentList.forEach(student => {
+    studentList.forEach((student) => {
       const { _id, name, email } = student;
       const id = _id;
       state.studentList[id] = {
@@ -241,6 +245,12 @@ const actions = {
   ChangeCCTType({ commit }, dataType) {
     commit('changeCCTType', dataType);
   },
+  ChangeInterval({ commit }, interval) {
+    commit('changeInterval', interval);
+  },
+  CreateCCTForm({ commit }) {
+    commit('createCCTForm');
+  },
   DistributeCCTData({ commit }, concentrations) {
     commit('resetData');
     commit('distributeCCTData', concentrations);
@@ -257,46 +267,57 @@ const actions = {
     commit('distributeCCTDataAllClass', payload);
     commit('drawChartAllClass');
   },
-  FillStudentList({ commit }) {
-    commit('fillStudentList');
-  },
   SetStudentList({ commit }, options) {
     console.log(options);
     return fetchUserList(options.jwt, options.params)
       .then(({ data }) => commit('setStudentList', data))
-      .catch(error => console.error(error));
+      .catch((error) => console.error(error));
   },
 };
 
-function compare(a, b) {
+function compareDateinDate(a, b) {
   return a.valueOf() && b.valueOf() ? (a > b) - (a < b) : NaN;
 }
-function addMinutes(date, minutes) {
+/* eslint no-else-return: "error" */
+function compareDateinString(a, b) {
+  const splitA = a.split(':');
+  const splitB = b.split(':');
+  for (let i = 0; i < 3; i += 1) {
+    if (Number(splitA[i]) > Number(splitB[i])) {
+      return true;
+    } else if (Number(splitA[i]) < Number(splitB[i])) {
+      return false;
+    }
+  }
+  return true;
+}
+function addInterval(date, minutes) {
   return new Date(date.getTime() + minutes * 60000);
 }
-function makeRange(sTime, eTime) {
+function makeRange(sTime, eTime, interval) {
   const labels = [];
   let time = sTime;
-  while (compare(time, eTime) < 1) {
+  while (compareDateinDate(time, eTime) < 1) {
     const splits = time.toString().split(' ');
     labels.push(splits[4]);
-    time = addMinutes(time, 1);
+    time = addInterval(time, interval);
   }
   return labels;
 }
 
-function getTimeSpan() {
+function getTimeSpan(studentList) {
   let startTime = new Date('2050-10-09T06:18:33.674Z');
   let endTime = new Date('2010-10-09T06:18:33.674Z');
-  const keys = Object.keys(state.studentList);
-  keys.forEach(key => {
-    const { cctTotal } = state.studentList[key];
+  const keys = Object.keys(studentList);
+  keys.forEach((key) => {
+    const { cctTotal } = studentList[key];
     const length = cctTotal.length - 1;
     if (cctTotal[0]) {
       const firstData = new Date(cctTotal[0].date);
       const lastData = new Date(cctTotal[length].date);
-      startTime = compare(startTime, firstData) === -1 ? startTime : firstData;
-      endTime = compare(endTime, lastData) === 1 ? endTime : lastData;
+      startTime =
+        compareDateinDate(startTime, firstData) === -1 ? startTime : firstData;
+      endTime = compareDateinDate(endTime, lastData) === 1 ? endTime : lastData;
     }
   });
   startTime.setSeconds(0, 0);
@@ -304,15 +325,17 @@ function getTimeSpan() {
   return { startTime, endTime };
 }
 
-function divideDataPerMinute(student) {
-  student.cctTotal.forEach(cctTotal => {
+function divideDataPerInterval(student) {
+  student.cctTotal.forEach((cctTotal) => {
     const date = new Date(cctTotal.date);
     date.setSeconds(0, 0);
     const time = date.toString().split(' ')[4];
-    student.cctTime.forEach(cctTime => {
-      if (cctTime.time === time) {
+    student.cctTime.some((cctTime) => {
+      if (compareDateinString(cctTime.time, time)) {
         cctTime.concentrationArr.push(cctTotal.status);
+        return true;
       }
+      return false;
     });
   });
 }
