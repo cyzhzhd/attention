@@ -29,8 +29,9 @@
         <div class="create-classroom-title">수업 만들기</div>
       </div>
     </router-link>
-    <main-header></main-header>
 
+    <main-header></main-header>
+    <CRDropDownBox></CRDropDownBox>
     <div class="classroom-contents">
       <div class="class-list">
         <div class="time-line">
@@ -56,13 +57,20 @@
               <div class="class-card-thumbnail"></div>
             </div>
             <div class="class-card-right">
-              <div v-if="classInfo.endTime"
+              <div
+                v-if="classInfo.endTime"
                 class="class-card-enter-button"
                 @click="enterDashboard(classInfo._id)"
-              > 대시보드 </div>
-              <div v-else
+              >
+                대시보드
+              </div>
+              <div
+                v-else
                 class="class-card-enter-button"
-                @click="enterClass(classInfo._id)"> 입장 </div>
+                @click="enterClass(classInfo._id)"
+              >
+                입장
+              </div>
             </div>
           </li>
         </ul>
@@ -73,12 +81,15 @@
 
 <script>
 /* eslint no-param-reassign: "error" */
+import bus from '../../utils/bus';
 import MainHeader from '../components/common/MainHeader.vue';
+import CRDropDownBox from '../components/ClassRoom/CRDropDownBox.vue';
 
 export default {
   name: 'ClassRoom',
   components: {
     MainHeader,
+    CRDropDownBox,
   },
   data() {
     return {
@@ -123,17 +134,23 @@ export default {
       });
     },
     enterDashboard(classId) {
-          this.$router.push({
-            name: 'Dashboard',
-            params: {
-              classroomId: this.classroomId,
-              classId,
-            },        
-          });
-    }
+      this.$router.push({
+        name: 'Dashboard',
+        params: {
+          classroomId: this.classroomId,
+          classId,
+        },
+      });
+    },
   },
-  async mounted() {
+  mounted() {
     this.fetchClassList();
+    bus.$on('ClassRoom:addClass', () => {
+      this.fetchClassList();
+    });
+  },
+  beforeDestroy() {
+    bus.$off('ClassRoom:addClass');
   },
 };
 </script>

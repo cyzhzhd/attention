@@ -35,6 +35,8 @@ export default {
         element = document.getElementById('create-classroom-dropdown');
       } else if (name === 'addClassroom') {
         element = document.getElementById('create-classroom-dropdown');
+      } else if (name === 'createClass') {
+        element = document.getElementById('create-classroom-dropdown');
       } else if (name === 'weekDropdown') {
         element = document.getElementById('week-dropdown');
       }

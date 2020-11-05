@@ -57,6 +57,7 @@
               </div>
             </div>
 
+            <p class="error-message">{{ errorMessage }}</p>
             <div class="create-classroom-button" @click="createClassRoom()">
               만들기
             </div>
@@ -80,6 +81,7 @@
                 v-model.trim="roomCode"
               />
             </div>
+
             <p class="error-message">{{ errorMessage }}</p>
             <div class="create-classroom-button" @click="addClassRoom()">
               추가하기
@@ -114,21 +116,22 @@ export default {
     };
   },
   methods: {
-    setDropBoxType(type) {
-      console.log(type);
-      this.type = type;
-    },
     async createClassRoom() {
       const options = {
         name: this.roomName,
         tags: this.tags,
         classType: this.classType,
       };
-      await this.$store.dispatch('CREATE_CLASSROOM', options);
-      this.roomName = '';
-      this.tags = '국어';
-      this.classType = 'public';
-      bus.$emit('dropDownBox:onClickDropDown', 'createClassroom');
+      const isSuccess = await this.$store.dispatch('CREATE_CLASSROOM', options);
+      if (isSuccess) {
+        this.roomName = '';
+        this.tags = '국어';
+        this.classType = 'public';
+        bus.$emit('dropDownBox:onClickDropDown', 'createClassroom');
+        bus.$emit('ClassRoomList:addClassRoom');
+      } else {
+        this.errorMessage = '교실 이름을 다시 확인해주세요.';
+      }
     },
 
     async addClassRoom() {
@@ -139,6 +142,7 @@ export default {
       if (isSuccess) {
         this.roomCode = '';
         bus.$emit('dropDownBox:onClickDropDown', 'addClassroom');
+        bus.$emit('ClassRoomList:addClassRoom');
       } else {
         this.errorMessage = '코드를 다시 확인해주세요.';
       }

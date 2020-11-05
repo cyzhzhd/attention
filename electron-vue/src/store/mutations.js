@@ -15,6 +15,10 @@ export default {
       state.errorMessage = '이미 가입한 이메일입니다.';
     if (error === 'register_failed')
       state.errorMessage = '닉네임을 입력해주세요.';
+    if (error === 'invalid_time_settings')
+      state.errorMessage = '올바르지 못한 시간 설정입니다.';
+    if (error === 'session_start_failed')
+      state.errorMessage = '한번에 하나 이상의 수업을 만들 수 없습니다.';
 
     console.log(error);
   },
@@ -25,7 +29,7 @@ export default {
     if (classInfo.session === null) classInfo.session = 'notReady';
     /* eslint no-underscore-dangle: ["error", { "allow": [ "_id"] }] */
     let hasFound = false;
-    state.classroom.some(classroom => {
+    state.classroom.some((classroom) => {
       if (classInfo._id === classroom._id) {
         classroom.session = classInfo.session;
         hasFound = true;

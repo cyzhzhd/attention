@@ -41,10 +41,11 @@
           </div>
         </div>
       </div>
-      <div class="back">
-        <div @click.prevent>
-          <a @click="leaveRoom">수업종료</a>
-        </div>
+      <div class="back" v-if="$store.state.user.isTeacher">
+        <div @click.prevent="$refs.menu.open($event)" @click.stop>수업종료</div>
+      </div>
+      <div class="back" v-else>
+        <a @click="leaveClass">수업종료</a>
       </div>
     </div>
     <div class="modal-wrapper" v-on:click="controlModal('showingInviteModal')">
@@ -79,11 +80,23 @@
       v-bind:showingModal="modalList.showingScreenSharingModal"
       v-on:closeModal="controlModal"
     ></screen-sharing>
+    <vue-context ref="menu">
+      <template>
+        <li>
+          <a @click.prevent="leaveClass(true)">수업 종료</a>
+        </li>
+        <li>
+          <a @click.prevent="leaveClass()">수업 나가기</a>
+        </li>
+      </template>
+    </vue-context>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
+import VueContext from 'vue-context';
+import 'vue-context/src/sass/vue-context.scss';
 import smallModal from '../common/smallModal.vue';
 import settings from './roomOptions/mainSettings.vue';
 import chat from './roomOptions/chat.vue';
@@ -99,6 +112,7 @@ export default {
     chat,
     screenSharing,
     CCTGraph,
+    VueContext,
   },
   data() {
     return {
@@ -150,18 +164,17 @@ export default {
       this.MuteAudio();
     },
 
-    async leaveRoom() {
-      // if (this.$store.state.user.isTeacher) {
-      //   const options = {
-      //     class: this.classroomId,
-      //     session: this.$route.params.classId,
-      //   };
-      //   console.log('finish class');
-      //   this.FinishClass();
-      //   await this.$store.dispatch('FINISH_CLASS', options);
-      // }
-
+    async leaveClass(isFinishing = false) {
       this.LeaveRoom();
+      if (isFinishing) {
+        const options = {
+          class: this.classroomId,
+          session: this.$route.params.classId,
+        };
+        console.log('finish class');
+        this.FinishClass();
+        await this.$store.dispatch('FINISH_CLASS', options);
+      }
       this.$router.go(-1);
     },
 

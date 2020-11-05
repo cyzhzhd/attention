@@ -260,5 +260,5 @@ export default {
 };
 </script>
 <style scoped>
-@import '../assets/css/Dashboard2.css';
+@import '../assets/css/Dashboard.css';
 </style>

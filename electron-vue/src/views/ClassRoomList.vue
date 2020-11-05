@@ -193,16 +193,16 @@ export default {
     this.getClassRoomList();
   },
   mounted() {
-    bus.$on('classroomList:created-room', () => {
+    bus.$on('ClassRoomList:addClassRoom', () => {
       this.getClassRoomList();
     });
   },
   beforeDestroy() {
-    bus.$off('classroomList:created-room');
+    bus.$off('ClassRoomList:addClassRoom');
   },
 };
 </script>
 
 <style scoped>
-@import '../assets/css/ClassRoomList2.css';
+@import '../assets/css/ClassRoomList.css';
 </style>
