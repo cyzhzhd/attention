@@ -35,15 +35,6 @@ const getters = {
 };
 
 const mutations = {
-  addDataSet(userInfo, key) {
-    const { user, name } = userInfo;
-    return {
-      label: `${name} - ${key}`,
-      borderColor: chooseColor(key),
-      data: state.data[user][key],
-      fill: false,
-    };
-  },
   calculateCCTData(state) {
     console.log('calculateCCTData start --------------');
     state.displayingUserList.forEach((userInfo) => {
@@ -139,17 +130,17 @@ const mutations = {
       labels: state.timeRange,
       datasets: [],
     };
-    state.displayingUserList.forEach((userInfo) => {
+    state.displayingUserList.forEach((userInfo, idx) => {
       const keys = Object.keys(state.CCTType);
       keys.forEach((key) => {
         if (state.CCTType[key]) {
           const { user, name } = userInfo;
-          const dataset = {
-            label: `${name} - ${key}`,
-            borderColor: chooseColor(key),
-            data: state.data[user][key],
-            fill: false,
-          };
+          const dataset = addDataSet(
+            `${name} - ${key}`,
+            state.data[user][key],
+            key,
+            idx,
+          );
           state.datacollection.datasets.push(dataset);
         }
       });
@@ -166,12 +157,7 @@ const mutations = {
     const keys = Object.keys(state.CCTType);
     keys.forEach((key) => {
       if (state.CCTType[key]) {
-        const dataset = {
-          label: `${key}`,
-          borderColor: chooseColor(key),
-          data: state.data[key],
-          fill: false,
-        };
+        const dataset = addDataSet(key, state.data[key], key);
         state.datacollection.datasets.push(dataset);
       }
     });
@@ -216,6 +202,19 @@ const mutations = {
     state.data = {};
     state.hasCalculated = {};
     console.log('-------- reset data end--------');
+  },
+  resetVariables(state) {
+    state.displayingUserList = [];
+    state.CCTType = {
+      focusPoint: true,
+      attendPer: false,
+      sleepPer: false,
+    };
+    state.datacollection = null;
+    state.timeRange = [];
+    state.data = {};
+    state.hasCalculated = {};
+    state.interval = 5;
   },
   setStudentList(state, studentList) {
     state.studentList = {};
@@ -267,6 +266,9 @@ const actions = {
     commit('distributeCCTDataAllClass', payload);
     commit('drawChartAllClass');
   },
+  ResetVariables({ commit }) {
+    commit('resetVariables');
+  },
   SetStudentList({ commit }, options) {
     console.log(options);
     return fetchUserList(options.jwt, options.params)
@@ -274,6 +276,15 @@ const actions = {
       .catch((error) => console.error(error));
   },
 };
+
+function addDataSet(label, data, key, idx = -1) {
+  return {
+    label,
+    borderColor: chooseColor(key, idx),
+    data,
+    fill: false,
+  };
+}
 
 function compareDateinDate(a, b) {
   return a.valueOf() && b.valueOf() ? (a > b) - (a < b) : NaN;
@@ -340,11 +351,34 @@ function divideDataPerInterval(student) {
   });
 }
 
-function chooseColor(key) {
-  if (key === 'attendPer') return 'rgba(255, 255, 0, 1)';
-  if (key === 'focusPoint') return 'rgba(255, 0, 0, 1)';
-  if (key === 'sleepPer') return 'rgba(0, 255, 0, 1)';
-  return 'rgba(0, 0, 255, 1)';
+function chooseColor(key, idx) {
+  const remainder = idx % 7;
+  let color;
+  switch (remainder) {
+    case 0:
+      color = '204, 0, 0';
+      break;
+    case 1:
+      color = '255, 153, 0';
+      break;
+    case 2:
+      color = '255, 255, 0';
+      break;
+    case 3:
+      color = '0, 153, 51';
+      break;
+    case 4:
+      color = '0, 153, 255';
+      break;
+    case 5:
+      color = '0, 0, 153';
+      break;
+    default:
+      color = '153, 0, 204';
+  }
+  if (key === 'attendPer') return `rgba(${color}, 0.1)`;
+  if (key === 'focusPoint') return `rgba(${color}, 1.0)`;
+  return `rgba(${color}, 0.4)`;
 }
 
 export default {

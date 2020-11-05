@@ -1,5 +1,5 @@
 <template>
-  <div class="container" ref='contatiner'>
+  <div class="container" ref="contatiner">
     <div class="closeBtn" ref="closeBtn" @click="backToNormalView">
       화면 공유 종료
     </div>
@@ -56,28 +56,28 @@ export default {
     },
     backToNormalView() {
       console.log('backToNormalView');
-      bus.$emit('class:stop-sharing-screen')
+      bus.$emit('class:stop-sharing-screen');
       console.log('backToNormalView');
       this.$refs.goal.style.display = 'flex';
       this.$refs.userList.style.display = 'block';
       this.$refs.roomOptions.style.display = 'block';
       this.$refs.contatiner.style.gridTemplateColumns = '100px 1fr 100px';
       this.$refs.contatiner.style.gridTemplateRows = '60px 1fr';
-      this.$refs.contatiner.style.gridTemplateAreas = "'goal goal goal' 'userlist webRTC options'";
+      this.$refs.contatiner.style.gridTemplateAreas =
+        "'goal goal goal' 'userlist webRTC options'";
       this.$refs.closeBtn.style.display = 'none';
       ipcRenderer.send('attention:stop-sharing-screen');
     },
     ...mapActions('webRTC', ['EnterRoom']),
   },
   mounted() {
-    console.log("class mounted");
+    console.log('class mounted');
     this.enterRoom();
 
     bus.$on('onDeliverDisconnection', () => {
       this.$router.go(-1);
     });
 
-    
     bus.$on('rtcPart:start-sharing-screen', () => {
       this.$refs.goal.style.display = 'none';
       this.$refs.userList.style.display = 'none';
@@ -88,9 +88,9 @@ export default {
       this.$refs.closeBtn.style.display = 'block';
 
       // 연결된 유저 수 * 비디오 높이 + 버튼 높이 보내기
-      const offset = 290;
-      const height = offset + 205 * (this.storedDisplayingStudentList.length);
-      console.log(height, (this.storedDisplayingStudentList.length + 1));
+      const offset = 245;
+      const height = offset + 160 * this.storedDisplayingStudentList.length;
+      console.log(height, this.storedDisplayingStudentList.length + 1);
       console.log(this.storedDisplayingStudentList);
       ipcRenderer.send('attention:start-sharing-screen', height);
     });
@@ -98,7 +98,7 @@ export default {
   beforeDestroy() {
     bus.$off('onDeliverDisconnection');
     bus.$off('rtcPart:start-sharing-screen');
-  }
+  },
 };
 </script>
 

@@ -4,7 +4,7 @@
       <video ref="teacherVideo"></video>
     </div>
     <div ref="videos" class="videos">
-      <div>
+      <div class="localVideo-div">
         <canvas id="fcanvas" width="240" height="180"></canvas>
         <video
           ref="localVideo"
@@ -13,7 +13,7 @@
           muted
           playsinline
         ></video>
-        <p>Me</p>
+        <p>{{ $store.state.user.name }}</p>
       </div>
     </div>
   </div>
@@ -44,8 +44,6 @@ export default {
 .webRTC {
   height: 93vh;
   display: grid;
-  /* grid-template-rows: 70% 30%; */
-  /* grid-template-areas: 'teacher', 'videos'; */
   grid-template-columns: 80% 20%;
   grid-template-areas: 'teacher videos';
 }
@@ -58,34 +56,24 @@ export default {
   max-height: 67vh;
 }
 .videos {
-  /* position: absolute; */
   grid-area: 'videos';
   display: flex;
   flex-direction: column;
-  /* align-items: center; */
   justify-content: center;
-  /* grid-template-columns: 1fr; */
   margin-top: 15px;
 }
-.videos video {
-  position: relative;
-  z-index: 1;
-  /* width: 100%; */
-  max-height: 21vh;
-  /* padding: 0 5px; */
-}
-/* .videos canvas {
-  position: absolute;
-  z-index: 2;
-  max-height: 21vh;
-} */
-
 .videos #fcanvas {
   position: absolute;
   z-index: 2;
   max-height: 21vh;
 }
 .videos div p {
-  color: black;
+  position: absolute;
+  color: white;
+  background-color: gray;
+}
+
+.localVideo-div {
+  display: flex;
 }
 </style>

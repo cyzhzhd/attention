@@ -1,7 +1,7 @@
 <template>
   <div class="webRTC">
     <div ref="videos" class="videos">
-      <div>
+      <div class="localVideo-div">
         <video
           ref="localVideo"
           class="localVideo"
@@ -9,7 +9,7 @@
           muted
           playsinline
         ></video>
-        <p class="name-tag">Me</p>
+        <p>{{ $store.state.user.name }}</p>
       </div>
     </div>
   </div>
@@ -41,9 +41,11 @@ export default {
   grid-template-columns: 1fr;
 }
 .videos div p {
-  color: black;
+  position: absolute;
+  color: white;
+  background-color: gray;
 }
-.name-tag {
-  
+.localVideo-div {
+  display: flex;
 }
 </style>

@@ -151,11 +151,11 @@ export default {
     },
 
     async leaveRoom() {
-      // if(this.$store.state.user.isTeacher) {
+      // if (this.$store.state.user.isTeacher) {
       //   const options = {
       //     class: this.classroomId,
       //     session: this.$route.params.classId,
-      //   }
+      //   };
       //   console.log('finish class');
       //   this.FinishClass();
       //   await this.$store.dispatch('FINISH_CLASS', options);

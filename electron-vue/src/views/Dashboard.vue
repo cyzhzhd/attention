@@ -36,7 +36,6 @@
 
       <div class="dashboard-contents">
         <ul class="user-list-wrapper" v-if="!displayingAllClass">
-          <!-- <ul class="user-list-wrapper"> -->
           <li
             class="user-item"
             v-for="student in studentList"
@@ -95,6 +94,9 @@
 </template>
 
 <script>
+/* eslint no-underscore-dangle: 0 */
+/* eslint-disable no-restricted-syntax */
+
 import { mapGetters, mapActions } from 'vuex';
 import MainHeader from '../components/common/MainHeader.vue';
 import DropDownBox from '../components/common/DropDownBox.vue';
@@ -140,6 +142,7 @@ export default {
       this.selectedClassId = classId;
       bus.$emit('dropDownBox:onClickDropDown', 'weekDropdown');
     },
+
     setStudentList() {
       console.log('setStudentList start --------------');
       const options = {
@@ -228,30 +231,31 @@ export default {
       'DrawChartAllClass',
       'CreateCCTForm',
       'SetStudentList',
+      'ResetVariables',
     ]),
   },
-  async created() {
+  async mounted() {
     this.setStudentList();
+
     const options = {
       class: this.classroomId,
     };
     this.classList = await this.$store.dispatch('FETCH_CLASSLIST', options);
-  },
-  mounted() {
+
     if (this.selectedClassId === 'all') {
       this.setSelectedClassInfo(this.selectedClassId, '전체');
     } else {
-      /* eslint no-underscore-dangle: "error" */
-      const index = this.classList.findIndex((classInfo) => {
-        const { _id } = classInfo;
-        return _id === this.selectedClassId;
-      });
-      this.setSelectedClassInfo(
-        this.selectedClassId,
-        this.classList[index].name,
-      );
+      for (const classInfo of this.classList) {
+        if (classInfo._id === this.selectedClassId) {
+          this.setSelectedClassInfo(this.selectedClassId, classInfo.name);
+        }
+      }
     }
     this.setCCTData();
+  },
+
+  beforeDestroy() {
+    this.ResetVariables();
   },
 };
 </script>

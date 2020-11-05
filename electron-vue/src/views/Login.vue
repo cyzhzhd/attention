@@ -76,18 +76,18 @@ export default {
       const jwt = await this.$store.dispatch('FETCH_JWT', options);
       const info = await this.$store.dispatch('FETCH_USER_INFO');
       if (jwt && info) {
-        // this.$router.push({
-        //   name: 'ClassRoomList',
-        // });
-        if (info.isTeacher) {
-          this.$router.push({
-            name: 'ClassRoomList',
-          });
-        } else {
-          this.$router.push({
-            name: 'ClassRoomListStudent',
-          });
-        }
+        this.$router.push({
+          name: 'ClassRoomList',
+        });
+        // if (info.isTeacher) {
+        //   this.$router.push({
+        //     name: 'ClassRoomList',
+        //   });
+        // } else {
+        //   this.$router.push({
+        //     name: 'ClassRoomListStudent',
+        //   });
+        // }
       } else {
         this.errorMessage = this.$store.getters.GET_ERRORMESSAGE;
       }
