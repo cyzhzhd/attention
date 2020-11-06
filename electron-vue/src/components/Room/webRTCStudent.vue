@@ -42,18 +42,25 @@ export default {
 
 <style scoped>
 .webRTC {
-  height: 93vh;
+  height: 100vh;
   display: grid;
   grid-template-columns: 80% 20%;
   grid-template-areas: 'teacher videos';
 }
+/* .webRTC {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 75% 25%;
+  grid-template-areas: 'teacher' 'videos';
+} */
 .teacher {
   grid-area: 'teacher';
   align-self: center;
 }
 .teacher video {
   width: 100%;
-  max-height: 67vh;
+  max-height: 76vh;
+  object-fit: cover;
 }
 .videos {
   grid-area: 'videos';

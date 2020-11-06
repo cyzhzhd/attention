@@ -105,12 +105,12 @@ export default {
 
 <style scoped>
 .userlist-vue {
-  background-color: #e4f6f1;
+  /* background-color: #e4f6f1; */
   min-height: 100%;
 }
 .userlist {
   position: absolute;
-  height: 82.5vh;
+  height: 75vh;
   width: 100px;
   margin-top: 10px;
   overflow-y: auto;
@@ -119,9 +119,10 @@ export default {
 .userlist-profile {
   display: flex;
   flex-direction: column;
-  margin: 0.7rem;
+  margin: 0.2rem 0.5rem;
   border-radius: 5rem;
   background: white;
+  border: 1px solid #9097fd;
 
   height: 0;
   padding-bottom: 80%;

@@ -3,9 +3,9 @@
     <div class="closeBtn" ref="closeBtn" @click="backToNormalView">
       화면 공유 종료
     </div>
-    <div ref="goal" class="goal">
+    <!-- <div ref="goal" class="goal">
       <p>2주차 관동별곡</p>
-    </div>
+    </div> -->
     <div class="webRTC" ref="rtcT">
       <web-rtc-teacher v-if="$store.state.user.isTeacher"></web-rtc-teacher>
       <web-rtc-student v-else></web-rtc-student>
@@ -61,10 +61,9 @@ export default {
       this.$refs.goal.style.display = 'flex';
       this.$refs.userList.style.display = 'block';
       this.$refs.roomOptions.style.display = 'block';
-      this.$refs.contatiner.style.gridTemplateColumns = '100px 1fr 100px';
+      this.$refs.contatiner.style.gridTemplateColumns = '100px 1fr';
       this.$refs.contatiner.style.gridTemplateRows = '60px 1fr';
-      this.$refs.contatiner.style.gridTemplateAreas =
-        "'goal goal goal' 'userlist webRTC options'";
+      this.$refs.contatiner.style.gridTemplateAreas = "'userlist webRTC'";
       this.$refs.closeBtn.style.display = 'none';
       ipcRenderer.send('attention:stop-sharing-screen');
     },
@@ -106,17 +105,9 @@ export default {
 .container {
   display: grid;
   height: 100vh;
-  grid-template-columns: 100px 1fr 100px;
-  grid-template-rows: 60px 1fr;
-  grid-template-areas:
-    'goal goal goal'
-    'userlist webRTC options';
-}
-.goal {
-  grid-area: goal;
-  display: flex;
-
-  background: #12ac85;
+  grid-template-columns: 100px 1fr;
+  /* grid-template-rows: 1fr; */
+  grid-template-areas: 'userlist webRTC';
 }
 
 .goal p {
@@ -127,7 +118,6 @@ export default {
   font-style: normal;
   font-weight: bold;
   font-size: 25px;
-  /* line-height: 36px; */
   text-align: center;
   letter-spacing: 0.31em;
   color: white;
