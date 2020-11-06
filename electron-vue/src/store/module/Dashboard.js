@@ -35,8 +35,8 @@ const getters = {
 };
 
 const mutations = {
-  calculateCCTData(state) {
-    console.log('calculateCCTData start --------------');
+  calculateAverageCCTData(state) {
+    console.log('calculateAverageCCTData start --------------');
     state.displayingUserList.forEach((userInfo) => {
       const { user } = userInfo;
       if (!state.hasCalculated[user]) {
@@ -51,6 +51,8 @@ const mutations = {
         };
         student.cctTime.forEach((cctTime) => {
           const cctArrLength = cctTime.concentrationArr.length || 1;
+
+          // reduce?
           let attendPerTTL = 0;
           let focusPointTTL = 0;
           let sleepPerTTL = 0;
@@ -74,15 +76,13 @@ const mutations = {
         state.hasCalculated[user] = true;
       }
     });
-    console.log('calculateCCTData end --------------');
+    console.log('calculateAverageCCTData end --------------');
   },
-  changeDisplayingUserList(state, userInfo) {
-    const { name, user } = userInfo;
+  changeDisplayingUserList(state, { name, user }) {
     const index = state.displayingUserList.findIndex(
       (displayingUser) => displayingUser.user === user,
     );
 
-    console.log(document.getElementById(user));
     if (index === -1) {
       state.displayingUserList.push({ user, name });
       document.getElementById(user).classList.add('user-selected');
@@ -105,8 +105,8 @@ const mutations = {
     state.timeRange = labels;
     console.log('createLabels end --------------');
   },
-  createCCTForm(state) {
-    console.log('createCCTForm start --------------');
+  createCCTFormTime(state) {
+    console.log('createCCTFormTime start --------------');
     const keys = Object.keys(state.studentList);
     if (keys) {
       keys.forEach((key) => {
@@ -122,7 +122,7 @@ const mutations = {
         });
       });
     });
-    console.log('createCCTForm end --------------');
+    console.log('createCCTFormTime end --------------');
   },
   drawChart(state) {
     console.log('drawChart start --------------');
@@ -247,8 +247,8 @@ const actions = {
   ChangeInterval({ commit }, interval) {
     commit('changeInterval', interval);
   },
-  CreateCCTForm({ commit }) {
-    commit('createCCTForm');
+  CreateCCTFormTime({ commit }) {
+    commit('createCCTFormTime');
   },
   DistributeCCTData({ commit }, concentrations) {
     commit('resetData');
@@ -258,7 +258,7 @@ const actions = {
     if (selectedType === '전체') {
       commit('drawChartAllClass');
     } else {
-      commit('calculateCCTData');
+      commit('calculateAverageCCTData');
       commit('drawChart');
     }
   },
@@ -336,6 +336,7 @@ function getTimeSpan(studentList) {
   return { startTime, endTime };
 }
 
+// 성능 개선 필요.
 function divideDataPerInterval(student) {
   student.cctTotal.forEach((cctTotal) => {
     const date = new Date(cctTotal.date);

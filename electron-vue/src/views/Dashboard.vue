@@ -176,7 +176,7 @@ export default {
       this.$refs[`interval_${interval}`].classList.add('interval-selected');
       this.ChangeInterval(interval);
       this.CreateLabels();
-      this.CreateCCTForm();
+      this.CreateCCTFormTime();
       this.DisplayData();
     },
     async setCCTData() {
@@ -207,7 +207,7 @@ export default {
         );
         this.DistributeCCTData(concentrations);
         this.CreateLabels();
-        this.CreateCCTForm();
+        this.CreateCCTFormTime();
 
         console.log(this.displayingUserList.length);
         if (!this.displayingUserList.length) {
@@ -229,7 +229,7 @@ export default {
       'DistributeCCTData',
       'DisplayData',
       'DrawChartAllClass',
-      'CreateCCTForm',
+      'CreateCCTFormTime',
       'SetStudentList',
       'ResetVariables',
     ]),
