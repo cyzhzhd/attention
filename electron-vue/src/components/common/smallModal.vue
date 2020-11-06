@@ -25,6 +25,15 @@ export default {};
 </script>
 
 <style scoped>
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css);
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-jp.css);
+@font-face {
+    font-family: 'GmarketSansBold';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
 .modal-mask {
   position: fixed;
   z-index: 9998;
@@ -46,11 +55,18 @@ export default {};
   width: 300px;
   margin: 0px auto;
   padding: 20px 30px;
-  background-color: #fff;
+  /* background-color: #fff; */
   border-radius: 2px;
+  border: 1px #9097FD solid;
+  background-color: #F6F7FB;
+
+
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
-  font-family: Helvetica, Arial, sans-serif;
+
+  font-family: 'GmarketSansBold';
+  font-size: 15px;
+  letter-spacing: -1px;
 }
 
 .modal-header h3 {

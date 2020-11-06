@@ -102,6 +102,7 @@ export default {
 </script>
 
 <style scoped>
+
 .container {
   display: grid;
   height: 100vh;

@@ -38,16 +38,17 @@
                   <div v-else>
                     <div class="received-msg">
                       <div class="received-msg-info">
-                        <img
-                          class="received-msg-img"
-                          src="https://ptetutorials.com/images/user-profile.png"
-                          alt="sunil"
-                        />
-                        <p class="sender">{{ message.name }}</p>
-                        <!-- <p class="received-msg-sentAt">{{ message.sentAt }}</p> -->
-                      </div>
-                      <div class="received-msg-text">
+                          <img
+                            class="received-msg-img"
+                            src="https://ptetutorials.com/images/user-profile.png"
+                            alt="sunil"
+                          />
+                          <p class="sender">{{ message.name }}</p>
+                          <!-- <p class="received-msg-sentAt">{{ message.sentAt }}</p> -->
+                        </div>
+                     <div class="received-msg-text">
                         <p>{{ message.message }}</p>
+
                       </div>
                     </div>
                   </div>
@@ -119,7 +120,10 @@ export default {
 
   mounted() {
     this.messages = [
-      { name: 'bot', message: `${this.$store.state.user.name}이 로그인했습니다.` },
+      {
+        name: 'bot',
+        message: `${this.$store.state.user.name}이 로그인했습니다.`,
+      },
     ];
     bus.$on('onMessage', (name, message) => {
       this.messages.push({ name, message });
@@ -157,11 +161,18 @@ img {
 .header {
   display: flex;
   cursor: move;
-  background-color: aquamarine;
+  color: #9097fd;
+  font-family: 'GmarketSansBold';
+  font-size: 20px;
+  letter-spacing: -1px;
+
+  background-color: #F6F7FB;
+  height: 50px;
   padding: 0px 30px;
 }
 .modal-title {
   flex: 1;
+  text-align: left;
 }
 
 .closeModalBtn {
@@ -170,7 +181,9 @@ img {
 
 .msg {
   overflow-y: auto;
-  height: 435px;
+  height: 380px;
+  background-color: #F6F7FB;
+
 }
 .msg-container {
   display: flex;
@@ -183,29 +196,43 @@ img {
 .bot-msg {
   padding-left: 5px;
   padding-right: 5px;
+  margin-right: 10px;
+  margin: 4px;
 }
 .sent-msg-text {
-  background-color: gold;
+  background-color: #eaebff;
   border-radius: 0.5rem;
   padding: 5px;
+  margin: 4px;
+  margin-right: 10px;
 }
+
+.received-msg {
+  display: flex;
+  align-content: left;
+}
+
 .received-msg-text {
   display: flex;
   justify-content: flex-start;
   flex: 0 1 40px;
-  background-color: aquamarine;
+  background-color: #ffffff;
   border-radius: 0.5rem;
   padding: 5px;
-}
-.sent-msg-info {
-  display: flex;
-  justify-content: flex-end;
+  margin: 4px;
 }
 .received-msg-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100px;
 }
+
+.sent-msg-info {
+  display: flex;
+  justify-content: flex-end;
+}
+
 
 .input-msg-write {
   display: flex;
@@ -213,16 +240,23 @@ img {
 }
 .write-msg {
   flex: 1;
+  margin: 10px;
 }
 .send-button {
-  background-color: yellow;
+  background-color: #9097fd;
+  color: #ffffff;
+  margin-right: 10px;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
 }
 
 .sender {
   font: 1.2rem bold;
+  font-size: 16px;
 }
 .bot-msg {
-  background-color: gray;
+  align-items: center;
   border-radius: 0.5rem;
 }
 </style>
