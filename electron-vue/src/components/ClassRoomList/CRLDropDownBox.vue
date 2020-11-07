@@ -1,29 +1,14 @@
 <template>
   <div class="contents-tool-box">
-    <!-- <drop-down-box v-bind:type="type.semester">
-      <div slot="header">학기</div>
-      <div slot="type">
-        <div
-          id="semester-dropdown"
-          class="dropdown-box-contents dropdown-box-contents-close"
-        >
-          <div class="dropdown-list-item">2020년도 2학기</div>
-          <div class="dropdown-list-item">2020년도 2학기</div>
-          <div class="dropdown-list-item">2020년도 2학기</div>
-          <div class="dropdown-list-item">2020년도 2학기</div>
-        </div>
-      </div>
-    </drop-down-box> -->
-
-    <drop-down-box
-      v-bind:type="type.createClassroom"
-      v-if="$store.state.user.isTeacher"
-    >
+    <drop-down-box v-bind:size="size" v-if="$store.state.user.isTeacher">
       <div slot="header">교실 생성하기</div>
       <div slot="type">
         <div
-          id="create-classroom-dropdown"
-          class="dropdown-box-contents dropdown-box-contents-close"
+          class="dropdown-box-contents"
+          :class="{
+            'dropdown-box-contents-close': !$store.state.dropDownStatus[size],
+            'dropdown-box-contents-open': $store.state.dropDownStatus[size],
+          }"
         >
           <div class="create-classroom-form">
             <div class="create-classroom-input-wrapper">
@@ -65,12 +50,15 @@
         </div>
       </div>
     </drop-down-box>
-    <drop-down-box v-bind:type="type.addClassroom" v-else>
+    <drop-down-box v-bind:size="size" v-else>
       <div slot="header">교실 추가하기</div>
       <div slot="type">
         <div
-          id="create-classroom-dropdown"
-          class="dropdown-box-contents dropdown-box-contents-close"
+          class="dropdown-box-contents"
+          :class="{
+            'dropdown-box-contents-close': !$store.state.dropDownStatus[size],
+            'dropdown-box-contents-open': $store.state.dropDownStatus[size],
+          }"
         >
           <div class="create-classroom-form">
             <div class="create-classroom-input-wrapper">
@@ -103,11 +91,7 @@ export default {
   },
   data() {
     return {
-      type: {
-        semester: 'semester',
-        createClassroom: 'createClassroom',
-        addClassroom: 'addClassroom',
-      },
+      size: 'medium',
       tags: '국어',
       roomName: '',
       classType: 'public',
@@ -127,7 +111,7 @@ export default {
         this.roomName = '';
         this.tags = '국어';
         this.classType = 'public';
-        bus.$emit('dropDownBox:onClickDropDown', 'createClassroom');
+        this.$store.dispatch('CHANGE_DROPDOWN_STATUS', this.size);
         bus.$emit('ClassRoomList:addClassRoom');
       } else {
         this.errorMessage = '교실 이름을 다시 확인해주세요.';
@@ -141,7 +125,7 @@ export default {
       const isSuccess = await this.$store.dispatch('ADD_CLASSROOM', options);
       if (isSuccess) {
         this.roomCode = '';
-        bus.$emit('dropDownBox:onClickDropDown', 'addClassroom');
+        this.$store.dispatch('CHANGE_DROPDOWN_STATUS', this.size);
         bus.$emit('ClassRoomList:addClassRoom');
       } else {
         this.errorMessage = '코드를 다시 확인해주세요.';

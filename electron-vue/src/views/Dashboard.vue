@@ -13,12 +13,17 @@
     <div class="contents-dashboard">
       <div class="dashboard-sidebar">
         <div class="dashboard-sidebar-title">Dashboard</div>
-        <drop-down-box v-bind:type="weekDropdown">
+        <drop-down-box v-bind:size="size">
           <div slot="header">{{ selectedClassName }}</div>
           <div slot="type">
             <div
-              id="week-dropdown"
-              class="dropdown-box-contents dropdown-box-contents-close"
+              class="dropdown-box-contents"
+              :class="{
+                'dropdown-box-contents-close': !$store.state.dropDownStatus[
+                  size
+                ],
+                'dropdown-box-contents-open': $store.state.dropDownStatus[size],
+              }"
             >
               <div
                 class="dropdown-list-item"
@@ -28,7 +33,7 @@
               </div>
               <div
                 class="dropdown-list-item"
-                v-for="classInfo in classList"
+                v-for="classInfo in $store.state.classList"
                 @click="setSelectedClassInfo(classInfo._id, classInfo.name)"
                 :key="classInfo._id"
                 :value="classInfo._id"
@@ -105,12 +110,10 @@
 <script>
 /* eslint no-underscore-dangle: 0 */
 /* eslint-disable no-restricted-syntax */
-
 import { mapGetters, mapActions } from 'vuex';
 import MainHeader from '../components/common/MainHeader.vue';
 import DropDownBox from '../components/common/DropDownBox.vue';
 import LineChart from '../components/Dashboard/LineChart.vue';
-import bus from '../../utils/bus';
 
 export default {
   name: 'Dashboard',
@@ -126,17 +129,16 @@ export default {
       'datacollection',
     ]),
   },
-  
+
   watch: {
     datacollection() {
-      console.log("datacollection in Dashboard.vue");
+      console.log('datacollection in Dashboard.vue');
     },
   },
   data() {
     return {
       classroomId: this.$route.params.classroomId,
-      classList: [],
-      weekDropdown: 'weekDropdown',
+      size: 'medium',
       selectedClassName: '전체',
       selectedClassId: this.$route.params.classId,
       displayingAllClass: true,
@@ -155,10 +157,10 @@ export default {
     setSelectedClassInfo(classId, className) {
       this.selectedClassName = className;
       this.selectedClassId = classId;
-      bus.$emit('dropDownBox:onClickDropDown', 'weekDropdown');
+      this.$store.dispatch('CHANGE_DROPDOWN_STATUS', this.size);
     },
 
-    setStudentList() {
+    callSetStudentList() {
       console.log('setStudentList start --------------');
       const options = {
         jwt: this.$store.state.jwt,
@@ -209,11 +211,10 @@ export default {
         );
         console.log(concentrations);
         const payload = {
-          classList: this.classList,
+          classList: this.$store.state.classList,
           CCTData: concentrations,
         };
         this.DrawChartAllClass(payload);
-
       } else {
         this.displayingAllClass = false;
         options = { url: 'session', params: { session: this.selectedClassId } };
@@ -229,7 +230,7 @@ export default {
         console.log(this.displayingUserList.length);
         if (!this.displayingUserList.length) {
           const keys = Object.keys(this.studentList);
-          if(keys) {
+          if (keys) {
             const { name, user } = this.studentList[keys[0]];
             this.ChangeDisplayingUserList({ name, user });
           }
@@ -252,25 +253,22 @@ export default {
       'ResetVariables',
     ]),
   },
-  created() {
-    this.setStudentList();
-  },
-  async mounted() {
-    const options = {
-      class: this.classroomId,
-    };
-    this.classList = await this.$store.dispatch('FETCH_CLASSLIST', options);
-    console.log('this', this);
+  async created() {
+    this.callSetStudentList();
+
     if (this.selectedClassId === 'all') {
       this.setSelectedClassInfo(this.selectedClassId, '전체');
     } else {
-      for (const classInfo of this.classList) {
+      for (const classInfo of this.$store.state.classList) {
         if (classInfo._id === this.selectedClassId) {
           this.setSelectedClassInfo(this.selectedClassId, classInfo.name);
           break;
         }
       }
     }
+    this.$store.dispatch('CHANGE_DROPDOWN_STATUS', this.size);
+  },
+  mounted() {
     this.setCCTData();
   },
 

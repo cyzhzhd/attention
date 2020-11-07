@@ -3,4 +3,8 @@ export default {
   jwt: '',
   errorMessage: '',
   user: '',
+  classList: [],
+  dropDownStatus: {
+    medium: false,
+  },
 };

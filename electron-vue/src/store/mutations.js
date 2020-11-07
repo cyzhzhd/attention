@@ -39,4 +39,10 @@ export default {
     });
     if (!hasFound) state.classroom.push(classInfo);
   },
+  SET_CLASSLIST(state, classList) {
+    state.classList = classList;
+  },
+  SET_DROPDOWN_STATUS(state, size) {
+    state.dropDownStatus[size] = !state.dropDownStatus[size];
+  },
 };

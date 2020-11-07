@@ -218,7 +218,7 @@ body {
 }
 
 .dashboard-graph {
-  flex: 1;
+  /* flex: 1; */
   background-color: #fff;
 }
 .time-interval {

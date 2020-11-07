@@ -1,3 +1,4 @@
+/* eslint no-param-reassign: "error" */
 import {
   fetchJWT,
   fetchUserInfo,
@@ -17,6 +18,14 @@ import {
 function setError(commit, error) {
   commit('SET_ERROR', error);
   console.error(error);
+}
+
+function getTime(day) {
+  const dates = day.split('-');
+  const date = `${dates[1]}/${dates[2].slice(0, 2)}`;
+  const times = dates[2].slice(3).split(':');
+  const time = `${times[0]}:${times[1]}`;
+  return { date, time };
 }
 
 export default {
@@ -92,9 +101,18 @@ export default {
       .then(({ data }) => data)
       .catch((error) => console.error(error));
   },
-  FETCH_CLASSLIST({ state }, options) {
+  FETCH_CLASSLIST({ state, commit }, options) {
     return fetchClassList(state.jwt, options)
-      .then(({ data }) => data)
+      .then(({ data }) => {
+        data.reverse().forEach((classInfo) => {
+          const { date, time } = getTime(classInfo.scheduledStartTime);
+          classInfo.time = `${date} \n ${time}`;
+        });
+        commit('SET_CLASSLIST', data);
+      })
       .catch((error) => console.error(error));
+  },
+  CHANGE_DROPDOWN_STATUS({ commit }, size) {
+    commit('SET_DROPDOWN_STATUS', size);
   },
 };

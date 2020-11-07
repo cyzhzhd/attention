@@ -7,11 +7,11 @@
             교실 목록
           </router-link>
           <router-link
-          class="router-item"
-          :to="{ name: 'Dashboard', params: { classroomId, classId: 'all' } }"
+            class="router-item"
+            :to="{ name: 'Dashboard', params: { classroomId, classId: 'all' } }"
           >
             대시 보드
-         </router-link>
+          </router-link>
         </div>
       </div>
     </main-header>
@@ -25,7 +25,7 @@
         <ul class="class-card-list">
           <li
             class="class-card"
-            v-for="classInfo in displayingClassList"
+            v-for="classInfo in $store.state.classList"
             :key="classInfo._id"
           >
             <div class="class-card-left">
@@ -64,7 +64,6 @@
 </template>
 
 <script>
-/* eslint no-param-reassign: "error" */
 import bus from '../../utils/bus';
 import MainHeader from '../components/common/MainHeader.vue';
 import CRDropDownBox from '../components/ClassRoom/CRDropDownBox.vue';
@@ -79,35 +78,15 @@ export default {
     return {
       classroomId: this.$route.params.classroomId,
       classList: [],
-      noClass: false,
-      displayingClassList: [],
     };
   },
   methods: {
-    async fetchClassList() {
+    async callFetchClassList() {
       const options = {
         class: this.classroomId,
       };
-      this.classList = await this.$store.dispatch('FETCH_CLASSLIST', options);
-      if (this.classList.length === 0) {
-        this.noClass = true;
-        return;
-      }
-      this.classList.reverse().forEach((classInfo) => {
-        const { date, time } = this.getTime(classInfo.scheduledStartTime);
-        classInfo.time = `${date} \n ${time}`;
-      });
-      this.displayingClassList = this.classList.slice(0, 4);
+      await this.$store.dispatch('FETCH_CLASSLIST', options);
     },
-
-    getTime(day) {
-      const dates = day.split('-');
-      const date = `${dates[1]}/${dates[2].slice(0, 2)}`;
-      const times = dates[2].slice(3).split(':');
-      const time = `${times[0]}:${times[1]}`;
-      return { date, time };
-    },
-
     enterClass(classId) {
       this.$router.push({
         name: 'Class',
@@ -127,10 +106,10 @@ export default {
       });
     },
   },
-  mounted() {
-    this.fetchClassList();
+  created() {
+    this.callFetchClassList();
     bus.$on('ClassRoom:addClass', () => {
-      this.fetchClassList();
+      this.callFetchClassList();
     });
   },
   beforeDestroy() {

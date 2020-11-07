@@ -1,29 +1,14 @@
 <template>
   <div class="contents-tool-box">
-    <!-- <drop-down-box v-bind:type="type.semester">
-      <div slot="header">학기</div>
-      <div slot="type">
-        <div
-          id="semester-dropdown"
-          class="dropdown-box-contents dropdown-box-contents-close"
-        >
-          <div class="dropdown-list-item">2020년도 2학기</div>
-          <div class="dropdown-list-item">2020년도 2학기</div>
-          <div class="dropdown-list-item">2020년도 2학기</div>
-          <div class="dropdown-list-item">2020년도 2학기</div>
-        </div>
-      </div>
-    </drop-down-box> -->
-
-    <drop-down-box
-      v-bind:type="type.createClass"
-      v-if="$store.state.user.isTeacher"
-    >
+    <drop-down-box v-bind:size="this.size" v-if="$store.state.user.isTeacher">
       <div slot="header">수업 생성하기</div>
       <div slot="type">
         <div
-          id="create-classroom-dropdown"
-          class="dropdown-box-contents dropdown-box-contents-close"
+          class="dropdown-box-contents"
+          :class="{
+            'dropdown-box-contents-close': !$store.state.dropDownStatus[size],
+            'dropdown-box-contents-open': $store.state.dropDownStatus[size],
+          }"
         >
           <div class="create-classroom-form">
             <div class="create-classroom-input-wrapper">
@@ -62,10 +47,7 @@ export default {
   },
   data() {
     return {
-      type: {
-        semester: 'semester',
-        createClass: 'createClass',
-      },
+      size: 'medium',
       sessionName: '',
       startTime: '',
       endTime: '',
@@ -83,7 +65,7 @@ export default {
       const isSuccess = await this.$store.dispatch('CREATE_CLASS', options);
       console.log(isSuccess);
       if (isSuccess) {
-        bus.$emit('dropDownBox:onClickDropDown', 'createClass');
+        this.$store.dispatch('CHANGE_DROPDOWN_STATUS', this.size);
         bus.$emit('ClassRoom:addClass');
         this.sessionName = '';
         this.startTime = '';
