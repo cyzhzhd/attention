@@ -1,6 +1,6 @@
 <template>
   <div class="contents-tool-box">
-    <drop-down-box v-bind:type="type.semester">
+    <!-- <drop-down-box v-bind:type="type.semester">
       <div slot="header">학기</div>
       <div slot="type">
         <div
@@ -13,7 +13,7 @@
           <div class="dropdown-list-item">2020년도 2학기</div>
         </div>
       </div>
-    </drop-down-box>
+    </drop-down-box> -->
 
     <drop-down-box
       v-bind:type="type.createClass"
@@ -106,7 +106,8 @@ export default {
   height: 50px;
   margin: 0 auto 30px;
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
+  justify-content: flex-end;
 }
 
 .dropdown-box {

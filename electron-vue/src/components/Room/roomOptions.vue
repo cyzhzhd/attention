@@ -230,7 +230,7 @@ export default {
 }
 .quit-class-button {
   /* width: 40px; */
-  height: 40px;
+  /* height: 40px; */
   background-color: #9097fd;
   border-radius: 20px;
   color: #fff;

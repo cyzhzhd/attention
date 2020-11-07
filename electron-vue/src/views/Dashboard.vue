@@ -1,6 +1,15 @@
 <template>
   <div class="wrapper">
-    <main-header></main-header>
+    <main-header>
+      <div slot="router">
+        <div class="router">
+          <router-link class="router-item" to="/ClassRoomList">
+            교실 목록
+          </router-link>
+          <a class="router-item" @click="$router.go(-1)">수업 목록</a>
+        </div>
+      </div>
+    </main-header>
     <div class="contents-dashboard">
       <div class="dashboard-sidebar">
         <div class="dashboard-sidebar-title">Dashboard</div>
@@ -117,6 +126,12 @@ export default {
       'datacollection',
     ]),
   },
+  
+  watch: {
+    datacollection() {
+      console.log("datacollection in Dashboard.vue");
+    },
+  },
   data() {
     return {
       classroomId: this.$route.params.classroomId,
@@ -192,11 +207,13 @@ export default {
           'FETCH_CONCENTRATION',
           options,
         );
+        console.log(concentrations);
         const payload = {
           classList: this.classList,
           CCTData: concentrations,
         };
         this.DrawChartAllClass(payload);
+
       } else {
         this.displayingAllClass = false;
         options = { url: 'session', params: { session: this.selectedClassId } };
@@ -212,9 +229,10 @@ export default {
         console.log(this.displayingUserList.length);
         if (!this.displayingUserList.length) {
           const keys = Object.keys(this.studentList);
-          const { name, user } = this.studentList[keys[0]];
-          this.ChangeDisplayingUserList({ name, user });
-          console.log(this.displayingUserList);
+          if(keys) {
+            const { name, user } = this.studentList[keys[0]];
+            this.ChangeDisplayingUserList({ name, user });
+          }
         }
         this.DisplayData();
       }
@@ -234,20 +252,22 @@ export default {
       'ResetVariables',
     ]),
   },
-  async mounted() {
+  created() {
     this.setStudentList();
-
+  },
+  async mounted() {
     const options = {
       class: this.classroomId,
     };
     this.classList = await this.$store.dispatch('FETCH_CLASSLIST', options);
-
+    console.log('this', this);
     if (this.selectedClassId === 'all') {
       this.setSelectedClassInfo(this.selectedClassId, '전체');
     } else {
       for (const classInfo of this.classList) {
         if (classInfo._id === this.selectedClassId) {
           this.setSelectedClassInfo(this.selectedClassId, classInfo.name);
+          break;
         }
       }
     }

@@ -46,6 +46,7 @@ body {
   padding-top: 80px;
   display: flex;
   overflow: hidden;
+  flex-direction: column;
 }
 
 .class-list {

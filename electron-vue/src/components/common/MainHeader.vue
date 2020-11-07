@@ -5,6 +5,7 @@
       src="../../assets/img/login-signup/logo.png"
       @click="tempHome()"
     />
+    <slot name="router"> </slot>
     <div class="current-user-wrapper">
       <img
         class="current-user"
@@ -57,5 +58,17 @@ export default {
 
 .dropdown-icon {
   width: 24px;
+}
+.router {
+  display: flex;
+  /* justify-content: space-between; */
+  /* width: 30vw; */
+}
+.router-item{
+  font-size: 18px;
+  font-weight: 900;
+  color: #9097fd;
+  margin-right: 1rem;
+  cursor: pointer;
 }
 </style>

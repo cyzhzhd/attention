@@ -1,38 +1,22 @@
 <template>
   <div class="wrapper">
-    <div slot="section">
-      <router-link class="side-navigation-item" to="/">홈</router-link>
-      <router-link class="side-navigation-item" to="/ClassRoomList"
-        >교실 목록</router-link
-      >
-      <router-link
-        class="side-navigation-item"
-        :to="{ name: 'Dashboard', params: { classroomId, classId: 'all' } }"
-      >
-        대시 보드
-      </router-link>
-    </div>
-    <router-link
-      v-if="$store.state.user.isTeacher"
-      :to="{
-        name: 'AddClass',
-        params: {
-          classroomId,
-        },
-      }"
-      action
-    >
-      <div class="create-class-item">
-        <div class="create-classroom-plus-icon">
-          <img src="../assets/img/common/plus.png" />
+    <main-header>
+      <div slot="router">
+        <div class="router">
+          <router-link class="router-item" to="/ClassRoomList">
+            교실 목록
+          </router-link>
+          <router-link
+          class="router-item"
+          :to="{ name: 'Dashboard', params: { classroomId, classId: 'all' } }"
+          >
+            대시 보드
+         </router-link>
         </div>
-        <div class="create-classroom-title">수업 만들기</div>
       </div>
-    </router-link>
-
-    <main-header></main-header>
-    <CRDropDownBox></CRDropDownBox>
+    </main-header>
     <div class="classroom-contents">
+      <CRDropDownBox></CRDropDownBox>
       <div class="class-list">
         <div class="time-line">
           <div class="time-line-header">TimeLine</div>
