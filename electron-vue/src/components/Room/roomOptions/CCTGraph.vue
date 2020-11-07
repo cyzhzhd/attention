@@ -70,11 +70,13 @@ img {
 }
 .header {
   cursor: move;
-  background-color: aquamarine;
+  background-color: #ffffff;
+  padding:10px;
 }
 .header {
   display: flex;
-  padding: 0px 30px;
+  height: 20px;
+  padding: 30px;
 }
 .modal-title {
   flex: 1;

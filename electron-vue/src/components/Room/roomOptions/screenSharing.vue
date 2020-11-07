@@ -78,7 +78,9 @@ export default {
 }
 
 .body {
-  border: 1px solid #9097fd;
+  background-color: #F6F7FB;
+  /* border: 1px solid #EAEBFF; */
+  border-radius: 20px;
   padding: 20px;
   height: 500px;
 }
@@ -86,7 +88,7 @@ export default {
   display: flex;
   cursor: move;
   color: #9097fd;
-  background-color: #F6F7FB;
+  background-color: #ffffff;
   height: 50px;
   padding: 0px 30px;
   font-family: 'GmarketSansBold';

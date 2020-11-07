@@ -52,7 +52,7 @@
               class="userlist-profile"
               :style="{
                 backgroundImage:
-                  'url(' + require('../../assets/img/room/profile.png') + ')',
+                  'url(' + require('../../assets/img/room/student-boy') + ')',
               }"
             ></figure>
             {{ userInfo.name }}

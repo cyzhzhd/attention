@@ -32,6 +32,11 @@ export default {};
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');
     font-weight: normal;
     font-style: normal;
+
+    font-family: 'GmarketSansLight';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansLight.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
 }
 
 .modal-mask {
@@ -56,15 +61,14 @@ export default {};
   margin: 0px auto;
   padding: 20px 30px;
   /* background-color: #fff; */
-  border-radius: 2px;
   border: 1px #9097FD solid;
-  background-color: #F6F7FB;
+  background-color: #FFFFFF;
 
 
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
 
-  font-family: 'GmarketSansBold';
+  font-family: 'GmarketSansLight';
   font-size: 15px;
   letter-spacing: -1px;
 }

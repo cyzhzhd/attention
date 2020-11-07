@@ -151,6 +151,6 @@ export default {
 }
 
 .error-message {
-  color: red;
+  color: #FD9790;
 }
 </style>

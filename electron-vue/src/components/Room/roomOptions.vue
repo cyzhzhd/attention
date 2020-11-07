@@ -196,6 +196,15 @@ export default {
 </script>
 
 <style scoped>
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css);
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-jp.css);
+@font-face {
+    font-family: 'GmarketSansBold';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
 .class-screen-toolbar {
   width: 20px;
   height: 500px;
@@ -212,6 +221,9 @@ export default {
   right: 0px;
   background-color: #fff;
   transition: transform 100ms ease-in;
+  font-family: 'GmarketSansBold';
+  font-weight: 100;
+
 }
 
 .class-screen-toolbar > * {

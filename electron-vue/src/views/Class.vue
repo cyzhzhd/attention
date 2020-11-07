@@ -109,6 +109,7 @@ export default {
   grid-template-columns: 100px 1fr;
   /* grid-template-rows: 1fr; */
   grid-template-areas: 'userlist webRTC';
+  background-color: #F6F7FB;
 }
 
 .goal p {
