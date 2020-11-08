@@ -63,11 +63,10 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .canvas {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, auto));
-
   gap: 5%;
   height: 560px;
   overflow-y: auto;
@@ -79,22 +78,34 @@ export default {
 }
 
 .body {
-  border: 1px solid gray;
-  padding: 3px;
+  border: 1px solid #9097fd;
+  padding: 20px;
+  height: 500px;
 }
 .header {
   display: flex;
+  cursor: move;
+  color: #9097fd;
+  background-color: #F6F7FB;
+  height: 50px;
   padding: 0px 30px;
+  font-family: 'GmarketSansBold';
+  font-size: 24px;
+  letter-spacing: -1px;
+  
 }
 .modal-title {
   flex: 1;
 }
 
 .share-button {
-  background: #12ac85;
+  background: #9097fd;
+  height: 30px;
+  width: 100px;
   padding: 5px;
   border-radius: 10px;
   font-size: 1rem;
   color: white;
+  /* margin: 20px; */
 }
 </style>

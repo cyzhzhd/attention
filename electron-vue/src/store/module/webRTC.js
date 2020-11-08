@@ -62,16 +62,21 @@ const mutations = {
     state.isTeacher = payload.isTeacher;
 
     // signal to server every 2 sec for keeping connection
-    if (state.isTeacher) {
-      interval = setInterval(
-        () => webRTC.sendSignalToServer('pingSession', {}),
-        2000,
-      );
-    }
+    interval = setInterval(
+      () => webRTC.sendSignalToServer('pingSession', {}),
+      2000,
+    );
+    // if (state.isTeacher) {
+    //   interval = setInterval(
+    //     () => webRTC.sendSignalToServer('pingSession', {}),
+    //     2000,
+    //   );
+    // }
     bus.$on('onDeliverDisconnection', () => {
-      if (state.isTeacher) {
-        clearInterval(interval);
-      }
+      clearInterval(interval);
+      // if (state.isTeacher) {
+      //   clearInterval(interval);
+      // }
       webRTC.leaveClass();
       alert('방과 연결이 끊겼습니다');
     });
@@ -122,11 +127,12 @@ const mutations = {
       state.CCTDataInterval = CCTDataInterval;
       CCT.addCCTDataOnTotalCCT(state.CCTData, state.CCTDataInterval);
     }
-    // 동시에 바꿀 때 수정
-    if (state.rotateStudentInterval !== rotateStudentInterval) {
+
+    if (
+      state.rotateStudentInterval !== rotateStudentInterval ||
+      state.numConnectedStudent !== numConnectedStudent
+    ) {
       state.rotateStudentInterval = rotateStudentInterval;
-      webRTC.rotateStudent(true);
-    } else if (state.numConnectedStudent !== numConnectedStudent) {
       state.numConnectedStudent = numConnectedStudent;
       webRTC.rotateStudent(true);
     }
@@ -160,7 +166,6 @@ const actions = {
     } else {
       state.localVideo.style.width = '100%';
     }
-    console.log('EnterRoom', state.localVideo.srcObject);
     analyzeLib.getVideoSrc(state.localVideo);
 
     webRTC.sendSignalToServer('joinSession', {});

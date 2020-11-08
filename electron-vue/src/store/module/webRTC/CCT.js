@@ -1,7 +1,7 @@
 /* eslint no-param-reassign: "error" */
-let currentTime = new Date(Date.now());
-let nextSortedTime = new Date(Date.now());
-let nextRearrangedTime = new Date(Date.now());
+let currentTime = new Date();
+let nextSortedTime = new Date();
+let nextRearrangedTime = new Date();
 const totalCCTContainer = {};
 
 function CCTSetter(data) {
@@ -13,27 +13,24 @@ function CCTSetter(data) {
 CCTSetter(totalCCTContainer);
 
 function setVal(target, content) {
+  currentTime = new Date();
   const { absence, focusPoint, sleep, turnHead } = content;
   target.CCT.absence.push(Number(absence * 100));
   target.CCT.focusPoint.push(Number(focusPoint));
   target.CCT.sleep.push(Number(sleep * 100));
   target.CCT.turnHead.push(Number(turnHead * 100));
-  currentTime = new Date(Date.now());
   target.CCT.time.push(currentTime.toString().split(' ')[4]);
   target.avr.num += 1;
   target.avr.ttl += Number(focusPoint);
 }
 
 function allocateCCTData(foundUser, content) {
-  if (!foundUser.CCTData) {
-    CCTSetter(foundUser);
-  }
   setVal(foundUser.CCTData, content);
   setVal(totalCCTContainer.CCTData, content);
 }
 
-function setTime(interval) {
-  const time = new Date(Date.now());
+function setNextExecuteTime(interval) {
+  const time = new Date();
   time.setSeconds(time.getSeconds() + interval);
   return time;
 }
@@ -56,7 +53,7 @@ function sortByCCT(userlist) {
 function sortUserListByCCT(userlist, interval, isImmediate = false) {
   if (timeCompare(currentTime, nextSortedTime) >= 0 || isImmediate) {
     sortByCCT(userlist);
-    nextSortedTime = setTime(interval);
+    nextSortedTime = setNextExecuteTime(interval);
   }
 }
 
@@ -76,15 +73,16 @@ function addCCTDataOnTotalCCT(CCTData, interval, isImmediate = false) {
     CCTData.CCT.turnHead.push(turnHeadTTL / num);
     CCTData.CCT.time.push(currentTime.toString().split(' ')[4]);
 
-    nextRearrangedTime = setTime(interval);
+    nextRearrangedTime = setNextExecuteTime(interval);
     CCTSetter(totalCCTContainer);
   }
 }
 
 export default {
+  CCTSetter,
   allocateCCTData,
   sortUserListByCCT,
   addCCTDataOnTotalCCT,
-  setTime,
+  setNextExecuteTime,
   timeCompare,
 };

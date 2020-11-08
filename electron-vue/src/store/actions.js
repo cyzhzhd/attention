@@ -1,3 +1,4 @@
+/* eslint no-param-reassign: "error" */
 import {
   fetchJWT,
   fetchUserInfo,
@@ -19,6 +20,14 @@ function setError(commit, error) {
   console.error(error);
 }
 
+function getTime(day) {
+  const dates = day.split('-');
+  const date = `${dates[1]}/${dates[2].slice(0, 2)}`;
+  const times = dates[2].slice(3).split(':');
+  const time = `${times[0]}:${times[1]}`;
+  return { date, time };
+}
+
 export default {
   FETCH_JWT({ commit }, options) {
     return fetchJWT(options)
@@ -35,7 +44,7 @@ export default {
         commit('SET_USER', data);
         return data;
       })
-      .catch(error => console.error(error));
+      .catch((error) => console.error(error));
   },
   SIGN_UP_USER({ commit }, options) {
     return signUpUser(options)
@@ -49,7 +58,7 @@ export default {
         commit('SET_CLASSROOM_LIST', data);
         return data;
       })
-      .catch(error => console.error(error));
+      .catch((error) => console.error(error));
   },
 
   CREATE_CLASSROOM({ commit, state }, options) {
@@ -75,26 +84,35 @@ export default {
   FETCH_CLASS_INFO({ state }, options) {
     return fetchClassInfo(state.jwt, options)
       .then(({ data }) => data)
-      .catch(error => console.error(error));
+      .catch((error) => console.error(error));
   },
-  CREATE_CLASS({ state }, options) {
+  CREATE_CLASS({ state, commit }, options) {
     return createClass(state.jwt, options)
-      .then(({ data }) => data)
-      .catch(error => console.error(error));
+      .then((data) => data)
+      .catch(({ response }) => setError(commit, response.data));
   },
   FETCH_CONCENTRATION({ state }, options) {
     return fetchConcentration(state.jwt, options.url, options.params)
       .then(({ data }) => data)
-      .catch(error => console.error(error));
+      .catch((error) => console.error(error));
   },
   FINISH_CLASS({ state }, options) {
     return finishClass(state.jwt, options)
       .then(({ data }) => data)
-      .catch(error => console.error(error));
+      .catch((error) => console.error(error));
   },
-  FETCH_CLASSLIST({ state }, options) {
+  FETCH_CLASSLIST({ state, commit }, options) {
     return fetchClassList(state.jwt, options)
-      .then(({ data }) => data)
-      .catch(error => console.error(error));
+      .then(({ data }) => {
+        data.reverse().forEach((classInfo) => {
+          const { date, time } = getTime(classInfo.scheduledStartTime);
+          classInfo.time = `${date} \n ${time}`;
+        });
+        commit('SET_CLASSLIST', data);
+      })
+      .catch((error) => console.error(error));
+  },
+  CHANGE_DROPDOWN_STATUS({ commit }, size) {
+    commit('SET_DROPDOWN_STATUS', size);
   },
 };

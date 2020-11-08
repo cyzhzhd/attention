@@ -75,7 +75,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .create-room-button {
   background-color: aquamarine;
   color: white;

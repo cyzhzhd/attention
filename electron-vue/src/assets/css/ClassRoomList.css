@@ -1,144 +1,109 @@
-.wrapper {
-  width: 1400px;
+html,
+body {
+  width: 100%;
   height: 100vh;
-  margin: 0 auto;
-  display: flex;
-  overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
-.main-panel {
-  min-width: 0;
-  flex: 1;
-  background-color: #e4f7f1;
+.wrapper {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-.main-panel-header {
+.classroom-list-contents {
   width: 100%;
-  height: 140px;
-  border-bottom: 5px solid #ffffff;
+  height: calc(100vh - 80px);
+  flex: 1;
+  background-color: #f6f7fb;
+  padding-top: 80px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.create-classroom-form {
+  width: 100%;
+  padding: 50px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.create-classroom-input-wrapper {
   display: flex;
   align-items: center;
-  padding: 0 62px;
 }
 
-.main-panel-header-title {
-  min-width: 0;
+.create-classroom-input-wrapper + .create-classroom-input-wrapper {
+  margin-top: 24px;
+}
+
+.create-classroom-input-label {
+  color: #333333;
+  font-weight: 300;
+  font-size: 13px;
+  min-width: 55px;
+  text-align: center;
+  margin-right: 16px;
+}
+
+.create-classroom-input {
   flex: 1;
-  font-family: Gmarket Sans;
-  font-weight: bold;
-  font-size: 36px;
-  text-align: start;
-
-  color: #00d39d;
+  border: 1px solid #9097fd;
+  height: 30px;
 }
 
-.main-panel-header-icon {
-  width: 80px;
+.create-classroom-button {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: #9097fd;
+  line-height: 120px;
+  text-align: center;
+  color: #fff;
+  font-weight: 600;
+  font-size: 18px;
 }
 
-.main-panel-header-icon > img {
-  width: 80px;
+.create-classroom-input-wrapper + .create-classroom-button {
+  margin-top: 100px;
 }
 
-.main-panel-contents {
-  overflow-y: scroll;
-  overflow-x: hidden;
-  height: calc(100% - 140px);
+.create-classroom-input:focus {
+  outline: none;
 }
 
-.main-panel-classroom-list {
-  width: 100%;
+.contents-grid-wrapper {
+  flex: 1;
   display: grid;
-  grid-template-columns: 400px 400px;
+  /* overflow-y: scroll; */
+  grid-template-columns: repeat(3, 300px);
+  grid-auto-rows: max-content;
+
+  gap: 40px;
   grid-auto-flow: row;
   justify-content: center;
-  grid-gap: 32px;
-  padding: 42px 0;
-}
-
-.create-classroom-card {
-  width: 100%;
-  height: 300px;
-  border-radius: 20px;
-  overflow: hidden;
-  border: 5px solid #00d39d;
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  transition: transform 300ms ease-in;
-}
-
-.create-classroom-card:hover {
-  transform: translateY(-10px);
-}
-
-.create-classroom-plus-icon {
-  width: 50px;
-  height: 50px;
-  margin-bottom: 32px;
-}
-
-.create-classroom-plus-icon > img {
-  width: 50px;
-  height: 50px;
-}
-
-.create-classroom-title {
-  font-family: Gmarket Sans;
-  font-weight: bold;
-  font-size: 36px;
-  color: #666666;
 }
 
 .classroom-card {
-  width: 100%;
-  height: 300px;
-  border-radius: 20px;
-  overflow: hidden;
-  position: relative;
-  transition: transform 300ms ease-in;
+  width: 300px;
 }
 
-.classroom-card:hover {
-  transform: translateY(-10px);
-}
-
-.classroom-card-background {
-  position: absolute;
-  top: 0;
-  left: 0;
+.classroom-thumbnail {
   width: 100%;
-  /* height: 300px; */
-  height: 100%;
-  opacity: 0.6;
-  background-repeat: no-repeat;
-  background-position: center center;
   z-index: -1;
-}
-
-.classroom-card-header {
-  /* position: absolute; */
-  width: 100%;
-  display: flex;
-  align-items: center;
-  padding: 32px;
-}
-
-.classroom-card-title {
-  color: #ffffff;
-  font-size: 36px;
-  font-weight: 700;
-  flex: 1;
-  z-index: 1;
-  text-align: start;
+  opacity: 0.8;
 }
 
 .classroom-card-more-button {
+  position: relative;
   width: 30px;
   z-index: 1;
+  top: -220px;
+  left: 260px;
 }
 
 .classroom-card-more-button:hover {
@@ -148,4 +113,37 @@
 
 .classroom-card-more-button > img {
   width: 6px;
+}
+
+.classroom-info {
+  width: 100%;
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.classroom-title {
+  color: #9097fd;
+  font-weight: 600;
+  font-size: 18px;
+  margin-right: 8px;
+}
+.classroom-member-count {
+  color: #c4c7ce;
+  font-weight: 500;
+  font-size: 14px;
+  flex: 1;
+}
+
+.classroom-teacher-thumbnail {
+  width: 30px;
+  height: 30px;
+  background-color: #c4c4c4;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+.classroom-teacher-name {
+  color: #9097fd;
+  font-weight: 400;
+  font-size: 14px;
 }

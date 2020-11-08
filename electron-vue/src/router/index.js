@@ -1,7 +1,9 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Login from '../views/Login.vue';
+import SignIn from '../views/SignIn.vue';
 import ClassRoomList from '../views/ClassRoomList.vue';
+import ClassRoomListStudent from '../views/ClassRoomListStudent.vue';
 import ClassRoom from '../views/ClassRoom.vue';
 import Class from '../views/Class.vue';
 import AddClassRoom from '../views/AddClassRoom.vue';
@@ -18,9 +20,19 @@ const routes = [
     component: Login,
   },
   {
+    path: '/signin',
+    name: 'SignIn',
+    component: SignIn,
+  },
+  {
     path: '/classroomList',
     name: 'ClassRoomList',
     component: ClassRoomList,
+  },
+  {
+    path: '/classroomListStudent',
+    name: 'ClassRoomListStudent',
+    component: ClassRoomListStudent,
   },
   {
     path: '/add-classroom',

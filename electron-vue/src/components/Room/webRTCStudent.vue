@@ -4,8 +4,8 @@
       <video ref="teacherVideo"></video>
     </div>
     <div ref="videos" class="videos">
-      <div>
-        <!-- <canvas class="canvas" id="canvas"></canvas> -->
+      <div class="localVideo-div">
+        <canvas id="fcanvas" width="240" height="180"></canvas>
         <video
           ref="localVideo"
           class="localVideo"
@@ -13,7 +13,7 @@
           muted
           playsinline
         ></video>
-        <p>Me</p>
+        <p>{{ $store.state.user.name }}</p>
       </div>
     </div>
   </div>
@@ -42,39 +42,45 @@ export default {
 
 <style scoped>
 .webRTC {
-  height: 93vh;
+  height: 100vh;
   display: grid;
-  /* grid-template-rows: 70% 30%; */
-  /* grid-template-areas: 'teacher', 'videos'; */
   grid-template-columns: 80% 20%;
   grid-template-areas: 'teacher videos';
 }
+/* .webRTC {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 75% 25%;
+  grid-template-areas: 'teacher' 'videos';
+} */
 .teacher {
   grid-area: 'teacher';
   align-self: center;
 }
 .teacher video {
   width: 100%;
-  max-height: 67vh;
+  max-height: 76vh;
+  object-fit: cover;
 }
-
 .videos {
-  /* position: relative;
-  z-index: 2; */
   grid-area: 'videos';
   display: flex;
   flex-direction: column;
-  /* align-items: center; */
   justify-content: center;
-  /* grid-template-columns: 1fr; */
   margin-top: 15px;
 }
-.videos video {
-  width: 100%;
+.videos #fcanvas {
+  position: absolute;
+  z-index: 2;
   max-height: 21vh;
-  /* padding: 0 5px; */
 }
 .videos div p {
-  color: black;
+  position: absolute;
+  color: white;
+  background-color: gray;
+}
+
+.localVideo-div {
+  display: flex;
 }
 </style>

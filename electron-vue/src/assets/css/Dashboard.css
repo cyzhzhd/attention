@@ -1,23 +1,240 @@
-.wrapper {
-  width: 1400px;
+html,
+body {
+  width: 100%;
   height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+.wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #f6f7fb;
+}
+.header {
+  width: 100%;
+  height: 140px;
+  padding: 0 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+.current-user-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.current-user-wrapper > * + * {
+  margin-left: 16px;
+}
+
+.current-user {
+  width: 50px;
+  height: 50px;
+}
+
+.logo {
+  width: 250px;
+}
+.contents-dashboard {
+  height: 100%;
   margin: 0 auto;
+  padding: 80px 0;
   display: flex;
+  box-sizing: border-box;
+}
+
+/* .dropdown-box {
+  width: 120px;
+  height: 40px;
+  border: 1px solid #9097fd;
+  background-color: #fff;
+  padding: 0 16px;
+  cursor: pointer;
+  position: relative;
+} */
+
+/* .dropdown-box + .dropdown-box {
+  margin-top: 20px;
+} */
+
+.dropdown-icon {
+  width: 24px;
+}
+
+.dropdown-box-label {
+  width: 100%;
+  height: 100%;
+  color: #9097fd;
+  font-weight: 400;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dropdown-box-contents {
+  position: absolute;
+  padding: 0 16px;
+  left: -1;
+  right: -1;
+  top: 39px;
   overflow: hidden;
-  /* background-color: black; */
+  transition: height 300ms ease-in;
+  background-color: #fff;
+  z-index: 1000;
+  border-right: 1px solid #9097fd;
+  border-left: 1px solid #9097fd;
+  border-bottom: 1px solid #9097fd;
 }
 
-.CCTButtons {
+.dropdown-box-contents-close {
+  height: 0;
+  visibility: hidden;
+}
+
+.dropdown-box-contents-open {
+  height: auto;
+  visibility: visible;
+}
+
+.dropdown-list-item {
+  width: 100%;
+  height: 52px;
+  color: #9097fd;
+  font-weight: 400;
+  font-size: 18px;
   display: flex;
-  flex-direction: row;
-  justify-content: center;
+  align-items: center;
 }
 
-.CCTButtons div {
-  background: #00d39d;
-  color: white;
-  margin: 0 10px;
+.dashboard-sidebar {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  margin-right: 120px;
 }
-.CCTButtons div:focus {
-  background: red;
+
+.dashboard-sidebar-title {
+  color: #9097fd;
+  font-weight: 900;
+  font-size: 36px;
+  margin-bottom: 60px;
+}
+
+.search-button-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  margin-top: 30px;
+}
+.search-button {
+  width: 120px;
+  height: 120px;
+  background-color: #9097fd;
+  line-height: 120px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 24px;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+}
+
+.dashboard-contents {
+  width: 1000px;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-list-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  display: flex;
+  margin-bottom: 30px;
+}
+
+.user-item {
+  min-width: 70px;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-item + .user-item {
+  margin-left: 30px;
+}
+
+.user-profile {
+  width: 70px;
+  height: 70px;
+  cursor: pointer;
+}
+.user-selected {
+  width: 90px;
+  height: 90px;
+  background-color: blue;
+}
+
+.username {
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: 300;
+  text-align: center;
+}
+
+.dashboard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 40vh;
+}
+
+.dashboard-filter-list {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-around;
+  margin-bottom: 30px;
+}
+
+.dashboard-filter-list div {
+  cursor: pointer;
+  flex: 1 0;
+  font-weight: 900;
+  color: #9097fd;
+  font-size: 24px;
+  border: 0.5px solid gray;
+}
+.dataType-selected {
+  background-color: blue;
+}
+
+.dashboard-graph {
+  /* flex: 1; */
+  background-color: #fff;
+}
+.time-interval {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: flex-end;
+}
+.time-interval div {
+  cursor: pointer;
+  font-weight: 900;
+  width: 5rem;
+  color: #9097fd;
+  font-size: 24px;
+  border: 0.5px solid gray;
+}
+.interval-selected {
+  background-color: blue;
 }

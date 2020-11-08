@@ -1,52 +1,55 @@
 <template>
-  <div class="options-vue">
-    <div class="option-bar">
-      <div class="options">
-        <div
-          class="option"
-          @click.prevent="controlModal('showingScreenSharingModal')"
-        >
-          화면공유
+  <div>
+    <div class="class-screen-toolbar">
+      <div
+        class="class-screen-toolbar-item"
+        @click.prevent="controlModal('showingScreenSharingModal')"
+      >
+        화면공유
+      </div>
+      <div class="class-screen-toolbar-item" ref="temp">임시버튼</div>
+      <div
+        class="class-screen-toolbar-item"
+        @click.prevent="controlModal('showingChatModal')"
+      >
+        채팅
+      </div>
+      <div
+        class="class-screen-toolbar-item"
+        @click.prevent="controlModal('showingInviteModal')"
+      >
+        초대
+      </div>
+      <div
+        class="class-screen-toolbar-item"
+        @click.prevent="controlModal('showingCCTModal')"
+      >
+        그래프
+      </div>
+      <div
+        class="class-screen-toolbar-item"
+        @click.prevent="controlModal('showingSettingModal')"
+      >
+        설정
+      </div>
+      <div class="class-screen-toolbar-item class-screen-toolbar-icon-wrapper">
+        <div @click.prevent="muteVideo">
+          <img src="../../assets/img/room/camera-on.svg" v-if="!isVideoMuted" />
+          <img src="../../assets/img/room/camera-off.svg" v-if="isVideoMuted" />
         </div>
-        <div class="option" ref="temp">임시버튼</div>
-        <div class="option" @click.prevent="controlModal('showingChatModal')">
-          채팅
-        </div>
-        <div class="option" @click.prevent="controlModal('showingInviteModal')">
-          초대
-        </div>
-        <div class="option" @click.prevent="controlModal('showingCCTModal')">
-          그래프
-        </div>
-        <div
-          class="option"
-          @click.prevent="controlModal('showingSettingModal')"
-        >
-          설정
-        </div>
-        <div class="camdio">
-          <div @click.prevent="muteVideo">
-            <img
-              src="../../assets/img/room/camera-on.svg"
-              v-if="!isVideoMuted"
-            />
-            <img
-              src="../../assets/img/room/camera-off.svg"
-              v-if="isVideoMuted"
-            />
-          </div>
-          <div @click.prevent="muteAudio">
-            <img src="../../assets/img/room/mic-on.svg" v-if="!isAudioMuted" />
-            <img src="../../assets/img/room/mic-off.svg" v-if="isAudioMuted" />
-          </div>
+        <div @click.prevent="muteAudio">
+          <img src="../../assets/img/room/mic-on.svg" v-if="!isAudioMuted" />
+          <img src="../../assets/img/room/mic-off.svg" v-if="isAudioMuted" />
         </div>
       </div>
-      <div class="back">
-        <div @click.prevent>
-          <a @click="leaveRoom">수업종료</a>
-        </div>
+      <div class="quit-class-button" v-if="$store.state.user.isTeacher">
+        <div @click.prevent="$refs.menu.open($event)" @click.stop>종료</div>
+      </div>
+      <div class="quit-class-button" v-else>
+        <a @click="leaveClass">종료</a>
       </div>
     </div>
+
     <div class="modal-wrapper" v-on:click="controlModal('showingInviteModal')">
       <smallModal
         v-if="modalList.showingInviteModal"
@@ -79,11 +82,23 @@
       v-bind:showingModal="modalList.showingScreenSharingModal"
       v-on:closeModal="controlModal"
     ></screen-sharing>
+    <vue-context ref="menu">
+      <template>
+        <li>
+          <a @click.prevent="leaveClass(true)">수업 종료</a>
+        </li>
+        <li>
+          <a @click.prevent="leaveClass()">수업 나가기</a>
+        </li>
+      </template>
+    </vue-context>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
+import VueContext from 'vue-context';
+import 'vue-context/src/sass/vue-context.scss';
 import smallModal from '../common/smallModal.vue';
 import settings from './roomOptions/mainSettings.vue';
 import chat from './roomOptions/chat.vue';
@@ -99,6 +114,7 @@ export default {
     chat,
     screenSharing,
     CCTGraph,
+    VueContext,
   },
   data() {
     return {
@@ -150,18 +166,17 @@ export default {
       this.MuteAudio();
     },
 
-    async leaveRoom() {
-      // if(this.$store.state.user.isTeacher) {
-      //   const options = {
-      //     class: this.classroomId,
-      //     session: this.$route.params.classId,
-      //   }
-      //   console.log('finish class');
-      //   this.FinishClass();
-      //   await this.$store.dispatch('FINISH_CLASS', options);
-      // }
-
+    async leaveClass(isFinishing = false) {
       this.LeaveRoom();
+      if (isFinishing) {
+        const options = {
+          class: this.classroomId,
+          session: this.$route.params.classId,
+        };
+        console.log('finish class');
+        this.FinishClass();
+        await this.$store.dispatch('FINISH_CLASS', options);
+      }
       this.$router.go(-1);
     },
 
@@ -181,54 +196,77 @@ export default {
 </script>
 
 <style scoped>
-.options-vue {
-  background: #e4f7f1;
-}
-.option-bar {
+.class-screen-toolbar {
+  width: 20px;
+  height: 500px;
+  position: absolute;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  min-height: 100%;
+  border: 1px solid #9097fd;
+  border-top-left-radius: 40px;
+  border-bottom-left-radius: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 0px;
+  background-color: #fff;
+  transition: transform 100ms ease-in;
 }
-.options {
+
+.class-screen-toolbar > * {
+  visibility: hidden;
+}
+
+.class-screen-toolbar:hover {
+  transform: translate(0px, -50%);
+  width: 120px;
+}
+.class-screen-toolbar:hover > * {
+  visibility: visible;
+}
+.class-screen-toolbar:hover > .quit-class-button {
+  width: 100px;
+}
+.quit-class-button {
+  /* width: 40px; */
+  /* height: 40px; */
+  background-color: #9097fd;
+  border-radius: 20px;
+  color: #fff;
+  font-size: 18px;
+  line-height: 40px;
+  text-align: center;
+  margin-top: 24px;
+  cursor: pointer;
+  text-overflow: ellipsis;
+}
+.class-screen-toolbar-item {
+  font-weight: bold;
+  font-size: 18px;
+  color: #9097fd;
+  cursor: pointer;
+  text-overflow: ellipsis;
+}
+
+.class-screen-toolbar-item + .class-screen-toolbar-item {
+  margin-top: 24px;
+}
+
+.class-screen-toolbar-icon-wrapper {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  margin-top: 20px;
-  font-size: 1.1rem;
-  width: 80%;
-  height: 15rem;
 }
-.option {
-  background: #12ac85;
-  border-radius: 49px;
-  height: 30px;
-  color: white;
-  padding-top: 6px;
-  cursor: pointer;
-}
-.options div a {
-  text-decoration: none;
-  color: white;
-}
-.camdio {
-  display: flex;
-}
-.camdio div img {
+.class-screen-toolbar-icon-wrapper div img {
   height: 40px;
 }
+.class-screen-toolbar-icon {
+  width: 50px;
+  height: 50px;
+  background-color: #e4e4e4;
+}
 
-.back {
-  font-size: 1.1rem;
-  background: #00d39d;
-  color: white;
-  border-radius: 49px;
-
-  padding-top: 6px;
-  margin-bottom: 2rem;
-  height: 30px;
-  width: 80%;
-  cursor: pointer;
+.class-screen-toolbar-icon + .class-screen-toolbar-icon {
+  margin-top: 16px;
 }
 </style>

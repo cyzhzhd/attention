@@ -74,4 +74,4 @@ export function convertLandmark(landmarks, box) {
   return landmarkObj;
 }
 
-export const landmarkModel = new LandmarkModel(640, 480);
+export const landmarkModel = new LandmarkModel(240, 180);

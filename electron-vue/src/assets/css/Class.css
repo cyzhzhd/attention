@@ -1,0 +1,143 @@
+html,
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
+}
+.class-screen-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.joined-user-list {
+  padding: 20px 0;
+  width: 100px;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.joined-user-item + .joined-user-item {
+  margin-top: 16px;
+}
+
+.joined-user-thumbnail {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 1px solid #9097fd;
+}
+
+.joined-username {
+  margin-top: 8px;
+  font-size: 16px;
+  text-align: center;
+}
+
+.class-screen-toolbar {
+  width: 150px;
+  height: 500px;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #9097fd;
+  border-top-left-radius: 40px;
+  border-bottom-left-radius: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  right: -120px;
+  background-color: #fff;
+  transition: transform 100ms ease-in;
+
+  font-family: 'GmarketSansBold';
+  font-size: 18px;
+  letter-spacing: -1px;
+}
+
+.class-screen-toolbar > * {
+  visibility: hidden;
+}
+
+.class-screen-toolbar:hover {
+  transform: translate(-120px, -50%);
+}
+.class-screen-toolbar:hover > * {
+  visibility: visible;
+}
+
+.quit-class-button {
+  width: 100px;
+  height: 40px;
+  background-color: #9097fd;
+  border-radius: 20px;
+  color: #fff;
+  font-size: 18px;
+  line-height: 40px;
+  text-align: center;
+  margin-top: 24px;
+}
+.class-screen-toolbar-item {
+  font-weight: bold;
+  font-size: 18px;
+  color: #9097fd;
+}
+
+.class-screen-toolbar-item + .class-screen-toolbar-item {
+  margin-top: 24px;
+}
+
+.class-screen-toolbar-icon-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.class-screen-toolbar-icon {
+  width: 50px;
+  height: 50px;
+  background-color: #e4e4e4;
+}
+
+.class-screen-toolbar-icon + .class-screen-toolbar-icon {
+  margin-top: 16px;
+}
+
+.class-screen {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  padding-right: 20px;
+}
+
+.class-screen-teacher-screen {
+  flex: 1;
+  background-color: #e4e4e4;
+}
+
+.class-screen-need-attention-user-list {
+  width: 100%;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: auto;
+}
+
+.class-screen-need-attention-user {
+  width: 300px;
+  height: 200px;
+  background-color: #e4e4e4;
+}
+
+.class-screen-need-attention-user + .class-screen-need-attention-user {
+  margin-left: 16px;
+}
