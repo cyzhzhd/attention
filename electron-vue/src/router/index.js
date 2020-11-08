@@ -3,11 +3,8 @@ import VueRouter from 'vue-router';
 import Login from '../views/Login.vue';
 import SignIn from '../views/SignIn.vue';
 import ClassRoomList from '../views/ClassRoomList.vue';
-import ClassRoomListStudent from '../views/ClassRoomListStudent.vue';
 import ClassRoom from '../views/ClassRoom.vue';
 import Class from '../views/Class.vue';
-import AddClassRoom from '../views/AddClassRoom.vue';
-import AddClass from '../views/AddClass.vue';
 import ClassRoomSettings from '../views/ClassRoomSettings.vue';
 import Dashboard from '../views/Dashboard.vue';
 
@@ -30,24 +27,9 @@ const routes = [
     component: ClassRoomList,
   },
   {
-    path: '/classroomListStudent',
-    name: 'ClassRoomListStudent',
-    component: ClassRoomListStudent,
-  },
-  {
-    path: '/add-classroom',
-    name: 'AddClassRoom',
-    component: AddClassRoom,
-  },
-  {
     path: '/classroom/:classroomId',
     name: 'ClassRoom',
     component: ClassRoom,
-  },
-  {
-    path: '/add-class/:classroomId',
-    name: 'AddClass',
-    component: AddClass,
   },
   {
     path: '/classroom-settings/:classroomId/:classroomName',
