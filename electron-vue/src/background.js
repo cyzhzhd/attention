@@ -1,6 +1,7 @@
 import { app, protocol, BrowserWindow, ipcMain } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
+import path from 'path';
 // const isDevelopment = process.env.NODE_ENV !== 'production';
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -12,12 +13,16 @@ let win;
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } },
 ]);
-
+console.log(
+  "path.join(__dirname, 'assets/icons/png/64x64.png')",
+  path.join(__dirname, '../src/assets/icons/png/64x64.png'),
+);
 async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
     width: 800,
     height: 600,
+    icon: path.join(__dirname, '../src/assets/icons/png/64x64.png'),
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
@@ -75,7 +80,7 @@ app.on('ready', async () => {
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
   if (process.platform === 'win32') {
-    process.on('message', data => {
+    process.on('message', (data) => {
       if (data === 'graceful-exit') {
         app.quit();
       }

@@ -17,7 +17,9 @@ let screenSharingTrack;
 let localStream;
 let isVideoMuted = true;
 let isAudioMuted = true;
-let teacher;
+let teacher = null;
+let isAskedToConnectTeacher = false;
+console.log(isAskedToConnectTeacher);
 
 const rtcIceServerConfiguration = {
   iceServers: [
@@ -80,6 +82,11 @@ function removeLeavingUser(userlist) {
   for (let i = 0; i < state.connectedUsers.length; i += 1) {
     if (!findUser(state.connectedUsers[i].user, userlist)) {
       console.log('leaving user', state.connectedUsers[i].name);
+      if (state.connectedUsers[i].isTeacher) {
+        console.log('teacher is leaving', teacher);
+        teacher = null;
+        isAskedToConnectTeacher = false;
+      }
       disconnectWithTheUser(state.connectedUsers[i]);
       state.connectedUsers.splice(i, 1);
       i -= 1;
@@ -101,9 +108,9 @@ function addJoiningUser(userlist) {
     }
     if (!state.isTeacher && !teacher && joiningUser.isTeacher) {
       // connect
-      // setRTCPeerConnection(joiningUser);
-      // sendOffer(joiningUser);
-      // addTrackOnPC(joiningUser);
+      setRTCPeerConnection(joiningUser);
+      sendOffer(joiningUser);
+      addTrackOnPC(joiningUser);
       teacher = joiningUser;
       console.log(teacher);
     }
@@ -116,40 +123,24 @@ function updateUserlist(userlist) {
 }
 async function sendOffer(user) {
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
-  // user.rtc.addEventListener('negotiationneeded', async () => {
-  //   try {
-  //     console.log('offering sdp');
-  //     const offer = await user.rtc.createOffer();
-  //     user.rtc.setLocalDescription(offer);
-  //     sendSignalToServer('sendSignal', {
-  //       sendTo: user.socket,
-  //       content: {
-  //         type: 'offer',
-  //         sdp: offer,
-  //       },
-  //     });
+  user.rtc.addEventListener('negotiationneeded', async () => {
+    try {
+      console.log('offering sdp');
+      const offer = await user.rtc.createOffer();
+      user.rtc.setLocalDescription(offer);
+      sendSignalToServer('sendSignal', {
+        sendTo: user.socket,
+        content: {
+          type: 'offer',
+          sdp: offer,
+        },
+      });
 
-  //     console.log('offer created for a user: ', user);
-  //   } catch (e) {
-  //     console.error('Failed to create pc session description', e);
-  //   }
-  // });
-  try {
-    console.log('offering sdp');
-    const offer = await user.rtc.createOffer();
-    user.rtc.setLocalDescription(offer);
-    sendSignalToServer('sendSignal', {
-      sendTo: user.socket,
-      content: {
-        type: 'offer',
-        sdp: offer,
-      },
-    });
-
-    console.log('offer created for a user: ', user);
-  } catch (e) {
-    console.error('Failed to create pc session description', e);
-  }
+      console.log('offer created for a user: ', user);
+    } catch (e) {
+      console.error('Failed to create pc session description', e);
+    }
+  });
 }
 
 function setVideoHeight(divs, height, objectFit = 'cover') {
@@ -193,6 +184,14 @@ function reLayoutVideoIfNeeded() {
   setVideoHeight(divs, height);
   state.videos.style.gridTemplateColumns = columnLayout;
 }
+function setOnTrackEventTeacher(user) {
+  user.rtc.addEventListener('track', (event) => {
+    if (!event) return;
+    if (event.track.kind === 'audio') return;
+    console.log('선생님) 비디오가 추가될 때, evnet = ', event);
+    [user.recievingStream] = event.streams;
+  });
+}
 
 function setOnTrackEvent(user) {
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/track_event
@@ -202,7 +201,6 @@ function setOnTrackEvent(user) {
     console.log('비디오가 추가될 때, evnet = ', event);
 
     const stream = event.streams[0];
-    // user.yourStreams = stream;
     let video;
     if (user.isTeacher) {
       video = state.teacherVideo;
@@ -211,11 +209,7 @@ function setOnTrackEvent(user) {
       video = addVideoElement(user);
     }
 
-    video.style.objectFit = 'cover';
-    video.srcObject = stream;
-    video.autoplay = true;
-    video.playsinline = true;
-    video.userId = user.user;
+    videoSetting(video, user, stream);
   });
 }
 
@@ -240,6 +234,13 @@ function addVideoElement(user) {
 
   reLayoutVideoIfNeeded();
   return video;
+}
+function videoSetting(video, user, stream) {
+  video.style.objectFit = 'cover';
+  video.srcObject = stream;
+  video.autoplay = true;
+  video.playsinline = true;
+  video.userId = user.user;
 }
 
 // Roughly, disconnected means that the connection was interrupted but may come back without further action. The failed state is a little more permanent, you need to do an ICE restart to get out of it.
@@ -276,9 +277,9 @@ function setOnIceCandidate(user) {
 function addTrackOnPC(user) {
   if (!localStream) return;
   console.log('addTrack event on ', user);
-  user.myTrack = [];
+  user.sendingTrack = [];
   localStream.getTracks().forEach((track) => {
-    user.myTrack.push(user.rtc.addTrack(track, localStream));
+    user.sendingTrack.push(user.rtc.addTrack(track, localStream));
   });
   if (isScreenSharing) {
     replaceTrack(user, screenSharingTrack);
@@ -289,12 +290,20 @@ function setRTCPeerConnection(user) {
   user.rtc = new RTCPeerConnection(rtcIceServerConfiguration);
   setOnIceCandidate(user);
   setOnIceConnectionStateChange(user);
-  setOnTrackEvent(user);
+  if (state.isTeacher) {
+    setOnTrackEventTeacher(user);
+  } else {
+    setOnTrackEvent(user);
+  }
 }
 
 async function makeAnswer(sentFrom) {
   try {
     console.log('make answer to: ', sentFrom);
+    if (sentFrom.isTeacher) {
+      replaceTrack(teacher, null);
+    }
+
     const sessionDescription = await sentFrom.rtc.createAnswer();
     sentFrom.rtc.setLocalDescription(sessionDescription);
     console.log('makeAnswer ', sessionDescription);
@@ -311,7 +320,7 @@ async function makeAnswer(sentFrom) {
 }
 
 function replaceTrack(user, track) {
-  user.myTrack
+  user.sendingTrack
     .filter((tracks) => tracks.track.kind === 'video')
     .forEach((tracks) => tracks.replaceTrack(track));
 }
@@ -326,6 +335,22 @@ function shareScreen(track) {
 
   reLayoutVideoIfNeeded();
   bus.$emit('rtcPart:start-sharing-screen');
+}
+
+function connectWithTheStudent(targetUser) {
+  sendSignalToServer('sendSignal', {
+    sendTo: targetUser.socket,
+    content: { type: 'connectWithTeacher' },
+  });
+  const video = addVideoElement(targetUser);
+  videoSetting(video, targetUser, targetUser.recievingStream);
+}
+function disconnectWithTheStudent(targetUser) {
+  removeVideo(targetUser.user);
+  sendSignalToServer('sendSignal', {
+    sendTo: targetUser.socket,
+    content: { type: 'disconnectWithTeacher' },
+  });
 }
 
 function connectWithTheUser(targetUser) {
@@ -507,6 +532,17 @@ const funcSignal = {
   disconnectWithThisUser(sentFrom) {
     disconnectWithTheUser(sentFrom, true);
   },
+  connectWithTeacher(sentFrom) {
+    if (sentFrom.isTeacher) {
+      const tracks = localStream.getTracks();
+      teacher.sendingTrack[0].replaceTrack(tracks[0]);
+      teacher.sendingTrack[1].replaceTrack(tracks[1]);
+    }
+  },
+  disconnectWithTeacher(sentFrom) {
+    if (sentFrom.isTeacher)
+      teacher.sendingTrack.forEach((tracks) => tracks.replaceTrack(null));
+  },
 };
 
 socket.on('deliverSignal', (message) => {
@@ -548,6 +584,7 @@ bus.$on('class:stop-sharing-screen', () => {
 
   reLayoutVideoIfNeeded();
 });
+
 export default {
   initRTCPART,
   leaveClass,
@@ -555,6 +592,8 @@ export default {
   sendSignalToServer,
   connectWithTheUser,
   disconnectWithTheUser,
+  connectWithTheStudent,
+  disconnectWithTheStudent,
   shareScreen,
   muteVideo,
   muteAudio,

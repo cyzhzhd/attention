@@ -76,14 +76,6 @@ const mutations = {
     });
   },
 
-  connectWithTheUser(state, targetUser) {
-    webRTC.connectWithTheUser(targetUser);
-  },
-
-  disconnectWithTheUser(state, targetUser) {
-    webRTC.disconnectWithTheUser(targetUser);
-  },
-
   sendChat(state, content) {
     webRTC.sendSignalToServer('sendChat', { content });
   },
@@ -185,11 +177,21 @@ const actions = {
   },
 
   ConnectWithTheUser({ commit }, targetUser) {
-    commit('connectWithTheUser', targetUser);
+    if (state.isTeacher) {
+      webRTC.connectWithTheStudent(targetUser);
+    } else {
+      webRTC.connectWithTheUser(targetUser);
+    }
+    console.log(commit);
   },
 
   DisconnectWithTheUser({ commit }, targetUser) {
-    commit('disconnectWithTheUser', targetUser);
+    if (state.isTeacher) {
+      webRTC.disconnectWithTheStudent(targetUser);
+    } else {
+      webRTC.disconnectWithTheUser(targetUser);
+    }
+    console.log(commit);
   },
 
   SettingSetter({ commit }, options) {
