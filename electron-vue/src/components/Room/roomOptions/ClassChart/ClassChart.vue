@@ -7,7 +7,9 @@
       <div class="cct-buttons" @click="displaySelectedType('absence')">
         Absence
       </div>
-      <div class="cct-buttons" @click="displaySelectedType('sleep')">Sleep</div>
+      <div class="cct-buttons" @click="displaySelectedType('sleep')">
+        Sleep
+      </div>
       <div class="cct-buttons" @click="displaySelectedType('turnHead')">
         TurnHead
       </div>

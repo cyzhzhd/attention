@@ -31,6 +31,9 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+
+  background-size: cover;
+  background-image: url(../img/ClassRoomList/classlist-background.svg);
 }
 
 .create-classroom-form {
@@ -165,7 +168,8 @@ body {
 .classroom-teacher-thumbnail {
   width: 30px;
   height: 30px;
-  background-color: #c4c4c4;
+  /* background-color: #c4c4c4; */
+  border: none;
   border-radius: 50%;
   margin-right: 8px;
 }

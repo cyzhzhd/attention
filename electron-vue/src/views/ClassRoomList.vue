@@ -31,7 +31,11 @@
                   <div class="classroom-member-count">
                     총 {{ room.students.length }}명
                   </div>
-                  <div class="classroom-teacher-thumbnail"></div>
+                  <div
+                    class="classroom-teacher-thumbnail"
+                    img
+                    src="teacher-thumbnail.svg"
+                  ></div>
                   <div class="classroom-teacher-name">
                     {{ room.teacherName }}
                   </div>
@@ -168,7 +172,7 @@ export default {
     },
 
     addListOnClassRoom(classList) {
-      classList.forEach(async (joinedClass) => {
+      classList.forEach(async joinedClass => {
         const options = {
           class: joinedClass,
         };

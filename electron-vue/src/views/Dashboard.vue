@@ -69,17 +69,25 @@
         <div class="dashboard">
           <div class="dashboard-filter-list">
             <div
-              class="dataType-selected"
+              class="type_focusPoint"
               ref="type_focusPoint"
               @click="displaySelectedType('focusPoint')"
             >
-              focus point
+              FOCUS POINT
             </div>
-            <div ref="type_attendPer" @click="displaySelectedType('attendPer')">
-              attend
+            <div
+              class="type_attendPer"
+              ref="type_attendPer"
+              @click="displaySelectedType('attendPer')"
+            >
+              ATTEND
             </div>
-            <div ref="type_sleepPer" @click="displaySelectedType('sleepPer')">
-              sleep
+            <div
+              class="type_sleepPer"
+              ref="type_sleepPer"
+              @click="displaySelectedType('sleepPer')"
+            >
+              SLEEP
             </div>
           </div>
           <div class="dashboard-graph">
@@ -187,7 +195,7 @@ export default {
       this.DisplayData(this.selectedClassName);
     },
     displayWithTimeInterval(interval) {
-      [1, 5, 10].forEach((num) =>
+      [1, 5, 10].forEach(num =>
         this.$refs[`interval_${num}`].classList.remove('interval-selected'),
       );
       this.$refs[`interval_${interval}`].classList.add('interval-selected');

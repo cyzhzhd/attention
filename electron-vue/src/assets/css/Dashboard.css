@@ -110,6 +110,9 @@ body {
   font-size: 18px;
   display: flex;
   align-items: center;
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-size: 18px;
+  letter-spacing: -1px;
 }
 
 .dashboard-sidebar {
@@ -180,7 +183,7 @@ body {
 .user-selected {
   width: 90px;
   height: 90px;
-  background-color: blue;
+  color: #9097fd;
 }
 
 .username {
@@ -206,15 +209,22 @@ body {
 }
 
 .dashboard-filter-list div {
-  cursor: pointer;
+  /* cursor: pointer; */
   flex: 1 0;
   font-weight: 900;
-  color: #9097fd;
+  color: #cacbd1;
   font-size: 24px;
-  border: 0.5px solid gray;
+  /* border: 0.5px solid #9097fd; */
+}
+
+.type_focusPoint-selected {
+  color: rgba(253, 173, 178, 1);
 }
 .dataType-selected {
-  background-color: blue;
+  font-family: 'GmarketSansBold';
+  font-size: 24px;
+  letter-spacing: -1px;
+  /* color: #ffffff; */
 }
 
 .dashboard-graph {
@@ -226,15 +236,23 @@ body {
   align-items: center;
   width: 100%;
   justify-content: flex-end;
+  margin: 20px;
+  padding-right: 30px;
+  font-family: 'GmarketSansBold';
+  font-size: 20px;
+  letter-spacing: -1px;
 }
 .time-interval div {
   cursor: pointer;
   font-weight: 900;
   width: 5rem;
-  color: #9097fd;
+  color: #cacbd1;
   font-size: 24px;
-  border: 0.5px solid gray;
+  /* border: 0.5px solid gray; */
 }
 .interval-selected {
-  background-color: blue;
+  color: #9097fd !important;
+  font-size: 24px;
+
+  /* background-color: blue; */
 }
