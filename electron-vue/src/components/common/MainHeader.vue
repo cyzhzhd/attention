@@ -66,11 +66,14 @@ export default {
   /* justify-content: space-between; */
   /* width: 30vw; */
 }
-.router-item{
-  font-size: 18px;
-  font-weight: 900;
+.router-item {
   color: #9097fd;
   margin-right: 1rem;
   cursor: pointer;
+
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-size: 16px;
+  letter-spacing: -1px;
+  font-weight: bold;
 }
 </style>

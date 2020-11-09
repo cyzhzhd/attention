@@ -43,7 +43,7 @@ body {
 .classroom-contents {
   height: 100%;
   margin: 0 auto;
-  padding-top: 80px;
+  padding-top: 0px;
   display: flex;
   overflow: hidden;
   flex-direction: column;
@@ -61,16 +61,18 @@ body {
 }
 
 .time-line-header {
-  font-size: 18px;
-  font-weight: 900;
-  color: #9097fd;
   margin-bottom: 8px;
+
+  font-family: 'GmarketSansBold';
+  font-size: 20px;
+  letter-spacing: -1px;
+  color: #9097fd;
 }
 
 .time-line-divider {
   width: 8px;
   flex: 1;
-  background-color: #e4e4e4;
+  background-color: #aeb3ff;
 }
 
 .class-card-list {
@@ -93,9 +95,11 @@ body {
 }
 
 .class-card-duration-time {
-  font-size: 18px;
-  font-weight: 900;
   color: #9097fd;
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-size: 18px;
+  letter-spacing: -1px;
+  font-weight: bold;
 }
 
 .class-card-center {
@@ -124,12 +128,17 @@ body {
   font-size: 18px;
   font-weight: 900;
   color: #9097fd;
+
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-size: 18px;
+  letter-spacing: -1px;
 }
 
 .class-card-thumbnail {
   width: 400px;
   height: 250px;
-  background-color: #e4e4e4;
+  background-color: #ffffff;
+  border: 1px solid #9097fd;
 }
 
 .class-card-enter-button {
@@ -137,8 +146,11 @@ body {
   height: 120px;
   border-radius: 50%;
   background-color: #9097fd;
-  font-size: 18px;
-  font-weight: 800;
+
+  font-family: 'GmarketSansBold';
+  font-size: 20px;
+  letter-spacing: -1px;
+
   color: #fff;
   line-height: 120px;
   text-align: center;

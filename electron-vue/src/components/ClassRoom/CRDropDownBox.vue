@@ -106,8 +106,15 @@ export default {
   width: 100%;
   height: 100%;
   color: #9097fd;
-  font-weight: 400;
+
+  font-family: 'GmarketSansBold';
+  font-size: 20px;
+  letter-spacing: -1px;
+
+  /* font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
   font-size: 18px;
+  letter-spacing: -1px; */
+
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -151,6 +158,6 @@ export default {
 }
 
 .error-message {
-  color: #FD9790;
+  color: #fd9790;
 }
 </style>

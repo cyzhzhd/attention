@@ -20,27 +20,26 @@
 
         <div class="setting-options">
           <div class="options">
-            학생 목록 정렬 주기<br>
+            학생 목록 정렬 주기<br />
             <input type="text" v-model.trim="sortStudentListInterval" />
           </div>
           <div class="options">
-            전체 집중력 그래프 표시 주기<br>
+            전체 집중력 그래프 표시 주기<br />
             <input type="text" v-model.trim="CCTDataInterval" />
           </div>
           <div class="options">
-            학생 연결 주기<br>
+            학생 연결 주기<br />
             <input type="text" v-model.trim="rotateStudentInterval" />
           </div>
           <div class="options">
-            연결 학생 수<br>
+            연결 학생 수<br />
             <input type="text" v-model.trim="numConnectedStudent" />
           </div>
-          </div>
-          
-          <div class="apply-button">
-            <button @click="applySettings">적용</button>
-          </div>
-        
+        </div>
+
+        <div class="apply-button">
+          <button @click="applySettings">적용</button>
+        </div>
       </h4>
       <h4 slot="footer">
         <i
@@ -109,10 +108,11 @@ export default {
 @import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css);
 @import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-jp.css);
 @font-face {
-    font-family: 'GmarketSansBold';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'GmarketSansBold';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff')
+    format('woff');
+  font-weight: normal;
+  font-style: normal;
 }
 
 .header {
@@ -121,8 +121,8 @@ export default {
   font-family: 'GmarketSansBold';
   font-size: 24px;
   letter-spacing: -1px;
-  background-color: #F6F7FB;
-  color:#9097FD;
+  background-color: #f6f7fb;
+  color: #9097fd;
 }
 
 .setting-options {
@@ -138,7 +138,7 @@ export default {
 
 .options {
   padding: 5px;
-  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif'; 
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
   font-size: 15px;
   font-weight: 300;
   letter-spacing: -1px;
@@ -149,4 +149,3 @@ export default {
   font-size: 12px;
 }
 </style>
-

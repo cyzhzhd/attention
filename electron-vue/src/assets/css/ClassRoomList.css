@@ -1,3 +1,13 @@
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css);
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-jp.css);
+@font-face {
+  font-family: 'GmarketSansBold';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff')
+    format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 html,
 body {
   width: 100%;
@@ -43,8 +53,13 @@ body {
 
 .create-classroom-input-label {
   color: #333333;
-  font-weight: 300;
-  font-size: 13px;
+
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-size: 16px;
+  letter-spacing: -1px;
+
+  /* font-weight: 300; */
+  /* font-size: 13px; */
   min-width: 55px;
   text-align: center;
   margin-right: 16px;
@@ -54,6 +69,11 @@ body {
   flex: 1;
   border: 1px solid #9097fd;
   height: 30px;
+
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-size: 16px;
+  letter-spacing: -1px;
+  color: #333333;
 }
 
 .create-classroom-button {
@@ -62,10 +82,13 @@ body {
   border-radius: 50%;
   background-color: #9097fd;
   line-height: 120px;
+
   text-align: center;
   color: #fff;
-  font-weight: 600;
+
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
   font-size: 18px;
+  letter-spacing: -1px;
 }
 
 .create-classroom-input-wrapper + .create-classroom-button {
@@ -124,12 +147,14 @@ body {
 
 .classroom-title {
   color: #9097fd;
-  font-weight: 600;
-  font-size: 18px;
   margin-right: 8px;
+
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-size: 18px;
+  letter-spacing: -1px;
 }
 .classroom-member-count {
-  color: #c4c7ce;
+  color: #666666;
   font-weight: 500;
   font-size: 14px;
   flex: 1;
@@ -144,6 +169,7 @@ body {
 }
 .classroom-teacher-name {
   color: #9097fd;
-  font-weight: 400;
-  font-size: 14px;
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-size: 18px;
+  letter-spacing: -1px;
 }
