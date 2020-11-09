@@ -17,6 +17,8 @@ let screenSharingTrack;
 let localStream;
 let isVideoMuted = true;
 let isAudioMuted = true;
+let teacher;
+
 const rtcIceServerConfiguration = {
   iceServers: [
     {
@@ -33,12 +35,6 @@ let state = {};
 function initRTCPART(payload) {
   state = payload;
 }
-
-// emit signal might be better
-function emitEvent(eventName, payload) {
-  socket.emit(eventName, payload);
-}
-
 function mediaStreamConstraints(resolution) {
   return {
     video: resolution,
@@ -94,12 +90,22 @@ function removeLeavingUser(userlist) {
 function findJoiningUsers(userlist) {
   return userlist.filter((newOne) => !findUser(newOne.user));
 }
+
 function addJoiningUser(userlist) {
+  console.log(userlist);
   findJoiningUsers(userlist).forEach((joiningUser) => {
     console.log('joiningUser', joiningUser.name);
     state.connectedUsers.push(joiningUser);
     if (state.isTeacher) {
       CCT.CCTSetter(joiningUser);
+    }
+    if (!state.isTeacher && !teacher && joiningUser.isTeacher) {
+      // connect
+      // setRTCPeerConnection(joiningUser);
+      // sendOffer(joiningUser);
+      // addTrackOnPC(joiningUser);
+      teacher = joiningUser;
+      console.log(teacher);
     }
   });
 }
@@ -108,26 +114,42 @@ function updateUserlist(userlist) {
   addJoiningUser(userlist);
   removeLeavingUser(userlist);
 }
-function sendOffer(user) {
+async function sendOffer(user) {
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event
-  user.rtc.addEventListener('negotiationneeded', async () => {
-    try {
-      console.log('offering sdp');
-      const offer = await user.rtc.createOffer();
-      user.rtc.setLocalDescription(offer);
-      sendSignalToServer('sendSignal', {
-        sendTo: user.socket,
-        content: {
-          type: 'offer',
-          sdp: offer,
-        },
-      });
+  // user.rtc.addEventListener('negotiationneeded', async () => {
+  //   try {
+  //     console.log('offering sdp');
+  //     const offer = await user.rtc.createOffer();
+  //     user.rtc.setLocalDescription(offer);
+  //     sendSignalToServer('sendSignal', {
+  //       sendTo: user.socket,
+  //       content: {
+  //         type: 'offer',
+  //         sdp: offer,
+  //       },
+  //     });
 
-      console.log('offer created for a user: ', user);
-    } catch (e) {
-      console.error('Failed to create pc session description', e);
-    }
-  });
+  //     console.log('offer created for a user: ', user);
+  //   } catch (e) {
+  //     console.error('Failed to create pc session description', e);
+  //   }
+  // });
+  try {
+    console.log('offering sdp');
+    const offer = await user.rtc.createOffer();
+    user.rtc.setLocalDescription(offer);
+    sendSignalToServer('sendSignal', {
+      sendTo: user.socket,
+      content: {
+        type: 'offer',
+        sdp: offer,
+      },
+    });
+
+    console.log('offer created for a user: ', user);
+  } catch (e) {
+    console.error('Failed to create pc session description', e);
+  }
 }
 
 function setVideoHeight(divs, height, objectFit = 'cover') {
@@ -141,7 +163,6 @@ function setVideoHeight(divs, height, objectFit = 'cover') {
 function reLayoutVideoIfNeeded() {
   if (!state.isTeacher) return;
   state.localVideo.style.width = '100%';
-  // displayingSTudentList 이용하게 변경
   const divs = state.videos.childNodes;
   if (isScreenSharing) {
     state.videos.style.gridTemplateColumns = '1fr';
@@ -529,7 +550,6 @@ bus.$on('class:stop-sharing-screen', () => {
 });
 export default {
   initRTCPART,
-  emitEvent,
   leaveClass,
   getLocalStream,
   sendSignalToServer,

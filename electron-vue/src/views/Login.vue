@@ -7,7 +7,7 @@
           <div>시작해볼까요?</div>
         </div>
         <div class="tab-contents">
-          <form @submit.prevent="LogIn(login.email, login.password)">
+          <form @keyup.enter="LogIn(login.email, login.password)">
             <div class="input-wrapper">
               <label class="input-label">이메일</label>
               <input

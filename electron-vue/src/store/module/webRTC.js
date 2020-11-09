@@ -55,31 +55,11 @@ const mutations = {
   setUser(state, id) {
     state.myId = id;
   },
-  enterRoom(state, payload) {
+  setVariables(state, payload) {
     state.classroomId = payload.classroomId;
     state.classId = payload.classId;
     state.jwt = payload.jwt;
     state.isTeacher = payload.isTeacher;
-
-    // signal to server every 2 sec for keeping connection
-    interval = setInterval(
-      () => webRTC.sendSignalToServer('pingSession', {}),
-      2000,
-    );
-    // if (state.isTeacher) {
-    //   interval = setInterval(
-    //     () => webRTC.sendSignalToServer('pingSession', {}),
-    //     2000,
-    //   );
-    // }
-    bus.$on('onDeliverDisconnection', () => {
-      clearInterval(interval);
-      // if (state.isTeacher) {
-      //   clearInterval(interval);
-      // }
-      webRTC.leaveClass();
-      alert('방과 연결이 끊겼습니다');
-    });
   },
   leaveRoom() {
     webRTC.sendSignalToServer('leaveSession', {});
@@ -157,7 +137,17 @@ const actions = {
   },
 
   async EnterRoom({ commit }, payload) {
-    commit('enterRoom', payload);
+    commit('setVariables', payload);
+    interval = setInterval(
+      () => webRTC.sendSignalToServer('pingSession', {}),
+      2000,
+    );
+    bus.$on('onDeliverDisconnection', () => {
+      clearInterval(interval);
+      webRTC.leaveClass();
+      alert('방과 연결이 끊겼습니다');
+    });
+
     const localStream = await webRTC.getLocalStream();
     state.localVideo.srcObject = localStream;
 

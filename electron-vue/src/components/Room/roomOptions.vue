@@ -46,7 +46,7 @@
         <div @click.prevent="$refs.menu.open($event)" @click.stop>종료</div>
       </div>
       <div class="quit-class-button" v-else>
-        <a @click="leaveClass">종료</a>
+        <a @click="leaveClass()">종료</a>
       </div>
     </div>
 
