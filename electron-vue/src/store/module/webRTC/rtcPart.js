@@ -189,7 +189,7 @@ function setOnTrackEventTeacher(user) {
     if (!event) return;
     if (event.track.kind === 'audio') return;
     console.log('선생님) 비디오가 추가될 때, evnet = ', event);
-    [user.recievingStream] = event.streams;
+    [user.recievingTrack] = event.streams;
   });
 }
 
@@ -343,7 +343,8 @@ function connectWithTheStudent(targetUser) {
     content: { type: 'connectWithTeacher' },
   });
   const video = addVideoElement(targetUser);
-  videoSetting(video, targetUser, targetUser.recievingStream);
+  videoSetting(video, targetUser, targetUser.recievingTrack);
+  state.displayingStudentList.push(targetUser);
 }
 function disconnectWithTheStudent(targetUser) {
   removeVideo(targetUser.user);
@@ -438,31 +439,25 @@ function muteAudio() {
   isAudioMuted = !isAudioMuted;
 }
 
-function signalOfferRequest(user) {
-  console.log(user);
-  sendSignalToServer('sendSignal', {
-    sendTo: user.socket,
-    content: {
-      type: 'offerRequest',
-    },
-  });
-}
+// function signalOfferRequest(user) {
+//   sendSignalToServer('sendSignal', {
+//     sendTo: user.socket,
+//     content: {
+//       type: 'offerRequest',
+//     },
+//   });
+// }
 
 let currentTime = new Date();
 let nextRotateTime = new Date();
 function rotateStudent(isImmediate = false) {
   if (CCT.timeCompare(currentTime, nextRotateTime) >= 0 || isImmediate) {
     console.log(state.rotateStudentInterval);
-    console.log(
-      '새로운 학생과 연결!',
-      state.displayingStudentList,
-      state.displayingStudentList.length,
-    );
     if (state.displayingStudentList.length >= 0) {
       const disconnectList = [...state.displayingStudentList];
       disconnectList.forEach((student) => {
         console.log('연결했었던 유저', student);
-        disconnectWithTheUser(student);
+        disconnectWithTheStudent(student);
       });
     }
     state.displayingStudentList = [];
@@ -471,7 +466,7 @@ function rotateStudent(isImmediate = false) {
       if (state.connectedUsers[i].isTeacher) {
         len = Math.min(len + 1, state.connectedUsers.length);
       } else {
-        signalOfferRequest(state.connectedUsers[i]);
+        connectWithTheStudent(state.connectedUsers[i]);
       }
     }
     nextRotateTime = CCT.setNextExecuteTime(state.rotateStudentInterval);
@@ -481,7 +476,8 @@ function rotateStudent(isImmediate = false) {
 function resetVariables() {
   isScreenSharing = null;
   screenSharingTrack = null;
-
+  teacher = null;
+  isAskedToConnectTeacher = false;
   localStream = null;
   isVideoMuted = true;
   isAudioMuted = true;

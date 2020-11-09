@@ -3,9 +3,6 @@
     <div class="closeBtn" ref="closeBtn" @click="backToNormalView">
       화면 공유 종료
     </div>
-    <!-- <div ref="goal" class="goal">
-      <p>2주차 관동별곡</p>
-    </div> -->
     <div class="webRTC" ref="rtcT">
       <web-rtc-teacher v-if="$store.state.user.isTeacher"></web-rtc-teacher>
       <web-rtc-student v-else></web-rtc-student>
@@ -58,7 +55,6 @@ export default {
       console.log('backToNormalView');
       bus.$emit('class:stop-sharing-screen');
       console.log('backToNormalView');
-      this.$refs.goal.style.display = 'flex';
       this.$refs.userList.style.display = 'block';
       this.$refs.roomOptions.style.display = 'block';
       this.$refs.contatiner.style.gridTemplateColumns = '100px 1fr';
@@ -78,7 +74,6 @@ export default {
     });
 
     bus.$on('rtcPart:start-sharing-screen', () => {
-      this.$refs.goal.style.display = 'none';
       this.$refs.userList.style.display = 'none';
       this.$refs.roomOptions.style.display = 'none';
       this.$refs.contatiner.style.gridTemplateColumns = '1fr';
@@ -102,7 +97,6 @@ export default {
 </script>
 
 <style scoped>
-
 .container {
   display: grid;
   height: 100vh;
@@ -111,18 +105,6 @@ export default {
   grid-template-areas: 'userlist webRTC';
 }
 
-.goal p {
-  margin-left: 9rem;
-  margin-top: 16px;
-
-  font-family: Gmarket Sans;
-  font-style: normal;
-  font-weight: bold;
-  font-size: 25px;
-  text-align: center;
-  letter-spacing: 0.31em;
-  color: white;
-}
 .room-detail {
   grid-area: detail;
   margin-top: 30px;
