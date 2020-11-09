@@ -298,4 +298,8 @@ export default {
   font-weight: normal;
   color: #333333;
 }
+
+.footer {
+  color: #9097fd;
+}
 </style>

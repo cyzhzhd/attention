@@ -1,7 +1,7 @@
 <template>
   <div class="contents-tool-box">
     <drop-down-box v-bind:size="this.size" v-if="$store.state.user.isTeacher">
-      <div slot="header">수업 생성하기</div>
+      <div slot="header">수업 만들기</div>
       <div slot="type">
         <div
           class="dropdown-box-contents"

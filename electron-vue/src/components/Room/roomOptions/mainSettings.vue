@@ -37,11 +37,11 @@
           </div>
         </div>
 
-        <div class="apply-button">
-          <button @click="applySettings">적용</button>
+        <div>
+          <button class="apply-button" @click="applySettings">적용</button>
         </div>
       </h4>
-      <h4 slot="footer">
+      <h4 class="footer" slot="footer">
         <i
           class="fa fa-times closeModalBtn fa-2x"
           aria-hidden="true"
@@ -147,5 +147,16 @@ export default {
 .apply-button {
   font-family: 'GmarketSansBold';
   font-size: 12px;
+  background: #9097fd;
+  height: 30px;
+  width: 100px;
+  padding: 5px;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: white;
+}
+
+.footer {
+  color: #9097fd;
 }
 </style>

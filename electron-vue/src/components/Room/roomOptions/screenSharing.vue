@@ -11,7 +11,11 @@
         <div ref="screenNames" id="screenNames"></div>
         <div ref="screenInfo" id="screenInfo"></div>
         <div ref="canvas" class="canvas"></div>
-        <div ref="screenVideos" id="screenVideos"></div>
+        <div
+          class="screen-thumbnail"
+          ref="screenVideos"
+          id="screenVideos"
+        ></div>
       </h4>
       <h4 slot="footer">
         <button class="share-button">공유하기</button>
@@ -70,6 +74,7 @@ export default {
   gap: 5%;
   height: 560px;
   overflow-y: auto;
+  /* border: 1px solid #333333; */
 }
 
 .canvas div:hover {
@@ -78,8 +83,8 @@ export default {
 }
 
 .body {
-  background-color: #F6F7FB;
-  /* border: 1px solid #EAEBFF; */
+  background-color: #ffffff;
+  border: 5px solid #eaebff;
   border-radius: 20px;
   padding: 20px;
   height: 500px;
@@ -94,7 +99,6 @@ export default {
   font-family: 'GmarketSansBold';
   font-size: 24px;
   letter-spacing: -1px;
-  
 }
 .modal-title {
   flex: 1;

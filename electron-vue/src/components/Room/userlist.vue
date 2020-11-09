@@ -57,6 +57,7 @@
           </div>
         </li>
       </ul>
+      git
     </div>
     <vue-context ref="menu">
       <template slot-scope="child">

@@ -45,6 +45,7 @@ body {
 .create-classroom-input-wrapper {
   display: flex;
   align-items: center;
+  flex-direction: column;
 }
 
 .create-classroom-input-wrapper + .create-classroom-input-wrapper {
@@ -63,6 +64,7 @@ body {
   min-width: 55px;
   text-align: center;
   margin-right: 16px;
+  padding-bottom: 5px;
 }
 
 .create-classroom-input {

@@ -43,7 +43,7 @@ body {
 .classroom-contents {
   height: 100%;
   margin: 0 auto;
-  padding-top: 0px;
+  padding-top: 40px;
   display: flex;
   overflow: hidden;
   flex-direction: column;
