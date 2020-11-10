@@ -16,15 +16,12 @@ let stopFlag = true;
 
 async function getVideoSrc(videoSrc) {
   video = videoSrc;
-  // console.log(video);
   await detectorModel.loadFromUri(
     'https://be.swm183.com:3000/download/detector/model.json',
   );
   await landmarkModel.loadFromUri(
     'https://be.swm183.com:3000/download/landmark/model.json',
   );
-  // console.log(detectorModel, landmarkModel);
-  // startAnalye(video);
 }
 
 function startAnalyze(stopFlagInput) {
@@ -48,12 +45,8 @@ function startAnalyze(stopFlagInput) {
 }
 
 function drawLandmark(bbox, conf, landmark, point) {
-  // console.log("suc");
   const canvas = document.getElementById("fcanvas");
-  // console.log(canvas);
   const ctx = canvas.getContext("2d");
-  // document.body.append(canvas);
-
   drawAll(canvas, ctx, bbox, conf, landmark, point);
 }
 
@@ -86,19 +79,7 @@ function drawAll(canvas, ctx, bbox, conf, landmarkObj, point) {
       ctx.fillRect(landmarkObj[i]['_x'], landmarkObj[i]['_y'], 3, 3);
     }
   }
-  // drawInfo(ctx, result);
 }
-
-// function drawInfo(ctx, result) {
-//     ctx.fillText("score: " + result, 10, 20);
-//     ctx.font = "12px Arial";
-//     // var lines = JSON.stringify(status, null, 2).split("\n");
-//     var lines = low_data.split("\n");
-//     for (var j = 0; j < lines.length; j++)
-//         ctx.fillText(lines[j], 10, 240 + j * 20);
-//     ctx.font = "14px Arial";
-//     ctx.fillText(JSON.stringify(tfjs.memory()), 20, 470);
-// }
 
 export default {
   getVideoSrc,

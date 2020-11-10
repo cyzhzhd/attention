@@ -10,33 +10,35 @@
 import rtcPart from '../webRTC/rtcPart';
 
 let judge = {
-    attend: true, // absence ratio for x sec
-    attendPer: 100,
-    sleep: false, // sleep ratio for x sec
-    sleepPer: 40,
-    // distraction: false,
+    attend: true, // attendance check
+    attendPer: 100, // attendance ratio for x sec
+    sleep: false,  // sleep check
+    sleepPer: 40,  // sleep ratio for x sec
     focusPoint: 100, // focus point
 };
 
 let teacherData = {
-    threshold: [20, 80],
-    period: 5,
+    threshold: [20, 80],    // 0: attendance threshold, 1: sleep threshold
+    period: 5,  // send data to DB for each 5sec
 };
 
 let studentData = {
-    eyeSize: 0.28,
-    blinkSize: 0.15,
+    eyeSize: 0.28,  // default
+    blinkSize: 0.15,    //default
 };
 
-let detect = {
+// attend check var
+let detect = { 
     arr: [],
 };
 
+// sleep check var
 let sleep = {
     arr: [],
-    threshold: 40,
+    threshold: 40,  // close eye threshold
 };
 
+// point check var
 let point = {
     deadP: [0, 0.15], // up down 0~0.15
     deadY: [-0.18, 0.18], // left right -0.2~0.2
@@ -44,23 +46,25 @@ let point = {
     weightP: 30,
     weightY: 13,
     weightR: 13,
-    centerArr0: [],
-    centerArr1: [],
+    centerArr0: [], // face x point
+    centerArr1: [], // face y point
     center: [0, 0],
-    centerTemp: [140, 85],
+    centerTemp: [140, 85], //default
     deadXY: [50, 40],
     deadM: 0.55,
     weightM: 2.5,
 };
 
+// time var
 let timeVar = {
     change: true,
     temp: 0,
 };
 
+// display landmark to student's video
 let draw_point = judge.focusPoint;
 
-function varInit() {
+function varInit() {    // initialize var
     timeVar.change = true;
     detect.arr.length = 0;
     sleep.arr.length = 0;
@@ -84,7 +88,6 @@ function analysis(detection, landmarks, angle, timestamp) {
         if (landmarks) {
             // sleep part
             judge.sleepPer = getSleepPer(landmarks).toFixed(2);
-            // console.log(judge.sleepPer);
             if (judge.sleepPer > teacherData.threshold[1]) judge.sleep = true;
             else judge.sleep = false;
             // point part
@@ -92,10 +95,9 @@ function analysis(detection, landmarks, angle, timestamp) {
         }
     }
 
-    // send to server part
+    // send to DB part
     const nowTime = new Date();
     if (nowTime.getTime() - timeVar.temp.getTime() > teacherData.period * 1000) {
-        // console.log(judge.focusPoint);
         if (!judge.attend) judge.focusPoint = 0;
         else if (judge.sleep) judge.focusPoint = 5;
         else {
@@ -112,12 +114,14 @@ function analysis(detection, landmarks, angle, timestamp) {
     return draw_point;
 }
 
+// cal detection ratio
 function getDetectPer(detection) {
     if (detection) detect.arr.push(1);
     else detect.arr.push(0);
     return (detect.arr.reduce((a, b) => a + b) * 100) / detect.arr.length;
 }
 
+// cal closing eye ratio
 function getSleepPer(landmarks) {
     const inHL = calcDist(landmarks[43], landmarks[47]);
     const outHL = calcDist(landmarks[44], landmarks[46]);
@@ -129,8 +133,6 @@ function getSleepPer(landmarks) {
     const perR = (inHR + outHR) / (2 * wR);
     const EAR = (perL + perR) / 2;
 
-    // console.log(EAR);
-
     studentData.blinkSize =
         EAR < studentData.blinkSize ? EAR : studentData.blinkSize;
     studentData.eyeSize = EAR > studentData.eyeSize ? EAR : studentData.eyeSize;
@@ -139,18 +141,19 @@ function getSleepPer(landmarks) {
     const EAR_nom =
         (100 * (EAR - studentData.blinkSize)) /
         (studentData.eyeSize - studentData.blinkSize);
-    // console.log(EAR_nom);
     if (EAR_nom < sleep.threshold) sleep.arr.push(1);
     else sleep.arr.push(0);
     return (sleep.arr.reduce((a, b) => a + b) * 100) / sleep.arr.length;
 }
 
+// cal focus point
 function getPoint(landmarks, angle) {
     const pitch = Number(angle[0][0]); // up down
     const yaw = Number(angle[0][1]); // l r
     const roll = Number(angle[0][2]); // spin l r
     let minusP, minusY, minusR, minusC, minusM;
-
+    
+    // cal pitch yaw roll weight
     if (pitch < point.deadP[0])
         minusP = point.weightP * (Math.abs(pitch) - point.deadP[0]);
     else if (pitch > point.deadP[1])
@@ -161,6 +164,7 @@ function getPoint(landmarks, angle) {
     if (roll > point.deadR[0] && roll < point.deadR[1]) minusR = 0;
     else minusR = point.weightR * (Math.abs(roll) - point.deadR[1]);
 
+    // cal face location weight
     const nowCenter = [landmarks[33]._x, landmarks[33]._y];
     point.centerArr0.push(nowCenter[0]);
     point.centerArr1.push(nowCenter[1]);
@@ -184,6 +188,7 @@ function getPoint(landmarks, angle) {
     ) minusC = 0.9;
     else minusC = 0;
 
+    // cal mouse ratio weight
     const mW = calcDist(landmarks[48], landmarks[54]);
     const mH =
         (calcDist(landmarks[50], landmarks[58]) +
