@@ -2,7 +2,7 @@
   <transition name="modal">
     <div class="modal-mask">
       <div class="modal-wrapper">
-        <div class="modal-container" @click.stop>
+        <div class="modal-container" :style="size" @click.stop>
           <div class="modal-header">
             <slot name="header"> default header </slot>
           </div>
@@ -21,10 +21,22 @@
 </template>
 
 <script>
-export default {};
+export default {
+  props: ['size'],
+};
 </script>
 
 <style scoped>
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css);
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-jp.css);
+@font-face {
+  font-family: 'GmarketSansBold';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff')
+    format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .modal-mask {
   position: fixed;
   z-index: 9998;
@@ -32,7 +44,7 @@ export default {};
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: #9097fd 80%;
   display: table;
   transition: opacity 0.3s ease;
 }
@@ -43,19 +55,17 @@ export default {};
 }
 
 .modal-container {
-  width: 150px;
   margin: 0px auto;
   padding: 20px 30px;
-  background-color: #fff;
-  border-radius: 2px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+
+  background-color: #ffffff;
+  border: 1px #9097fd solid;
   transition: all 0.3s ease;
-  font-family: Helvetica, Arial, sans-serif;
 }
 
-.modal-header h3 {
+.modal-header {
   margin-top: 0;
-  color: #42b983;
+  height: 30px;
 }
 
 .modal-body {

@@ -31,7 +31,11 @@
                   <div class="classroom-member-count">
                     총 {{ room.students.length }}명
                   </div>
-                  <div class="classroom-teacher-thumbnail"></div>
+                  <div
+                    class="classroom-teacher-thumbnail"
+                    img
+                    src="teacher-thumbnail.svg"
+                  ></div>
                   <div class="classroom-teacher-name">
                     {{ room.teacherName }}
                   </div>
@@ -69,7 +73,8 @@
       </template>
     </vue-context>
     <div class="modal-wrapper" v-on:click="controlModal('confirmModal')">
-      <small-modal
+      <modal
+        :size="modalSize"
         v-if="modalList.confirmModal"
         @close="modalList.confirmModal"
       >
@@ -91,7 +96,7 @@
             v-on:click="controlModal('confirmModal')"
           ></i>
         </h6>
-      </small-modal>
+      </modal>
     </div>
   </div>
 </template>
@@ -102,13 +107,13 @@ import 'vue-context/src/sass/vue-context.scss';
 import bus from '../../utils/bus';
 import MainHeader from '../components/common/MainHeader.vue';
 import CRLDropDownBox from '../components/ClassRoomList/CRLDropDownBox.vue';
-import smallModal from '../components/common/smallModal.vue';
+import Modal from '../components/common/Modal.vue';
 
 export default {
   name: 'roomList',
   components: {
     VueContext,
-    smallModal,
+    Modal,
     MainHeader,
     CRLDropDownBox,
   },
@@ -119,6 +124,9 @@ export default {
         handOverModal: false,
         confirmModal: false,
         addClassRoomModal: false,
+      },
+      modalSize: {
+        width: '300px',
       },
       classRoomId: '',
       textConfirm: '',

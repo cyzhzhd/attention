@@ -19,7 +19,7 @@
       <CRDropDownBox></CRDropDownBox>
       <div class="class-list">
         <div class="time-line">
-          <div class="time-line-header">TimeLine</div>
+          <div class="time-line-header">TIMELINE</div>
           <div class="time-line-divider"></div>
         </div>
         <ul class="class-card-list">

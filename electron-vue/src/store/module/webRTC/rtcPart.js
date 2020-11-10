@@ -348,6 +348,7 @@ function connectWithTheStudent(targetUser) {
 }
 function disconnectWithTheStudent(targetUser) {
   removeVideo(targetUser.user);
+  removeFromDisplayingUser(targetUser);
   sendSignalToServer('sendSignal', {
     sendTo: targetUser.socket,
     content: { type: 'disconnectWithTeacher' },
@@ -366,21 +367,23 @@ function connectWithTheUser(targetUser) {
     state.displayingStudentList.push(targetUser);
   }
 }
-
+function removeFromDisplayingUser(targetUser) {
+  const idx = state.displayingStudentList.findIndex(
+    (student) => student.user === targetUser.user,
+  );
+  if (idx < 0) {
+    return;
+  }
+  state.displayingStudentList.splice(idx, 1);
+  reLayoutVideoIfNeeded();
+}
 function disconnectWithTheUser(targetUser, received = false) {
   if (targetUser.user === state.myId) {
     alert('this is you');
   } else if (targetUser.rtc && targetUser.rtc.connectionState === 'connected') {
     removeVideo(targetUser.user);
-    const idx = state.displayingStudentList.findIndex(
-      (student) => student.user === targetUser.user,
-    );
-    if (idx < 0) {
-      return;
-    }
+    removeFromDisplayingUser(targetUser);
     targetUser.rtc.close();
-    state.displayingStudentList.splice(idx, 1);
-    reLayoutVideoIfNeeded();
     if (!received) {
       sendSignalToServer('sendSignal', {
         sendTo: targetUser.socket,

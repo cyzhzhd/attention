@@ -1,7 +1,7 @@
 <template>
   <div class="modal">
     <div class="modal-wrapper" v-on:click="closeModal">
-      <mediumModal v-if="showModal" @close="showModal">
+      <Modal :size="mediumModalSize" v-if="showModal" @close="showModal">
         <h3 slot="header" @click="showUserList">
           유저 목록 보기
           <i class="fa fa-users" aria-hidden="true"></i>
@@ -27,13 +27,15 @@
             v-on:click="closeModal"
           ></i>
         </h6>
-      </mediumModal>
+      </Modal>
     </div>
     <div class="modal-wrapper" v-on:click="closeModal">
-      <smallModal v-if="showingConfirmModal" @close="showingConfirmModal">
-        <h3 slot="header">
-          팀장을 양도하려면 '확인'을 입력해주세요
-        </h3>
+      <Modal
+        :size="smallModalSize"
+        v-if="showingConfirmModal"
+        @close="showingConfirmModal"
+      >
+        <h3 slot="header">팀장을 양도하려면 '확인'을 입력해주세요</h3>
 
         <h4 slot="body">
           <form v-on:submit.prevent="confirm">
@@ -51,19 +53,17 @@
             v-on:click="closeConfirmModal"
           ></i>
         </h6>
-      </smallModal>
+      </Modal>
     </div>
   </div>
 </template>
 
 <script>
-import mediumModal from '../common/mediumModal.vue';
-import smallModal from '../common/smallModal.vue';
+import Modal from '../common/Modal.vue';
 
 export default {
   components: {
-    mediumModal,
-    smallModal,
+    Modal,
   },
   props: ['showModal', 'roomId'],
   data() {
@@ -72,6 +72,13 @@ export default {
       chosenUser: '',
       textConfirm: '',
       showingConfirmModal: false,
+      mediumModalSize: {
+        width: '350px',
+        height: '500px',
+      },
+      smallModalSize: {
+        width: '300px',
+      },
     };
   },
   methods: {
@@ -124,9 +131,9 @@ export default {
       this.$firebase
         .database()
         .ref(`/rooms/${this.roomId}/userlist`)
-        .on('value', snapshot => {
+        .on('value', (snapshot) => {
           this.userlist = [];
-          snapshot.forEach(doc => {
+          snapshot.forEach((doc) => {
             const item = doc.val();
             this.userlist.push(item);
           });

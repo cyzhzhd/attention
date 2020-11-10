@@ -1,7 +1,12 @@
 <template>
   <div class="modal-mask" ref="modal">
     <div class="modal-wrapper" v-on:click="closeModal">
-      <mediumModal class="modal" v-if="showingModal" @close="showingModal">
+      <movableModal
+        :size="modalSize"
+        class="modal"
+        v-if="showingModal"
+        @close="showingModal"
+      >
         <h3 slot="header" class="header" ref="header">
           <div class="modal-title">채팅</div>
           <div class="closeModalBtn">
@@ -38,17 +43,16 @@
                   <div v-else>
                     <div class="received-msg">
                       <div class="received-msg-info">
-                          <img
-                            class="received-msg-img"
-                            src="https://ptetutorials.com/images/user-profile.png"
-                            alt="sunil"
-                          />
-                          <p class="sender">{{ message.name }}</p>
-                          <!-- <p class="received-msg-sentAt">{{ message.sentAt }}</p> -->
-                        </div>
-                     <div class="received-msg-text">
+                        <img
+                          class="received-msg-img"
+                          src="https://ptetutorials.com/images/user-profile.png"
+                          alt="sunil"
+                        />
+                        <p class="sender">{{ message.name }}</p>
+                        <!-- <p class="received-msg-sentAt">{{ message.sentAt }}</p> -->
+                      </div>
+                      <div class="received-msg-text">
                         <p>{{ message.message }}</p>
-
                       </div>
                     </div>
                   </div>
@@ -70,21 +74,21 @@
           </div>
         </h4>
         <h4 slot="footer"></h4>
-      </mediumModal>
+      </movableModal>
     </div>
   </div>
 </template>
 
 <script>
 import { mapActions } from 'vuex';
-import mediumModal from '../../common/mediumModal.vue';
+import movableModal from '../../common/movableModal.vue';
 import bus from '../../../../utils/bus';
 
 export default {
   name: 'chat',
   props: ['showingModal'],
   components: {
-    mediumModal,
+    movableModal,
   },
   data() {
     return {
@@ -92,6 +96,10 @@ export default {
       roomId: this.$route.params.roomId,
       message: null,
       messages: [],
+      modalSize: {
+        width: '350px',
+        height: '500px',
+      },
     };
   },
   methods: {
@@ -148,6 +156,9 @@ export default {
 </script>
 
 <style scoped>
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css);
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-jp.css);
+
 img {
   max-width: 15%;
 }
@@ -166,7 +177,7 @@ img {
   font-size: 20px;
   letter-spacing: -1px;
 
-  background-color: #F6F7FB;
+  background-color: #ffffff;
   height: 50px;
   padding: 0px 30px;
 }
@@ -182,8 +193,7 @@ img {
 .msg {
   overflow-y: auto;
   height: 380px;
-  background-color: #F6F7FB;
-
+  background-color: #ffffff;
 }
 .msg-container {
   display: flex;
@@ -198,41 +208,61 @@ img {
   padding-right: 5px;
   margin-right: 10px;
   margin: 4px;
+
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-size: 15px;
+  font-weight: normal;
+  letter-spacing: -1px;
 }
 .sent-msg-text {
-  background-color: #eaebff;
+  background-color: #feffd8;
   border-radius: 0.5rem;
   padding: 5px;
   margin: 4px;
   margin-right: 10px;
+
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-size: 15px;
+  font-weight: normal;
+  letter-spacing: -1px;
 }
 
 .received-msg {
   display: flex;
-  align-content: left;
+  align-items: left;
+}
+
+.received-msg-img {
+  widows: 100px;
 }
 
 .received-msg-text {
   display: flex;
   justify-content: flex-start;
   flex: 0 1 40px;
-  background-color: #ffffff;
+
+  background-color: #eaebff;
   border-radius: 0.5rem;
   padding: 5px;
   margin: 4px;
+  margin-left: 10px;
+
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-size: 15px;
+  font-weight: normal;
+  letter-spacing: -1px;
 }
 .received-msg-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100px;
+  width: 50px;
 }
 
 .sent-msg-info {
   display: flex;
   justify-content: flex-end;
 }
-
 
 .input-msg-write {
   display: flex;

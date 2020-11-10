@@ -1,7 +1,7 @@
 <template>
   <div class="modal-wrapper" v-on:click="closeModal">
-    <largeModal v-if="showingModal" @close="showingModal">
-      <h3 slot="header">설정</h3>
+    <Modal :size="modalSize" v-if="showingModal" @close="showingModal">
+      <h3 slot="header" class="header">설정</h3>
       <h4 slot="body">
         <video
           ref="videoSettings"
@@ -12,47 +12,56 @@
           muted
         ></video>
 
-        <div class="options">
+        <div class="button">
           <button ref="temp">
             <h2>버튼</h2>
           </button>
         </div>
+
+        <div class="setting-options">
+          <div class="options">
+            학생 목록 정렬 주기<br />
+            <input type="text" v-model.trim="sortStudentListInterval" />
+          </div>
+          <div class="options">
+            전체 집중력 그래프 표시 주기<br />
+            <input type="text" v-model.trim="CCTDataInterval" />
+          </div>
+          <div class="options">
+            학생 연결 주기<br />
+            <input type="text" v-model.trim="rotateStudentInterval" />
+          </div>
+          <div class="options">
+            연결 학생 수<br />
+            <input type="text" v-model.trim="numConnectedStudent" />
+          </div>
+        </div>
+
         <div>
-          학생 목록 정렬 주기
-          <input type="text" v-model.trim="sortStudentListInterval" />
-          <br />
-          전체 집중력 그래프 표시 주기
-          <input type="text" v-model.trim="CCTDataInterval" />
-          <br />
-          학생 연결 주기
-          <input type="text" v-model.trim="rotateStudentInterval" />
-          <br />
-          연결 학생 수 <input type="text" v-model.trim="numConnectedStudent" />
-          <br />
-          <button @click="applySettings">적용</button>
+          <button class="apply-button" @click="applySettings">적용</button>
         </div>
       </h4>
-      <h4 slot="footer">
+      <h4 class="footer" slot="footer">
         <i
           class="fa fa-times closeModalBtn fa-2x"
           aria-hidden="true"
           v-on:click="closeModal"
         ></i>
       </h4>
-    </largeModal>
+    </Modal>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
-import largeModal from '../../common/largeModal.vue';
+import Modal from '../../common/Modal.vue';
 import bus from '../../../../utils/bus';
 
 export default {
   name: 'main-settings',
   props: ['showingModal'],
   components: {
-    largeModal,
+    Modal,
   },
   data() {
     return {
@@ -60,6 +69,10 @@ export default {
       CCTDataInterval: 30,
       rotateStudentInterval: 30,
       numConnectedStudent: 3,
+      modalSize: {
+        width: '800px',
+        height: '700px',
+      },
     };
   },
   computed: {
@@ -96,4 +109,58 @@ export default {
 </script>
 
 <style>
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css);
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-jp.css);
+@font-face {
+  font-family: 'GmarketSansBold';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff')
+    format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.header {
+  padding: 10px;
+  height: 30px;
+  font-family: 'GmarketSansBold';
+  font-size: 24px;
+  letter-spacing: -1px;
+  background-color: #f6f7fb;
+  color: #9097fd;
+}
+
+.setting-options {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+
+  height: 100px;
+  width: 400px;
+}
+
+.options {
+  padding: 5px;
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-size: 15px;
+  font-weight: 300;
+  letter-spacing: -1px;
+}
+
+.apply-button {
+  font-family: 'GmarketSansBold';
+  font-size: 12px;
+  background: #9097fd;
+  height: 30px;
+  width: 100px;
+  padding: 5px;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: white;
+}
+
+.footer {
+  color: #9097fd;
+}
 </style>
