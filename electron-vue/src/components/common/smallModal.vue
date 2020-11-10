@@ -28,10 +28,17 @@ export default {};
 @import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css);
 @import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-jp.css);
 @font-face {
-    font-family: 'GmarketSansBold';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'GmarketSansBold';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff')
+    format('woff');
+  font-weight: normal;
+  font-style: normal;
+
+  font-family: 'GmarketSansLight';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansLight.woff')
+    format('woff');
+  font-weight: normal;
+  font-style: normal;
 }
 
 .modal-mask {
@@ -41,7 +48,7 @@ export default {};
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: #9097fd 80%;
   display: table;
   transition: opacity 0.3s ease;
 }
@@ -56,15 +63,13 @@ export default {};
   margin: 0px auto;
   padding: 20px 30px;
   /* background-color: #fff; */
-  border-radius: 2px;
-  border: 1px #9097FD solid;
-  background-color: #F6F7FB;
+  border: 1px #9097fd solid;
+  background-color: #ffffff;
 
-
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33); */
   transition: all 0.3s ease;
 
-  font-family: 'GmarketSansBold';
+  font-family: 'GmarketSansLight';
   font-size: 15px;
   letter-spacing: -1px;
 }
@@ -94,5 +99,9 @@ export default {};
 .modal-leave-active .modal-container {
   -webkit-transform: scale(1.1);
   transform: scale(1.1);
+}
+
+.modal-footer {
+  color: #9097fd;
 }
 </style>

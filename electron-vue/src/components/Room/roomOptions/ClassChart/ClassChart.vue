@@ -1,12 +1,21 @@
 <template>
-  <div>
+  <div class="cct-graph-align">
     <div class="CCTButtons">
-      <div @click="displaySelectedType('focusPoint')">Focus Point</div>
-      <div @click="displaySelectedType('absence')">Absence</div>
-      <div @click="displaySelectedType('sleep')">Sleep</div>
-      <div @click="displaySelectedType('turnHead')">TurnHead</div>
+      <div class="cct-buttons" @click="displaySelectedType('focusPoint')">
+        Focus Point
+      </div>
+      <div class="cct-buttons" @click="displaySelectedType('absence')">
+        Absence
+      </div>
+      <div class="cct-buttons" @click="displaySelectedType('sleep')">
+        Sleep
+      </div>
+      <div class="cct-buttons" @click="displaySelectedType('turnHead')">
+        TurnHead
+      </div>
     </div>
-    <div>
+
+    <div class="dropdown">
       <select name="dropdown" v-model="user" @click="displaySelectedUser">
         <option value="all" selected>전체</option>
         <option
@@ -18,7 +27,9 @@
         </option>
       </select>
     </div>
-    <div>평균 점수: {{ totalPoint }} 현재 점수: {{ currentPoint }}</div>
+    <div class="points">
+      평균 점수: {{ totalPoint }} 현재 점수: {{ currentPoint }}
+    </div>
     <div class="small">
       <line-chart :chart-data="datacollection"></line-chart>
     </div>
@@ -62,9 +73,9 @@ export default {
       this.drawChart(this.user, this.type);
     },
     chooseColor(key) {
-      if (key === 'absence') return 'rgba(255, 255, 0, 1)';
-      if (key === 'focusPoint') return 'rgba(255, 0, 0, 1)';
-      if (key === 'sleep') return 'rgba(0, 255, 0, 1)';
+      if (key === 'absence') return 'rgba(254, 245, 160, 1)';
+      if (key === 'focusPoint') return 'rgba(253, 173, 178, 1)';
+      if (key === 'sleep') return 'rgba(119, 140, 252, 1)';
       return 'rgba(0, 0, 255, 1)';
     },
     addDataSet(userInfo, key) {
@@ -96,7 +107,7 @@ export default {
         this.datacollection.labels = user.CCTData.CCT.time;
       }
 
-      const calculatePoint = (target) => {
+      const calculatePoint = target => {
         const { num, ttl } = target.avr;
         console.log(num, ttl);
 
@@ -110,7 +121,7 @@ export default {
       }
 
       const keys = Object.keys(type);
-      keys.forEach((key) => {
+      keys.forEach(key => {
         if (type[key]) {
           this.datacollection.datasets.push(this.addDataSet(user, key));
         }
@@ -132,10 +143,34 @@ export default {
 </script>
 
 <style scoped>
+.CCTButtons {
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+}
+
+.cct-buttons {
+  padding: 10px;
+  color: #666666;
+}
+
+.points {
+  color: #666666;
+}
 .small {
   /* max-width: 200px; */
   height: 150px;
   width: 400px;
   /* margin: 150px auto; */
+}
+
+.cct-graph-align {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dropdown {
+  margin: 10px;
 }
 </style>

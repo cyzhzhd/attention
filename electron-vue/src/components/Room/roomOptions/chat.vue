@@ -147,6 +147,9 @@ export default {
 </script>
 
 <style scoped>
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css);
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-jp.css);
+
 img {
   max-width: 15%;
 }
@@ -165,7 +168,7 @@ img {
   font-size: 20px;
   letter-spacing: -1px;
 
-  background-color: #f6f7fb;
+  background-color: #ffffff;
   height: 50px;
   padding: 0px 30px;
 }
@@ -181,7 +184,7 @@ img {
 .msg {
   overflow-y: auto;
   height: 380px;
-  background-color: #f6f7fb;
+  background-color: #ffffff;
 }
 .msg-container {
   display: flex;
@@ -196,34 +199,55 @@ img {
   padding-right: 5px;
   margin-right: 10px;
   margin: 4px;
+
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-size: 15px;
+  font-weight: normal;
+  letter-spacing: -1px;
 }
 .sent-msg-text {
-  background-color: #eaebff;
+  background-color: #feffd8;
   border-radius: 0.5rem;
   padding: 5px;
   margin: 4px;
   margin-right: 10px;
+
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-size: 15px;
+  font-weight: normal;
+  letter-spacing: -1px;
 }
 
 .received-msg {
   display: flex;
-  align-content: left;
+  align-items: left;
+}
+
+.received-msg-img {
+  widows: 100px;
 }
 
 .received-msg-text {
   display: flex;
   justify-content: flex-start;
   flex: 0 1 40px;
-  background-color: #ffffff;
+
+  background-color: #eaebff;
   border-radius: 0.5rem;
   padding: 5px;
   margin: 4px;
+  margin-left: 10px;
+
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-size: 15px;
+  font-weight: normal;
+  letter-spacing: -1px;
 }
 .received-msg-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100px;
+  width: 50px;
 }
 
 .sent-msg-info {

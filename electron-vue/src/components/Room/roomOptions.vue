@@ -61,8 +61,10 @@
         v-if="modalList.showingInviteModal"
         @close="modalList.showingInviteModal"
       >
-        <h3 slot="header">Copy this roomId and give it to your student</h3>
-        <h4 slot="body">{{ this.$route.params.classroomId }}</h4>
+        <h3 class="thisiscode" slot="header">강의 입장 코드</h3>
+        <h4 class="codebody" slot="body">
+          {{ this.$route.params.classroomId }}
+        </h4>
         <h4 slot="footer">
           <i
             class="fa fa-times closeModalBtn fa-2x"
@@ -209,6 +211,16 @@ export default {
 </script>
 
 <style scoped>
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css);
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-jp.css);
+@font-face {
+  font-family: 'GmarketSansBold';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff')
+    format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .class-screen-toolbar {
   width: 20px;
   height: 500px;
@@ -225,6 +237,8 @@ export default {
   right: 0px;
   background-color: #fff;
   transition: transform 100ms ease-in;
+  font-family: 'GmarketSansBold';
+  font-weight: 100;
 }
 
 .class-screen-toolbar > * {
@@ -255,7 +269,7 @@ export default {
   text-overflow: ellipsis;
 }
 .class-screen-toolbar-item {
-  font-weight: bold;
+  /* font-weight: bold; */
   font-size: 18px;
   color: #9097fd;
   cursor: pointer;
@@ -281,5 +295,24 @@ export default {
 
 .class-screen-toolbar-icon + .class-screen-toolbar-icon {
   margin-top: 16px;
+}
+
+.thisiscode {
+  font-family: 'GmarketSansBold';
+  font-size: 20px;
+  letter-spacing: -1px;
+  color: #9097fd;
+}
+
+.codebody {
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-size: 18px;
+  letter-spacing: -1px;
+  font-weight: normal;
+  color: #333333;
+}
+
+.footer {
+  color: #9097fd;
 }
 </style>

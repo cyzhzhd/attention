@@ -44,7 +44,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: #9097fd 80%;
   display: table;
   transition: opacity 0.3s ease;
 }
@@ -60,16 +60,17 @@ export default {
   margin: 0px auto;
   padding: 20px 30px;
 
-  background-color: #f6f7fb;
-  border-radius: 2px;
+  background-color: #ffffff;
+  /* border-radius: 30px; */
   border: 1px #9097fd solid;
   /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33); */
   transition: all 0.3s ease;
 }
 
-.modal-header h3 {
+.modal-header {
   margin-top: 0;
-  color: #42b983;
+  /* color: #42b983; */
+  height: 30px;
 }
 
 .modal-body {

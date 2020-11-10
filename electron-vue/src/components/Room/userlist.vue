@@ -21,13 +21,11 @@
                     'url(' +
                     require('../../assets/img/room/energy-background.png') +
                     ')',
-                  width: `${
-                    20 -
+                  width: `${20 -
                     userInfo.CCTData.CCT.focusPoint[
                       userInfo.CCTData.avr.num - 1
                     ] /
-                      5
-                  }px`,
+                      5}px`,
                 }"
               ></figure>
               <figure
@@ -38,13 +36,11 @@
                     'url(' +
                     require('../../assets/img/room/energyRed.png') +
                     ')',
-                  width: `${
-                    20 -
+                  width: `${20 -
                     userInfo.CCTData.CCT.focusPoint[
                       userInfo.CCTData.avr.num - 1
                     ] /
-                      5
-                  }px`,
+                      5}px`,
                 }"
               ></figure>
             </div>
@@ -52,7 +48,9 @@
               class="userlist-profile"
               :style="{
                 backgroundImage:
-                  'url(' + require('../../assets/img/room/profile.png') + ')',
+                  'url(' +
+                  require('../../assets/img/room/student-boy.svg') +
+                  ')',
               }"
             ></figure>
             {{ userInfo.name }}
