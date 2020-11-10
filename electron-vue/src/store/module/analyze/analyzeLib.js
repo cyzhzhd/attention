@@ -65,15 +65,15 @@ function drawAll(canvas, ctx, bbox, conf, landmarkObj, point) {
     ctx.strokeStyle = '#FF0000';
   }
   else if (point < 75) {
-    ctx.fillStyle = '#00FF00';
-    ctx.fillStyle = '#00FF00';
+    ctx.fillStyle = '#0000FF';
+    ctx.strokeStyle = '#0000FF';
   }
   else {
-    ctx.fillStyle = '#0000FF';
-    ctx.fillStyle = '#0000FF';
+    ctx.fillStyle = '#00FF00';
+    ctx.strokeStyle = '#00FF00';
   }
   ctx.font = '30px Arial';
-  ctx.lineWidth = '4';
+  ctx.lineWidth = '3';
 
   if (bbox !== undefined) {
     ctx.font = '30px Arial';
@@ -83,7 +83,7 @@ function drawAll(canvas, ctx, bbox, conf, landmarkObj, point) {
     // ctx.fillText(conf.bbox[0] + 15, bbox[1] + 30);
     ctx.stroke();
     for (let i = 0; i < 68; ++i) {
-      ctx.fillRect(landmarkObj[i]['_x'], landmarkObj[i]['_y'], 2, 2);
+      ctx.fillRect(landmarkObj[i]['_x'], landmarkObj[i]['_y'], 3, 3);
     }
   }
   // drawInfo(ctx, result);

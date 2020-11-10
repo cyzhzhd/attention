@@ -58,6 +58,8 @@ let timeVar = {
     temp: 0,
 };
 
+let draw_point = judge.focusPoint;
+
 function varInit() {
     timeVar.change = true;
     detect.arr.length = 0;
@@ -104,9 +106,10 @@ function analysis(detection, landmarks, angle, timestamp) {
             content: judge,
         });
         console.log(judge);
+        draw_point = judge.focusPoint;
         varInit();
     }
-    return judge.focusPoint;
+    return draw_point;
 }
 
 function getDetectPer(detection) {
