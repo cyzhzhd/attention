@@ -133,8 +133,7 @@ function getSleepPer(landmarks) {
     const perR = (inHR + outHR) / (2 * wR);
     const EAR = (perL + perR) / 2;
 
-    studentData.blinkSize =
-        EAR < studentData.blinkSize ? EAR : studentData.blinkSize;
+    studentData.blinkSize = EAR < studentData.blinkSize ? EAR : studentData.blinkSize;
     studentData.eyeSize = EAR > studentData.eyeSize ? EAR : studentData.eyeSize;
     if (studentData.eyeSize > 0.3) studentData.eyeSize = 0.3;
 

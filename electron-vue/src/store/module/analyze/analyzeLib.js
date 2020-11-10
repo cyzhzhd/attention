@@ -50,7 +50,6 @@ function drawLandmark(bbox, conf, landmark, point) {
   drawAll(canvas, ctx, bbox, conf, landmark, point);
 }
 
-
 function drawAll(canvas, ctx, bbox, conf, landmarkObj, point) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (point < 45) {
