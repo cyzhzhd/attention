@@ -15,50 +15,52 @@
         </div>
       </div>
     </main-header>
-    <div class="classroom-contents">
-      <CRDropDownBox></CRDropDownBox>
-      <div class="class-list">
-        <div class="time-line">
-          <div class="time-line-header">TIMELINE</div>
-          <div class="time-line-divider"></div>
-        </div>
-        <ul class="class-card-list">
-          <li
-            class="class-card"
-            v-for="classInfo in $store.state.classList"
-            :key="classInfo._id"
-          >
-            <div class="class-card-left">
-              <div class="class-card-duration-time">{{ classInfo.time }}</div>
+    <div class="classroom-background">
+        <div class="classroom-contents">
+          <CRDropDownBox></CRDropDownBox>
+          <div class="class-list">
+            <div class="time-line">
+              <div class="time-line-header">TIMELINE</div>
+              <div class="time-line-divider"></div>
             </div>
-            <div class="class-card-center">
-              <div class="class-card-header">
-                <div class="class-card-classroom">{{ classInfo.name }}</div>
-                <div class="class-card-subject">
-                  {{ classInfo.teacherName }} 선생님
+            <ul class="class-card-list">
+              <li
+                class="class-card"
+                v-for="classInfo in $store.state.classList"
+                :key="classInfo._id"
+              >
+                <div class="class-card-left">
+                  <div class="class-card-duration-time">{{ classInfo.time }}</div>
                 </div>
-              </div>
-              <div class="class-card-thumbnail"></div>
-            </div>
-            <div class="class-card-right">
-              <div
-                v-if="classInfo.endTime"
-                class="class-card-enter-button"
-                @click="enterDashboard(classInfo._id)"
-              >
-                대시보드
-              </div>
-              <div
-                v-else
-                class="class-card-enter-button"
-                @click="enterClass(classInfo._id)"
-              >
-                입장
-              </div>
-            </div>
-          </li>
-        </ul>
-      </div>
+                <div class="class-card-center">
+                  <div class="class-card-header">
+                    <div class="class-card-classroom">{{ classInfo.name }}</div>
+                    <div class="class-card-subject">
+                      {{ classInfo.teacherName }} 선생님
+                    </div>
+                  </div>
+                  <div class="class-card-thumbnail"></div>
+                </div>
+                <div class="class-card-right">
+                  <div
+                    v-if="classInfo.endTime"
+                    class="class-card-enter-button"
+                    @click="enterDashboard(classInfo._id)"
+                  >
+                    대시보드
+                  </div>
+                  <div
+                    v-else
+                    class="class-card-enter-button"
+                    @click="enterClass(classInfo._id)"
+                  >
+                    입장
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
     </div>
   </div>
 </template>

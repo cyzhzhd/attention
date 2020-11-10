@@ -11,6 +11,12 @@ body {
   display: flex;
   flex-direction: column;
   background-color: #f6f7fb;
+
+  background-size: cover;
+  background-image: url(../img/DashBoard/dashboard-background.svg);
+  /* background-repeat: no-repeat;
+  background-position: left bottom;
+  background-attachment: fixed; */
 }
 .header {
   width: 100%;

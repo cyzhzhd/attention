@@ -48,7 +48,8 @@
         </div>
       </div>
 
-      <div class="dashboard-contents">
+      <div class="dashboard-background">
+        <div class="dashboard-contents">
         <ul class="user-list-wrapper" v-if="!displayingAllClass">
           <li
             class="user-item"
@@ -112,6 +113,7 @@
         </div>
       </div>
     </div>
+      </div>
   </div>
 </template>
 
