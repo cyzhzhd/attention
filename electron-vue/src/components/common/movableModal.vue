@@ -36,7 +36,6 @@ export default {
   font-weight: normal;
   font-style: normal;
 }
-
 .modal-mask {
   position: fixed;
   z-index: 9998;
@@ -55,16 +54,15 @@ export default {
 }
 
 .modal-container {
-  /* width: 700px;
-  height: 700px; */
+  width: 350px;
+  height: 500px;
   margin: 0px auto;
-  padding: 20px 30px;
-
   background-color: #f6f7fb;
   border-radius: 2px;
   border: 1px #9097fd solid;
   /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33); */
   transition: all 0.3s ease;
+  font-family: Helvetica, Arial, sans-serif;
 }
 
 .modal-header h3 {

@@ -38,17 +38,16 @@
                   <div v-else>
                     <div class="received-msg">
                       <div class="received-msg-info">
-                          <img
-                            class="received-msg-img"
-                            src="https://ptetutorials.com/images/user-profile.png"
-                            alt="sunil"
-                          />
-                          <p class="sender">{{ message.name }}</p>
-                          <!-- <p class="received-msg-sentAt">{{ message.sentAt }}</p> -->
-                        </div>
-                     <div class="received-msg-text">
+                        <img
+                          class="received-msg-img"
+                          src="https://ptetutorials.com/images/user-profile.png"
+                          alt="sunil"
+                        />
+                        <p class="sender">{{ message.name }}</p>
+                        <!-- <p class="received-msg-sentAt">{{ message.sentAt }}</p> -->
+                      </div>
+                      <div class="received-msg-text">
                         <p>{{ message.message }}</p>
-
                       </div>
                     </div>
                   </div>
@@ -166,7 +165,7 @@ img {
   font-size: 20px;
   letter-spacing: -1px;
 
-  background-color: #F6F7FB;
+  background-color: #f6f7fb;
   height: 50px;
   padding: 0px 30px;
 }
@@ -182,8 +181,7 @@ img {
 .msg {
   overflow-y: auto;
   height: 380px;
-  background-color: #F6F7FB;
-
+  background-color: #f6f7fb;
 }
 .msg-container {
   display: flex;
@@ -232,7 +230,6 @@ img {
   display: flex;
   justify-content: flex-end;
 }
-
 
 .input-msg-write {
   display: flex;

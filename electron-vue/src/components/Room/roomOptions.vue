@@ -16,6 +16,12 @@
       </div>
       <div
         class="class-screen-toolbar-item"
+        @click.prevent="controlModal('showingGroupModal')"
+      >
+        그룹
+      </div>
+      <div
+        class="class-screen-toolbar-item"
         @click.prevent="controlModal('showingInviteModal')"
       >
         초대
@@ -82,6 +88,10 @@
       v-bind:showingModal="modalList.showingScreenSharingModal"
       v-on:closeModal="controlModal"
     ></screen-sharing>
+    <group
+      v-bind:showingModal="modalList.showingGroupModal"
+      v-on:closeModal="controlModal"
+    ></group>
     <vue-context ref="menu">
       <template>
         <li>
@@ -104,6 +114,7 @@ import settings from './roomOptions/mainSettings.vue';
 import chat from './roomOptions/chat.vue';
 import screenSharing from './roomOptions/screenSharing.vue';
 import CCTGraph from './roomOptions/CCTGraph.vue';
+import group from './roomOptions/group.vue';
 import bus from '../../../utils/bus';
 
 export default {
@@ -114,6 +125,7 @@ export default {
     chat,
     screenSharing,
     CCTGraph,
+    group,
     VueContext,
   },
   data() {
@@ -126,6 +138,7 @@ export default {
         showingChatModal: false,
         showingScreenSharingModal: false,
         showingCCTModal: false,
+        showingGroupModal: false,
       },
 
       isVideoMuted: true,
