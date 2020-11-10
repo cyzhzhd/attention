@@ -57,7 +57,8 @@
     </div>
 
     <div class="modal-wrapper" v-on:click="controlModal('showingInviteModal')">
-      <smallModal
+      <Modal
+        :size="modalSize"
         v-if="modalList.showingInviteModal"
         @close="modalList.showingInviteModal"
       >
@@ -72,7 +73,7 @@
             v-on:click="controlModal('showingInviteModal')"
           ></i>
         </h4>
-      </smallModal>
+      </Modal>
     </div>
     <settings
       v-bind:showingModal="modalList.showingSettingModal"
@@ -111,7 +112,7 @@
 import { mapGetters, mapActions } from 'vuex';
 import VueContext from 'vue-context';
 import 'vue-context/src/sass/vue-context.scss';
-import smallModal from '../common/smallModal.vue';
+import Modal from '../common/Modal.vue';
 import settings from './roomOptions/mainSettings.vue';
 import chat from './roomOptions/chat.vue';
 import screenSharing from './roomOptions/screenSharing.vue';
@@ -122,7 +123,7 @@ import bus from '../../../utils/bus';
 export default {
   name: 'room-options',
   components: {
-    smallModal,
+    Modal,
     settings,
     chat,
     screenSharing,
@@ -143,6 +144,9 @@ export default {
         showingGroupModal: false,
       },
 
+      modalSize: {
+        width: '300px',
+      },
       isVideoMuted: true,
       isAudioMuted: true,
     };

@@ -1,7 +1,12 @@
 <template>
   <div class="modal-mask" ref="modal">
     <div class="modal-wrapper" v-on:click="closeModal">
-      <mediumModal class="modal" v-if="showingModal" @close="showingModal">
+      <movableModal
+        :size="modalSize"
+        class="modal"
+        v-if="showingModal"
+        @close="showingModal"
+      >
         <h3 slot="header" class="header" ref="header">
           <div class="modal-title">채팅</div>
           <div class="closeModalBtn">
@@ -69,21 +74,21 @@
           </div>
         </h4>
         <h4 slot="footer"></h4>
-      </mediumModal>
+      </movableModal>
     </div>
   </div>
 </template>
 
 <script>
 import { mapActions } from 'vuex';
-import mediumModal from '../../common/mediumModal.vue';
+import movableModal from '../../common/movableModal.vue';
 import bus from '../../../../utils/bus';
 
 export default {
   name: 'chat',
   props: ['showingModal'],
   components: {
-    mediumModal,
+    movableModal,
   },
   data() {
     return {
@@ -91,6 +96,10 @@ export default {
       roomId: this.$route.params.roomId,
       message: null,
       messages: [],
+      modalSize: {
+        width: '350px',
+        height: '500px',
+      },
     };
   },
   methods: {

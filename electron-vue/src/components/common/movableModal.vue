@@ -57,12 +57,15 @@ export default {
   width: 350px;
   height: 500px;
   margin: 0px auto;
-  background-color: #f6f7fb;
-  border-radius: 2px;
+  background-color: #ffffff;
   border: 1px #9097fd solid;
   /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33); */
   transition: all 0.3s ease;
-  font-family: Helvetica, Arial, sans-serif;
+
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-size: 15px;
+  font-weight: normal;
+  letter-spacing: -1px;
 }
 
 .modal-header h3 {

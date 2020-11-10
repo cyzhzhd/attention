@@ -1,6 +1,6 @@
 <template>
   <div class="modal-wrapper" v-on:click="closeModal">
-    <largeModal v-if="showingModal" @close="showingModal">
+    <Modal :size="modalSize" v-if="showingModal" @close="showingModal">
       <h3 slot="header" class="header">설정</h3>
       <h4 slot="body">
         <video
@@ -48,20 +48,20 @@
           v-on:click="closeModal"
         ></i>
       </h4>
-    </largeModal>
+    </Modal>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
-import largeModal from '../../common/largeModal.vue';
+import Modal from '../../common/Modal.vue';
 import bus from '../../../../utils/bus';
 
 export default {
   name: 'main-settings',
   props: ['showingModal'],
   components: {
-    largeModal,
+    Modal,
   },
   data() {
     return {
@@ -69,6 +69,10 @@ export default {
       CCTDataInterval: 30,
       rotateStudentInterval: 30,
       numConnectedStudent: 3,
+      modalSize: {
+        width: '800px',
+        height: '700px',
+      },
     };
   },
   computed: {

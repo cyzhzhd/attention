@@ -1,7 +1,12 @@
 <template>
   <div class="modal-mask" ref="modal">
     <div class="modal-wrapper" v-on:click="closeModal">
-      <mediumWideModal class="modal" v-if="showingModal" @close="showingModal">
+      <movableModal
+        :size="modalSize"
+        class="modal"
+        v-if="showingModal"
+        @close="showingModal"
+      >
         <h3 slot="header" class="header" ref="header">
           <div class="modal-title">집중력 그래프</div>
           <div class="closeModalBtn">
@@ -16,14 +21,14 @@
           <class-chart></class-chart>
         </h4>
         <h4 slot="footer"></h4>
-      </mediumWideModal>
+      </movableModal>
     </div>
   </div>
 </template>
 
 <script>
 import { mapActions } from 'vuex';
-import mediumWideModal from '../../common/mediumWideModal.vue';
+import movableModal from '../../common/movableModal.vue';
 import bus from '../../../../utils/bus';
 import ClassChart from './ClassChart/ClassChart.vue';
 
@@ -31,11 +36,15 @@ export default {
   name: 'CCTGraph',
   props: ['showingModal'],
   components: {
-    mediumWideModal,
+    movableModal,
     ClassChart,
   },
   data() {
     return {
+      modalSize: {
+        width: '500px',
+        height: '600px',
+      },
     };
   },
   methods: {
@@ -71,7 +80,7 @@ img {
 .header {
   cursor: move;
   background-color: #ffffff;
-  padding:10px;
+  padding: 10px;
 }
 .header {
   display: flex;
