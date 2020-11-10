@@ -41,16 +41,16 @@ let point = {
     deadP: [0, 0.15], // up down 0~0.15
     deadY: [-0.18, 0.18], // left right -0.2~0.2
     deadR: [-0.23, 0.23], // spin l, spin r -0.25~0.25
-    weightP: 2,
-    weightY: 2,
-    weightR: 1,
+    weightP: 30,
+    weightY: 13,
+    weightR: 13,
     centerArr0: [],
     centerArr1: [],
     center: [0, 0],
-    centerTemp: [300, 250],
-    deadXY: [130, 100],
+    centerTemp: [140, 85],
+    deadXY: [50, 40],
     deadM: 0.55,
-    weightM: 2,
+    weightM: 2.5,
 };
 
 let timeVar = {
@@ -93,6 +93,7 @@ function analysis(detection, landmarks, angle, timestamp) {
     // send to server part
     const nowTime = new Date();
     if (nowTime.getTime() - timeVar.temp.getTime() > teacherData.period * 1000) {
+        // console.log(judge.focusPoint);
         if (!judge.attend) judge.focusPoint = 0;
         else if (judge.sleep) judge.focusPoint = 5;
         else {
@@ -105,6 +106,7 @@ function analysis(detection, landmarks, angle, timestamp) {
         console.log(judge);
         varInit();
     }
+    return judge.focusPoint;
 }
 
 function getDetectPer(detection) {
@@ -176,8 +178,7 @@ function getPoint(landmarks, angle) {
         nowCenter[0] > xEdge[1] ||
         nowCenter[1] < yEdge[0] ||
         nowCenter[1] > yEdge[1]
-    )
-        minusC = 0.3;
+    ) minusC = 0.9;
     else minusC = 0;
 
     const mW = calcDist(landmarks[48], landmarks[54]);
@@ -192,6 +193,7 @@ function getPoint(landmarks, angle) {
     else minusM = point.weightM * (MAR - point.deadM);
 
     return minusP + minusY + minusR + minusC + minusM;
+
 }
 
 export default {
