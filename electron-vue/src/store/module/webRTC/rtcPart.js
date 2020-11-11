@@ -616,11 +616,9 @@ function leaveGroup() {
         console.log(userInfo, 'is teacher');
         teacher.sendingTrack.forEach((tracks) => tracks.replaceTrack(null));
       } else {
-        for (const u of state.connectedUsers) {
-          if (u._id === userInfo.id) {
-            console.log('disconnecting with', u);
-            disconnectWithTheUser(u);
-          }
+        const user = findUser(userInfo.id);
+        if (user) {
+          disconnectWithTheUser(user);
         }
       }
     }
@@ -641,7 +639,8 @@ function joinGroup(groupInfo) {
         sendTrackToTeacher();
       } else {
         const user = findUser(userInfo.id);
-        console.log(user, state.myId);
+        if (!user) return;
+
         if (state.isTeacher) {
           connectWithTheStudent(user);
         } else {

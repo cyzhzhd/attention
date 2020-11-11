@@ -243,7 +243,7 @@ img {
 .received-msg-text {
   display: flex;
   justify-content: flex-start;
-  flex: 0 1 40px;
+  /* flex: 0 1 40px; */
 
   background-color: #eaebff;
   border-radius: 0.5rem;
