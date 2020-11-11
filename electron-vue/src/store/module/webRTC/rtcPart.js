@@ -342,15 +342,17 @@ function shareScreen(track) {
   reLayoutVideoIfNeeded();
   bus.$emit('rtcPart:start-sharing-screen');
 }
-
+function addStudentVideo(targetUser) {
+  const video = addVideoElement(targetUser);
+  videoSetting(video, targetUser, targetUser.recievingTrack);
+  state.displayingStudentList.push(targetUser);
+}
 function connectWithTheStudent(targetUser) {
   sendSignalToServer('sendSignal', {
     sendTo: targetUser.socket,
     content: { type: 'connectWithTeacher' },
   });
-  const video = addVideoElement(targetUser);
-  videoSetting(video, targetUser, targetUser.recievingTrack);
-  state.displayingStudentList.push(targetUser);
+  addStudentVideo(targetUser);
 }
 function disconnectWithTheStudent(targetUser) {
   removeVideo(targetUser.user);
@@ -543,6 +545,9 @@ const funcSignal = {
     if (sentFrom.isTeacher)
       teacher.sendingTrack.forEach((tracks) => tracks.replaceTrack(null));
   },
+  connectRequestFromStudent(sentFrom) {
+    addStudentVideo(sentFrom);
+  },
 };
 
 socket.on('deliverSignal', (message) => {
@@ -604,8 +609,8 @@ function classifyGroup(groupInfo, keys) {
   state.groupInfo = groups;
   state.independentGroup = independentGroup;
 }
-function leaveGroup(groupInfo) {
-  groupInfo[state.myGroup].forEach((userInfo) => {
+function leaveGroup() {
+  state.displayingStudentList.forEach((userInfo) => {
     if (userInfo.id !== state.myId) {
       if (userInfo.isTeacher) {
         console.log(userInfo, 'is teacher');
@@ -627,6 +632,12 @@ function joinGroup(groupInfo) {
     if (userInfo.id !== state.myId) {
       if (userInfo.isTeacher) {
         console.log(userInfo, 'is teacher');
+        sendSignalToServer('sendSignal', {
+          sendTo: teacher.socket,
+          content: {
+            type: 'connectRequestFromStudent',
+          },
+        });
         sendTrackToTeacher();
       } else {
         for (const u of state.connectedUsers) {
@@ -648,6 +659,7 @@ socket.on('deliverPartyList', (groupInfo) => {
   console.log(groupInfo);
   const keys = Object.keys(groupInfo);
   const hasMoved = checkMyGroup(groupInfo, keys);
+  console.log('my group is now', state.myGroup, hasMoved);
   if (hasMoved) {
     // joining to new group
     if (state.isTeacher) {
