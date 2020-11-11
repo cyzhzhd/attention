@@ -502,6 +502,11 @@ function resetVariables() {
 socket.on('deliverUserList', (userlist) => {
   updateUserlist(userlist);
 });
+function sendTrackToTeacher() {
+  const tracks = localStream.getTracks();
+  teacher.sendingTrack[0].replaceTrack(tracks[0]);
+  teacher.sendingTrack[1].replaceTrack(tracks[1]);
+}
 
 const funcSignal = {
   offerRequest(sentFrom) {
@@ -532,11 +537,7 @@ const funcSignal = {
     disconnectWithTheUser(sentFrom, true);
   },
   connectWithTeacher(sentFrom) {
-    if (sentFrom.isTeacher) {
-      const tracks = localStream.getTracks();
-      teacher.sendingTrack[0].replaceTrack(tracks[0]);
-      teacher.sendingTrack[1].replaceTrack(tracks[1]);
-    }
+    if (sentFrom.isTeacher) sendTrackToTeacher();
   },
   disconnectWithTeacher(sentFrom) {
     if (sentFrom.isTeacher)
@@ -579,6 +580,7 @@ function checkMyGroup(groupInfo, keys) {
       if (userInfo.id === state.myId) {
         if (state.myGroup !== key) {
           state.myGroup = key;
+          console.log('group changed to', key);
           return true;
         }
         return false;
@@ -602,16 +604,41 @@ function classifyGroup(groupInfo, keys) {
   state.groupInfo = groups;
   state.independentGroup = independentGroup;
 }
+function leaveGroup(groupInfo) {
+  groupInfo[state.myGroup].forEach((userInfo) => {
+    if (userInfo.id !== state.myId) {
+      if (userInfo.isTeacher) {
+        console.log(userInfo, 'is teacher');
+        teacher.sendingTrack.forEach((tracks) => tracks.replaceTrack(null));
+      } else {
+        for (const u of state.connectedUsers) {
+          if (u._id === userInfo.id) {
+            console.log('disconnecting with', u);
+            disconnectWithTheUser(u);
+          }
+        }
+      }
+    }
+  });
+}
 
 function joinGroup(groupInfo) {
-  const usersToConnect = groupInfo[state.myGroup].filter(
-    (userInfo) => userInfo.id !== state.myId,
-  );
-
-  usersToConnect.forEach((userInfo) => {
-    for (const u of state.connectedUsers) {
-      if (u._id === userInfo.id) {
-        connectWithTheUser(u);
+  groupInfo[state.myGroup].forEach((userInfo) => {
+    if (userInfo.id !== state.myId) {
+      if (userInfo.isTeacher) {
+        console.log(userInfo, 'is teacher');
+        sendTrackToTeacher();
+      } else {
+        for (const u of state.connectedUsers) {
+          if (u._id === userInfo.id) {
+            console.log('connecting with', u);
+            if (state.isTeacher) {
+              connectWithTheStudent(u);
+            } else {
+              connectWithTheUser(u);
+            }
+          }
+        }
       }
     }
   });
@@ -623,8 +650,14 @@ socket.on('deliverPartyList', (groupInfo) => {
   const hasMoved = checkMyGroup(groupInfo, keys);
   if (hasMoved) {
     // joining to new group
-    disconnectAll();
-    joinGroup(groupInfo);
+    if (state.isTeacher) {
+      disconnectAll();
+    } else {
+      leaveGroup();
+    }
+    if (state.myGroup !== 'independent') {
+      joinGroup(groupInfo);
+    }
   }
   classifyGroup(groupInfo, keys);
 });
