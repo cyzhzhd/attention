@@ -48,11 +48,17 @@
           <img src="../../assets/img/room/mic-off.svg" v-if="isAudioMuted" />
         </div>
       </div>
-      <div class="quit-class-button" v-if="$store.state.user.isTeacher">
-        <div @click.prevent="$refs.menu.open($event)" @click.stop>종료</div>
+      <div class="quit-class-button-wrapper" v-if="$store.state.user.isTeacher">
+        <div
+          class="quit-class-button"
+          @click.prevent="$refs.menu.open($event)"
+          @click.stop
+        >
+          종료
+        </div>
       </div>
-      <div class="quit-class-button" v-else>
-        <a @click="leaveClass()">종료</a>
+      <div class="quit-class-button-wrapper" v-else>
+        <a class="quit-class-button" @click="leaveClass()">종료</a>
       </div>
     </div>
 
@@ -226,8 +232,9 @@ export default {
 }
 
 .class-screen-toolbar {
-  width: 30px;
-  height: 700px;
+  width: 20px;
+  height: 500px;
+  z-index: 999;
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -251,24 +258,26 @@ export default {
 
 .class-screen-toolbar:hover {
   transform: translate(0px, -50%);
-  width: 150px;
+  width: 120px;
 }
 .class-screen-toolbar:hover > * {
   visibility: visible;
 }
-.class-screen-toolbar:hover > .quit-class-button {
-  width: 100px;
+.class-screen-toolbar:hover > .quit-class-button-wrapper {
+  width: 80px;
 }
-.quit-class-button {
+.quit-class-button-wrapper {
   background-color: #9097fd;
   border-radius: 20px;
   color: #fff;
   font-size: 18px;
-  line-height: 40px;
   text-align: center;
   margin-top: 24px;
   cursor: pointer;
   text-overflow: ellipsis;
+}
+.quit-class-button {
+  margin: 5px 0;
 }
 .class-screen-toolbar-item {
   font-size: 18px;
