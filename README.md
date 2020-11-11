@@ -6,9 +6,10 @@
 
 ```
 To start a Development Server
+cd electron-vue
 yarn run electron:serve
 ```
-
+yarn으로 실행할 것
 ## flex & grid 
 [flex&grid guide](https://studiomeal.com/archives/533)
 
@@ -17,23 +18,25 @@ yarn run electron:serve
 ### signaling server
 express server에 얹혀있음 (port: 3000)  
 
-### STUN, TURN server
-
-구글 STUN 서버 사용 중  
-TURN 서버 구축 필요 시 COTRUN PROJECT 이용  
+### STUN, TURN, Media server
+STUN, TURN server = [COTURN Project](https://github.com/coturn/coturn)  
+TURN 서버 작동 확인 방법 = [trickle ICE](https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/)  
+  
+Media server = [media soup](https://mediasoup.org/)  
+Media server는 Linux 환경에서만 작동    
+윈도우 환경에서 Linux 사용 방법 = [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10)  
   
 
 
 ### N:M 연결 방법
 
 1. Full Mesh Network
-2. [Small world network ](http://www.scholarpedia.org/article/Small-world_network)
-3. [Hierarchical Network ](https://www.ciscopress.com/articles/article.asp?p=2202410&seqNum=4#:~:text=A%20hierarchical%20network%20design%20involves,role%20within%20the%20overall%20network.&text=The%20benefit%20of%20dividing%20a,that%20local%20traffic%20remains%20local.)
+2. [Hierarchical Network ](https://www.ciscopress.com/articles/article.asp?p=2202410&seqNum=4#:~:text=A%20hierarchical%20network%20design%20involves,role%20within%20the%20overall%20network.&text=The%20benefit%20of%20dividing%20a,that%20local%20traffic%20remains%20local.)
+3. [Small world network ](http://www.scholarpedia.org/article/Small-world_network)
 
-이 중 Full Mesh Network를 사용  
-가장 간단하고, 모두가 모두를 볼 수 있는 구조  
-
-추후 Small world network를 변형하여 적용할 예정 
+1 -> 2 -> 3단계 순서로 단계적 적용 
+현재는 Small world network를 커스텀하여 사용중  
+[네트워크 대역폭 비교](https://13.125.91.162/swmaestro/183-1/-/wikis/Network-Topology-Analysis)
 
 
 
@@ -53,8 +56,8 @@ TURN 서버 구축 필요 시 COTRUN PROJECT 이용
 2. 크롬에선 다른 소스에서 나오는 소리는 에코 캔슬링이 안됨. Ex 유튜브 영상, zoom에서 나오는 소리
 3. Safari에서는 non-webRTC audio도 echo cancelling 가능
 
-webRTC Echo cancellation, noise suppression
-https://chromium.googlesource.com/external/webrtc/+/b3b79b611597f44c1d2b29f2d833b6d5928d7a68/webrtc/modules/audio_processing/include/audio_processing.h  
+[webRTC Echo cancellation, noise suppression](https://chromium.googlesource.com/external/webrtc/+/b3b79b611597f44c1d2b29f2d833b6d5928d7a68/webrtc/modules/audio_processing/include/audio_processing.h)
+  
 line 582
 
 #### Noise Cancelling
@@ -63,6 +66,6 @@ line 582
     딥러닝 베이스 소프트웨어로 signal 2를 불리해 냄.
 
 2. [Least Mean Square Algorithm](https://kr.mathworks.com/help/dsp/examples/acoustic-noise-cancellation-lms.html)
-3. 
+
 
 
