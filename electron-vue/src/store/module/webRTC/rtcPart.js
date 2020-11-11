@@ -549,6 +549,10 @@ const funcSignal = {
   connectRequestFromStudent(sentFrom) {
     addStudentVideo(sentFrom);
   },
+  disconnectRequestFromStudent(sentFrom) {
+    removeVideo(sentFrom.user);
+    removeFromDisplayingUser(sentFrom);
+  },
 };
 
 socket.on('deliverSignal', (message) => {
@@ -614,7 +618,12 @@ function leaveGroup() {
   state.displayingStudentList.forEach((userInfo) => {
     if (userInfo.id !== state.myId) {
       if (userInfo.isTeacher) {
-        console.log(userInfo, 'is teacher');
+        sendSignalToServer('sendSignal', {
+          sendTo: teacher.socket,
+          content: {
+            type: 'disconnectRequestFromStudent',
+          },
+        });
         teacher.sendingTrack.forEach((tracks) => tracks.replaceTrack(null));
       } else {
         const user = findUser(userInfo.id);
