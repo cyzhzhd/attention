@@ -29,6 +29,7 @@ async function createWindow() {
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
     },
   });
+  win.removeMenu();
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
@@ -37,7 +38,6 @@ async function createWindow() {
     createProtocol('app');
     // Load the index.html when not in development
     win.loadURL('app://./index.html');
-    win.webContents.openDevTools();
   }
 
   win.on('closed', () => {
@@ -91,22 +91,17 @@ if (isDevelopment) {
     });
   }
 }
-// // 대분류(이벤트명), 중분류(type or topic), 소분류(stringified json)
-// // 프로세스명: 행위
-// ipcMain.on('process:recv', (event, message) => {
-//   // if(event.type == 'display-'){}
-// });
-
 let originalWinLocation;
 ipcMain.on('attention:start-sharing-screen', (event, height) => {
   const width = 250;
   originalWinLocation = win.getBounds();
   win.unmaximize();
   win.setBounds({ width, height });
-  // win.setContentBounds({ width, height });
+
+  win.setAlwaysOnTop(true, 'screen');
 });
 
 ipcMain.on('attention:stop-sharing-screen', () => {
   win.setBounds(originalWinLocation);
-  // win.setContentBounds({ width, height });
+  win.setAlwaysOnTop(false, 'screen');
 });

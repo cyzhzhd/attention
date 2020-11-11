@@ -39,6 +39,9 @@ export default {
 .videos {
   display: grid;
   grid-template-columns: 1fr;
+  height: 100vh;
+  align-items: center;
+  justify-items: center;
 }
 .videos div p {
   position: absolute;

@@ -25,7 +25,7 @@ const state = {
   myId: '',
   CCTData: {
     avr: { num: 0, ttl: 0 },
-    CCT: { absence: [], focusPoint: [], sleep: [], turnHead: [], time: [] },
+    CCT: { attend: [], focusPoint: [], sleep: [], time: [] },
   },
   sortStudentListInterval: 10,
   rotateStudentInterval: 30,
@@ -93,11 +93,12 @@ const mutations = {
       CCT.sortUserListByCCT(
         state.connectedUsers,
         state.sortStudentListInterval,
+        true,
       );
     }
     if (state.CCTDataInterval !== CCTDataInterval) {
       state.CCTDataInterval = CCTDataInterval;
-      CCT.addCCTDataOnTotalCCT(state.CCTData, state.CCTDataInterval);
+      CCT.addCCTDataOnTotalCCT(state.CCTData, state.CCTDataInterval, true);
     }
 
     if (

@@ -4,15 +4,10 @@
       <div class="cct-buttons" @click="displaySelectedType('focusPoint')">
         Focus Point
       </div>
-      <div class="cct-buttons" @click="displaySelectedType('absence')">
-        Absence
+      <div class="cct-buttons" @click="displaySelectedType('attend')">
+        Attend
       </div>
-      <div class="cct-buttons" @click="displaySelectedType('sleep')">
-        Sleep
-      </div>
-      <div class="cct-buttons" @click="displaySelectedType('turnHead')">
-        TurnHead
-      </div>
+      <div class="cct-buttons" @click="displaySelectedType('sleep')">Sleep</div>
     </div>
 
     <div class="dropdown">
@@ -57,9 +52,8 @@ export default {
       interval: '',
       type: {
         focusPoint: true,
-        absence: false,
+        attend: false,
         sleep: false,
-        turnHead: false,
       },
     };
   },
@@ -73,7 +67,7 @@ export default {
       this.drawChart(this.user, this.type);
     },
     chooseColor(key) {
-      if (key === 'absence') return 'rgba(254, 245, 160, 1)';
+      if (key === 'attend') return 'rgba(254, 245, 160, 1)';
       if (key === 'focusPoint') return 'rgba(253, 173, 178, 1)';
       if (key === 'sleep') return 'rgba(119, 140, 252, 1)';
       return 'rgba(0, 0, 255, 1)';
@@ -107,7 +101,7 @@ export default {
         this.datacollection.labels = user.CCTData.CCT.time;
       }
 
-      const calculatePoint = target => {
+      const calculatePoint = (target) => {
         const { num, ttl } = target.avr;
         console.log(num, ttl);
 
@@ -121,7 +115,7 @@ export default {
       }
 
       const keys = Object.keys(type);
-      keys.forEach(key => {
+      keys.forEach((key) => {
         if (type[key]) {
           this.datacollection.datasets.push(this.addDataSet(user, key));
         }

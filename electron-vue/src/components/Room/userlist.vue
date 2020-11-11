@@ -21,11 +21,13 @@
                     'url(' +
                     require('../../assets/img/room/energy-background.png') +
                     ')',
-                  width: `${20 -
+                  width: `${
+                    20 -
                     userInfo.CCTData.CCT.focusPoint[
                       userInfo.CCTData.avr.num - 1
                     ] /
-                      5}px`,
+                      5
+                  }px`,
                 }"
               ></figure>
               <figure
@@ -36,11 +38,13 @@
                     'url(' +
                     require('../../assets/img/room/energyRed.png') +
                     ')',
-                  width: `${20 -
+                  width: `${
+                    20 -
                     userInfo.CCTData.CCT.focusPoint[
                       userInfo.CCTData.avr.num - 1
                     ] /
-                      5}px`,
+                      5
+                  }px`,
                 }"
               ></figure>
             </div>
@@ -108,7 +112,7 @@ export default {
 }
 .userlist {
   position: absolute;
-  height: 75vh;
+  height: 100vh;
   width: 100px;
   margin-top: 10px;
   overflow-y: auto;

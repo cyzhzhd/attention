@@ -157,32 +157,37 @@ function reLayoutVideoIfNeeded() {
   const divs = state.videos.childNodes;
   if (isScreenSharing) {
     state.videos.style.gridTemplateColumns = '1fr';
+    state.videos.style.height = '0vh';
     setVideoHeight(divs, '', 'contain');
     return;
   }
 
   let height;
   let columnLayout;
+  let justifyItems = 'inherit';
   const { length } = divs;
   if (length > 6) {
     columnLayout = '1fr 1fr 1fr';
-    height = '27vh';
+    height = '33vh';
+    justifyItems = 'center';
   } else if (length > 4) {
     columnLayout = '1fr 1fr 1fr';
-    height = '43vh';
+    height = '50vh';
   } else if (length > 2) {
     columnLayout = '1fr 1fr';
-    height = '43vh';
+    height = '50vh';
   } else if (length > 1) {
     columnLayout = '1fr 1fr';
     height = '65vh';
   } else {
     columnLayout = '1fr';
     height = '750px';
+    justifyItems = 'center';
     state.localVideo.style.width = '70vw';
   }
   setVideoHeight(divs, height);
   state.videos.style.gridTemplateColumns = columnLayout;
+  state.videos.style.justifyItems = justifyItems;
 }
 function setOnTrackEventTeacher(user) {
   user.rtc.addEventListener('track', (event) => {
@@ -493,7 +498,7 @@ function resetVariables() {
   state.teacherVideo = null;
   state.CCTData = {
     avr: { num: 0, ttl: 0 },
-    CCT: { absence: [], focusPoint: [], sleep: [], turnHead: [], time: [] },
+    CCT: { attend: [], focusPoint: [], sleep: [], time: [] },
   };
 }
 
@@ -512,7 +517,6 @@ const funcSignal = {
     setRTCPeerConnection(sentFrom);
     sentFrom.rtc.setRemoteDescription(new RTCSessionDescription(content.sdp));
     addTrackOnPC(sentFrom);
-    state.displayingStudentList.push(sentFrom);
     console.log('answer 만드는 중');
     makeAnswer(sentFrom);
   },
@@ -576,6 +580,7 @@ socket.on('deliverConcenteration', (cctData) => {
 bus.$on('class:stop-sharing-screen', () => {
   isScreenSharing = false;
   screenSharingTrack = null;
+  state.videos.style.height = '100vh';
   const videoTrack = localStream.getTracks()[1];
   state.displayingStudentList.forEach((user) => {
     replaceTrack(user, videoTrack);

@@ -1,7 +1,9 @@
 <template>
   <div class="container" ref="contatiner">
-    <div class="closeBtn" ref="closeBtn" @click="backToNormalView">
-      화면 공유 종료
+    <div class="closeBtnWrapper">
+      <button class="closeBtn" ref="closeBtn" @click="backToNormalView">
+        화면 공유 종료
+      </button>
     </div>
     <div class="webRTC" ref="rtcT">
       <web-rtc-teacher v-if="$store.state.user.isTeacher"></web-rtc-teacher>
@@ -54,7 +56,6 @@ export default {
     backToNormalView() {
       console.log('backToNormalView');
       bus.$emit('class:stop-sharing-screen');
-      console.log('backToNormalView');
       this.$refs.userList.style.display = 'block';
       this.$refs.roomOptions.style.display = 'block';
       this.$refs.contatiner.style.gridTemplateColumns = '100px 1fr';
@@ -82,8 +83,8 @@ export default {
       this.$refs.closeBtn.style.display = 'block';
 
       // 연결된 유저 수 * 비디오 높이 + 버튼 높이 보내기
-      const offset = 245;
-      const height = offset + 160 * this.storedDisplayingStudentList.length;
+      const offset = 196;
+      const height = offset + 175 * this.storedDisplayingStudentList.length;
       console.log(height, this.storedDisplayingStudentList.length + 1);
       console.log(this.storedDisplayingStudentList);
       ipcRenderer.send('attention:start-sharing-screen', height);
@@ -103,7 +104,7 @@ export default {
   grid-template-columns: 100px 1fr;
   /* grid-template-rows: 1fr; */
   grid-template-areas: 'userlist webRTC';
-  background-color: #F6F7FB;
+  background-color: #f6f7fb;
 }
 
 .room-detail {
@@ -118,15 +119,25 @@ export default {
 }
 .user-list {
   grid-area: userlist;
-  height: 516px;
+  height: 100vh;
   overflow-y: auto;
 }
 .room-options {
   grid-area: options;
 }
-
+.closeBtnWrapper {
+  display: flex;
+  align-content: center;
+  justify-content: center;
+}
 .closeBtn {
   grid-area: closeBtn;
   display: none;
+  cursor: pointer;
+  width: 110px;
+  border-radius: 1rem;
+  border: 1px solid #9097fd;
+  color: #9097fd;
+  left: 30px;
 }
 </style>
