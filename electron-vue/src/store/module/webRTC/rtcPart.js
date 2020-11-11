@@ -640,15 +640,12 @@ function joinGroup(groupInfo) {
         });
         sendTrackToTeacher();
       } else {
-        for (const u of state.connectedUsers) {
-          if (u._id === userInfo.id) {
-            console.log('connecting with', u);
-            if (state.isTeacher) {
-              connectWithTheStudent(u);
-            } else {
-              connectWithTheUser(u);
-            }
-          }
+        const user = findUser(userInfo.id);
+        console.log(user, state.myId);
+        if (state.isTeacher) {
+          connectWithTheStudent(user);
+        } else {
+          connectWithTheUser(user);
         }
       }
     }
