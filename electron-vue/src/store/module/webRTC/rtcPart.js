@@ -1,6 +1,7 @@
 /* eslint-disable no-use-before-define */
 /* eslint no-param-reassign: "error" */
 /* eslint-disable no-restricted-syntax */
+/* eslint no-underscore-dangle: 0 */
 import resolutions from './resolution';
 import CCT from './CCT';
 import bus from '../../../../utils/bus';
@@ -446,29 +447,24 @@ function muteAudio() {
   }
   isAudioMuted = !isAudioMuted;
 }
-
-// function signalOfferRequest(user) {
-//   sendSignalToServer('sendSignal', {
-//     sendTo: user.socket,
-//     content: {
-//       type: 'offerRequest',
-//     },
-//   });
-// }
+function disconnectAll() {
+  if (state.displayingStudentList.length >= 0) {
+    const disconnectList = [...state.displayingStudentList];
+    disconnectList.forEach((student) => {
+      console.log('연결했었던 유저', student);
+      disconnectWithTheStudent(student);
+    });
+  }
+  state.displayingStudentList = [];
+}
 
 let currentTime = new Date();
 let nextRotateTime = new Date();
 function rotateStudent(isImmediate = false) {
   if (CCT.timeCompare(currentTime, nextRotateTime) >= 0 || isImmediate) {
     console.log(state.rotateStudentInterval);
-    if (state.displayingStudentList.length >= 0) {
-      const disconnectList = [...state.displayingStudentList];
-      disconnectList.forEach((student) => {
-        console.log('연결했었던 유저', student);
-        disconnectWithTheStudent(student);
-      });
-    }
-    state.displayingStudentList = [];
+    disconnectAll();
+
     let len = Math.min(state.numConnectedStudent, state.connectedUsers.length);
     for (let i = 0; i < len; i += 1) {
       if (state.connectedUsers[i].isTeacher) {
@@ -575,6 +571,62 @@ socket.on('deliverConcenteration', (cctData) => {
   CCT.sortUserListByCCT(state.connectedUsers, state.sortStudentListInterval);
   CCT.addCCTDataOnTotalCCT(state.CCTData, state.CCTDataInterval);
   rotateStudent();
+});
+
+function checkMyGroup(groupInfo, keys) {
+  for (const key of keys) {
+    for (const userInfo of groupInfo[key]) {
+      if (userInfo.id === state.myId) {
+        if (state.myGroup !== key) {
+          state.myGroup = key;
+          return true;
+        }
+        return false;
+      }
+    }
+  }
+  return false;
+}
+
+function classifyGroup(groupInfo, keys) {
+  const independentGroup = { name: 'indepedent' };
+  const groups = [];
+  keys.forEach((key) => {
+    if (key === 'independent') {
+      independentGroup.userlist = groupInfo[key];
+    } else {
+      const group = { name: key, userlist: groupInfo[key] };
+      groups.push(group);
+    }
+  });
+  state.groupInfo = groups;
+  state.independentGroup = independentGroup;
+}
+
+function joinGroup(groupInfo) {
+  const usersToConnect = groupInfo[state.myGroup].filter(
+    (userInfo) => userInfo.id !== state.myId,
+  );
+
+  usersToConnect.forEach((userInfo) => {
+    for (const u of state.connectedUsers) {
+      if (u._id === userInfo.id) {
+        connectWithTheUser(u);
+      }
+    }
+  });
+}
+
+socket.on('deliverPartyList', (groupInfo) => {
+  console.log(groupInfo);
+  const keys = Object.keys(groupInfo);
+  const hasMoved = checkMyGroup(groupInfo, keys);
+  if (hasMoved) {
+    // joining to new group
+    disconnectAll();
+    joinGroup(groupInfo);
+  }
+  classifyGroup(groupInfo, keys);
 });
 
 bus.$on('class:stop-sharing-screen', () => {

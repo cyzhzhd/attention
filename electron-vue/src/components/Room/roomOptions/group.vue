@@ -11,7 +11,11 @@
         <div class="group-list">
           <div class="group-body">
             <ul class="group-group-list">
-              <li v-for="group in groups" :key="group.name" class="group-group">
+              <li
+                v-for="group in groupInfo"
+                :key="group.name"
+                class="group-group"
+              >
                 <div class="group-name">
                   {{ group.name }}
                   <div
@@ -28,10 +32,10 @@
                 <div class="group-userlist">
                   <li
                     v-for="user in group.userlist"
-                    :key="user.user"
+                    :key="user.id"
                     class="group-user"
                   >
-                    {{ user.name }}
+                    {{ user.user }}
                   </li>
                 </div>
                 <div class="join-group-btn" @click="joinGroup(group.name)">
@@ -45,11 +49,11 @@
               <div>
                 <div class="group-name">무소속</div>
                 <li
-                  v-for="user in independent.userlist"
-                  :key="user.user"
+                  v-for="user in independentGroup.userlist"
+                  :key="user.id"
                   class="group-user"
                 >
-                  {{ user.name }}
+                  {{ user.user }}
                 </li>
               </div>
               <div class="join-group-btn" @click="joinGroup('independent')">
@@ -84,6 +88,7 @@
 
 <script>
 /* eslint no-underscore-dangle: 0 */
+import { mapGetters, mapActions } from 'vuex';
 import Modal from '../../common/Modal.vue';
 
 export default {
@@ -91,6 +96,9 @@ export default {
   props: ['showingModal'],
   components: {
     Modal,
+  },
+  computed: {
+    ...mapGetters('webRTC', ['groupInfo', 'independentGroup']),
   },
   data() {
     return {
@@ -100,78 +108,6 @@ export default {
       modalSize: {
         width: '80vw',
         height: '90vh',
-      },
-      groups: [
-        {
-          name: '1조',
-          userlist: [
-            {
-              name: '학생2',
-              user: 'asdasdasaasd',
-              isTeacher: false,
-            },
-          ],
-        },
-        {
-          name: '2조',
-          userlist: [],
-        },
-        {
-          name: '3조',
-          userlist: [],
-        },
-        {
-          name: '1조',
-          userlist: [],
-        },
-        {
-          name: '1조',
-          userlist: [],
-        },
-        {
-          name: '1조',
-          userlist: [],
-        },
-      ],
-      independent: {
-        name: 'independent',
-        userlist: [
-          {
-            name: '선생',
-            user: 'asdasdas',
-            isTeacher: true,
-          },
-          {
-            name: '학생1',
-            user: 'asdasdasasd',
-            isTeacher: false,
-          },
-          {
-            name: '학생1',
-            user: 'asdasdasasd',
-            isTeacher: false,
-          },
-          {
-            name: '학생1',
-            user: 'asdasdasasd',
-            isTeacher: false,
-          },
-          {
-            name: '학생1',
-            user: 'asdasdasasd',
-            isTeacher: false,
-          },
-          {
-            name: '학생1',
-            user: 'asdasdasasd',
-            isTeacher: false,
-          },
-          {
-            name: '학생1',
-            user: 'asdasdasasd',
-            isTeacher: false,
-          },
-        ],
       },
     };
   },
@@ -184,37 +120,38 @@ export default {
         return;
       }
       if (
-        this.groups.filter((group) => group.name === this.newGroupName).length
+        this.groupInfo.filter((group) => group.name === this.newGroupName)
+          .length ||
+        this.newGroupName === 'independent'
       ) {
         this.errorMessage = '동명의 그룹이 존재합니다.';
       } else {
         const options = {
-          classId: this.classId,
-          name: this.newGroupName,
-          userlist: [],
+          type: 'createParty',
+          content: this.newGroupName,
         };
-        console.log(options);
+        this.SendSignal(options);
         this.newGroupName = '';
         this.errorMessage = '';
-        // send create request to server
       }
     },
     deleteGroup(groupName) {
       const options = {
-        classId: this.classId,
-        name: groupName,
+        type: 'removeParty',
+        content: groupName,
       };
-      console.log(options);
+      this.SendSignal(options);
       // send delete request to server
     },
     joinGroup(groupName) {
       const options = {
-        classId: this.classId,
-        user: this.$store.state.user._id,
-        name: groupName,
+        type: 'joinParty',
+        content: groupName,
       };
-      console.log(options);
+      this.SendSignal(options);
     },
+
+    ...mapActions('webRTC', ['SendSignal']),
   },
 };
 </script>

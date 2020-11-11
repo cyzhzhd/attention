@@ -1,5 +1,6 @@
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
 /* eslint-disable no-use-before-define */
+/* eslint-disable no-unused-vars */
 import bus from '../../../utils/bus';
 import analyzeLib from './analyze/analyzeLib';
 import webRTC from './webRTC/rtcPart';
@@ -31,6 +32,9 @@ const state = {
   rotateStudentInterval: 30,
   numConnectedStudent: 3,
   CCTDataInterval: 30,
+  groupInfo: {},
+  independentGroup: {},
+  myGroup: '',
 };
 
 const getters = {
@@ -48,6 +52,12 @@ const getters = {
   },
   storedDisplayingStudentList(state) {
     return state.displayingStudentList;
+  },
+  groupInfo(state) {
+    return state.groupInfo;
+  },
+  independentGroup(state) {
+    return state.independentGroup;
   },
 };
 
@@ -74,10 +84,6 @@ const mutations = {
     webRTC.sendSignalToServer('requestDisconnection', {
       sendTo: state.classId,
     });
-  },
-
-  sendChat(state, content) {
-    webRTC.sendSignalToServer('sendChat', { content });
   },
 
   settingSetter(state, options) {
@@ -162,8 +168,8 @@ const actions = {
     commit('finishClass');
   },
 
-  SendChat({ commit }, message) {
-    commit('sendChat', message);
+  SendSignal({ commit }, { type, content }) {
+    webRTC.sendSignalToServer(type, { content });
   },
 
   VideoSetter({ commit }, payload) {
@@ -183,7 +189,6 @@ const actions = {
     } else {
       webRTC.connectWithTheUser(targetUser);
     }
-    console.log(commit);
   },
 
   DisconnectWithTheUser({ commit }, targetUser) {
