@@ -373,7 +373,6 @@ function connectWithTheUser(targetUser) {
     setRTCPeerConnection(targetUser);
     sendOffer(targetUser);
     addTrackOnPC(targetUser);
-    state.displayingStudentList.push(targetUser);
   }
 }
 function removeFromDisplayingUser(targetUser) {
@@ -626,7 +625,7 @@ function leaveGroup() {
         });
         teacher.sendingTrack.forEach((tracks) => tracks.replaceTrack(null));
       } else {
-        const user = findUser(userInfo.id);
+        const user = findUser(userInfo.user);
         console.log(user);
         if (user) {
           disconnectWithTheUser(user);
