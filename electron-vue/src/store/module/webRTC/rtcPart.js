@@ -216,6 +216,7 @@ function setOnTrackEvent(user) {
     }
 
     videoSetting(video, user, stream);
+    state.displayingStudentList.push(user);
   });
 }
 
@@ -617,6 +618,7 @@ function leaveGroup() {
         teacher.sendingTrack.forEach((tracks) => tracks.replaceTrack(null));
       } else {
         const user = findUser(userInfo.id);
+        console.log(user);
         if (user) {
           disconnectWithTheUser(user);
         }
