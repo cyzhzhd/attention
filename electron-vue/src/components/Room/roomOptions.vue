@@ -226,8 +226,8 @@ export default {
 }
 
 .class-screen-toolbar {
-  width: 20px;
-  height: 500px;
+  width: 30px;
+  height: 700px;
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -251,7 +251,7 @@ export default {
 
 .class-screen-toolbar:hover {
   transform: translate(0px, -50%);
-  width: 120px;
+  width: 150px;
 }
 .class-screen-toolbar:hover > * {
   visibility: visible;
@@ -260,8 +260,6 @@ export default {
   width: 100px;
 }
 .quit-class-button {
-  /* width: 40px; */
-  /* height: 40px; */
   background-color: #9097fd;
   border-radius: 20px;
   color: #fff;
@@ -273,7 +271,6 @@ export default {
   text-overflow: ellipsis;
 }
 .class-screen-toolbar-item {
-  /* font-weight: bold; */
   font-size: 18px;
   color: #9097fd;
   cursor: pointer;
