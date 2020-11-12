@@ -51,4 +51,8 @@ export default {
 .localVideo-div {
   display: flex;
 }
+.localVideo {
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+}
 </style>

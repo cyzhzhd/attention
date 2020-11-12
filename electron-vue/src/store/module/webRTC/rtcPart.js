@@ -610,6 +610,9 @@ function classifyGroup(groupInfo, keys) {
       groups.push(group);
     }
   });
+  console.log(groups);
+  groups.sort((a, b) => (a.name > b.name ? 1 : -1));
+  console.log(groups);
   state.groupInfo = groups;
   state.independentGroup = independentGroup;
 }
@@ -664,10 +667,15 @@ function joinGroup(groupInfo) {
 socket.on('deliverPartyList', (groupInfo) => {
   console.log(groupInfo);
   const keys = Object.keys(groupInfo);
+  if (!keys.filter((key) => key === state.myGroup).length) {
+    leaveGroup();
+    state.myGroup = 'independent';
+    return;
+  }
+
   const hasMoved = checkMyGroup(groupInfo, keys);
   console.log('my group is now', state.myGroup, hasMoved);
   if (hasMoved) {
-    // joining to new group
     if (state.isTeacher) {
       disconnectAll();
     } else {

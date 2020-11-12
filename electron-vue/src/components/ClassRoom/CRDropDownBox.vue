@@ -1,13 +1,24 @@
 <template>
   <div class="contents-tool-box">
-    <drop-down-box v-bind:size="this.size" v-if="$store.state.user.isTeacher">
+    <div class="classroom-detail">
+      <div class="classroom-class-name">
+        {{ $route.params.classroomName }}
+      </div>
+    </div>
+    <drop-down-box
+      v-bind:size="this.size.medium"
+      v-if="$store.state.user.isTeacher"
+    >
       <div slot="header">수업 만들기</div>
       <div slot="type">
         <div
           class="dropdown-box-contents"
           :class="{
-            'dropdown-box-contents-close': !$store.state.dropDownStatus[size],
-            'dropdown-box-contents-open': $store.state.dropDownStatus[size],
+            'dropdown-box-contents-close': !$store.state.dropDownStatus[
+              size.medium
+            ],
+            'dropdown-box-contents-open':
+              $store.state.dropDownStatus[size.medium],
           }"
         >
           <div class="create-classroom-form">
@@ -47,7 +58,10 @@ export default {
   },
   data() {
     return {
-      size: 'medium',
+      size: {
+        small: 'small',
+        medium: 'medium',
+      },
       sessionName: '',
       startTime: '',
       endTime: '',
@@ -65,7 +79,7 @@ export default {
       const isSuccess = await this.$store.dispatch('CREATE_CLASS', options);
       console.log(isSuccess);
       if (isSuccess) {
-        this.$store.dispatch('CHANGE_DROPDOWN_STATUS', this.size);
+        this.$store.dispatch('CHANGE_DROPDOWN_STATUS', this.size.medium);
         bus.$emit('ClassRoom:addClass');
         this.sessionName = '';
         this.startTime = '';
@@ -88,8 +102,8 @@ export default {
   height: 50px;
   margin: 0 auto 30px;
   display: flex;
-  /* justify-content: space-between; */
-  justify-content: flex-end;
+  justify-content: space-between;
+  /* justify-content: flex-end; */
 }
 
 .dropdown-box {
@@ -110,10 +124,6 @@ export default {
   font-family: 'GmarketSansBold';
   font-size: 20px;
   letter-spacing: -1px;
-
-  /* font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
-  font-size: 18px;
-  letter-spacing: -1px; */
 
   display: flex;
   align-items: center;
@@ -159,5 +169,14 @@ export default {
 
 .error-message {
   color: #fd9790;
+}
+
+.classroom-class-name {
+  font-family: 'GmarketSansBold';
+  color: #9097fd;
+  font-weight: 400;
+  font-size: 20px;
+  padding-top: 15px;
+  margin-left: -20px;
 }
 </style>

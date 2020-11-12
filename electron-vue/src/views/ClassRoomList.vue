@@ -18,6 +18,7 @@
                   name: 'ClassRoom',
                   params: {
                     classroomId: room._id,
+                    classroomName: room.name,
                   },
                 }"
                 action

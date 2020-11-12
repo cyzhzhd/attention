@@ -47,12 +47,6 @@ export default {
   grid-template-columns: 80% 20%;
   grid-template-areas: 'teacher videos';
 }
-/* .webRTC {
-  height: 100vh;
-  display: grid;
-  grid-template-rows: 75% 25%;
-  grid-template-areas: 'teacher' 'videos';
-} */
 .teacher {
   grid-area: 'teacher';
   align-self: center;
@@ -82,5 +76,9 @@ export default {
 
 .localVideo-div {
   display: flex;
+}
+.localVideo {
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
 }
 </style>

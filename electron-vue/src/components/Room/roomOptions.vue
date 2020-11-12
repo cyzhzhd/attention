@@ -2,6 +2,7 @@
   <div>
     <div class="class-screen-toolbar">
       <div
+        v-if="$store.state.user.isTeacher"
         class="class-screen-toolbar-item"
         @click.prevent="controlModal('showingScreenSharingModal')"
       >
@@ -21,18 +22,14 @@
         그룹
       </div>
       <div
-        class="class-screen-toolbar-item"
-        @click.prevent="controlModal('showingInviteModal')"
-      >
-        초대
-      </div>
-      <div
+        v-if="$store.state.user.isTeacher"
         class="class-screen-toolbar-item"
         @click.prevent="controlModal('showingCCTModal')"
       >
         그래프
       </div>
       <div
+        v-if="$store.state.user.isTeacher"
         class="class-screen-toolbar-item"
         @click.prevent="controlModal('showingSettingModal')"
       >
@@ -62,25 +59,6 @@
       </div>
     </div>
 
-    <div class="modal-wrapper" v-on:click="controlModal('showingInviteModal')">
-      <Modal
-        :size="modalSize"
-        v-if="modalList.showingInviteModal"
-        @close="modalList.showingInviteModal"
-      >
-        <h3 class="thisiscode" slot="header">강의 입장 코드</h3>
-        <h4 class="codebody" slot="body">
-          {{ this.$route.params.classroomId }}
-        </h4>
-        <h4 slot="footer">
-          <i
-            class="fa fa-times closeModalBtn fa-2x"
-            aria-hidden="true"
-            v-on:click="controlModal('showingInviteModal')"
-          ></i>
-        </h4>
-      </Modal>
-    </div>
     <settings
       v-bind:showingModal="modalList.showingSettingModal"
       v-on:closeModal="controlModal"
@@ -118,7 +96,6 @@
 import { mapGetters, mapActions } from 'vuex';
 import VueContext from 'vue-context';
 import 'vue-context/src/sass/vue-context.scss';
-import Modal from '../common/Modal.vue';
 import settings from './roomOptions/mainSettings.vue';
 import chat from './roomOptions/chat.vue';
 import screenSharing from './roomOptions/screenSharing.vue';
@@ -129,7 +106,6 @@ import bus from '../../../utils/bus';
 export default {
   name: 'room-options',
   components: {
-    Modal,
     settings,
     chat,
     screenSharing,
@@ -142,7 +118,6 @@ export default {
       classroomId: this.$route.params.classroomId,
       roomName: this.$route.params.roomName,
       modalList: {
-        showingInviteModal: false,
         showingSettingModal: false,
         showingChatModal: false,
         showingScreenSharingModal: false,
@@ -306,7 +281,7 @@ export default {
 .class-screen-toolbar-icon + .class-screen-toolbar-icon {
   margin-top: 16px;
 }
-
+/* 
 .thisiscode {
   font-family: 'GmarketSansBold';
   font-size: 20px;
@@ -324,5 +299,5 @@ export default {
 
 .footer {
   color: #9097fd;
-}
+} */
 </style>

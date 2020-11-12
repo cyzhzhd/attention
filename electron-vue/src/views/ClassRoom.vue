@@ -19,8 +19,39 @@
       <CRDropDownBox></CRDropDownBox>
       <div class="class-list">
         <div class="time-line">
-          <div class="time-line-header">TIMELINE</div>
-          <div class="time-line-divider"></div>
+          <div class="time-line-header">
+            <div>TIMELINE</div>
+            <div class="time-line-divider"></div>
+          </div>
+          <div
+            class="classroom-class-invite"
+            @click.prevent="controlModal('showingInviteModal')"
+          >
+            초대코드
+          </div>
+
+          <div
+            class="modal-wrapper"
+            v-on:click="controlModal('showingInviteModal')"
+          >
+            <Modal
+              :size="modalSize"
+              v-if="modalList.showingInviteModal"
+              @close="modalList.showingInviteModal"
+            >
+              <h3 class="thisiscode" slot="header">교실 초대 코드</h3>
+              <h4 class="codebody" slot="body">
+                {{ this.$route.params.classroomId }}
+              </h4>
+              <h4 slot="footer">
+                <i
+                  class="fa fa-times closeModalBtn fa-2x"
+                  aria-hidden="true"
+                  v-on:click="controlModal('showingInviteModal')"
+                ></i>
+              </h4>
+            </Modal>
+          </div>
         </div>
         <ul class="class-card-list">
           <li
@@ -67,20 +98,32 @@
 import bus from '../../utils/bus';
 import MainHeader from '../components/common/MainHeader.vue';
 import CRDropDownBox from '../components/ClassRoom/CRDropDownBox.vue';
+import Modal from '../components/common/Modal.vue';
 
 export default {
   name: 'ClassRoom',
   components: {
     MainHeader,
     CRDropDownBox,
+    Modal,
   },
   data() {
     return {
       classroomId: this.$route.params.classroomId,
-      classList: [],
+      classroomName: this.$route.params.classroomName,
+      classList: this.$store.state.classList,
+      modalList: {
+        showingInviteModal: false,
+      },
+      modalSize: {
+        width: '300px',
+      },
     };
   },
   methods: {
+    controlModal(modelName) {
+      this.modalList[modelName] = !this.modalList[modelName];
+    },
     async callFetchClassList() {
       const options = {
         class: this.classroomId,
