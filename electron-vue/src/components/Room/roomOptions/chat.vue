@@ -63,13 +63,13 @@
           <div class="type-msg">
             <div class="input-msg-write">
               <input
-                @keyup.enter="sendChat"
+                @keyup.enter="callSendSignal"
                 v-model="message"
                 type="text"
                 class="write-msg"
                 placeholder="Type a message"
               />
-              <button class="send-button" @click="sendChat">전송</button>
+              <button class="send-button" @click="callSendSignal">전송</button>
             </div>
           </div>
         </h4>
@@ -103,8 +103,12 @@ export default {
     };
   },
   methods: {
-    sendChat() {
-      this.SendChat(this.message);
+    callSendSignal() {
+      const options = {
+        type: 'sendChat',
+        content: this.message,
+      };
+      this.SendSignal(options);
       this.message = null;
     },
     scrollToEnd() {
@@ -122,7 +126,7 @@ export default {
       this.$emit('closeModal', 'showingChatModal');
     },
 
-    ...mapActions('webRTC', ['SendChat']),
+    ...mapActions('webRTC', ['SendSignal']),
     ...mapActions('modal', ['DragModal']),
   },
 
@@ -239,7 +243,7 @@ img {
 .received-msg-text {
   display: flex;
   justify-content: flex-start;
-  flex: 0 1 40px;
+  /* flex: 0 1 40px; */
 
   background-color: #eaebff;
   border-radius: 0.5rem;

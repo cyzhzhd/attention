@@ -1,5 +1,6 @@
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
 /* eslint-disable no-use-before-define */
+/* eslint-disable no-unused-vars */
 import bus from '../../../utils/bus';
 import analyzeLib from './analyze/analyzeLib';
 import webRTC from './webRTC/rtcPart';
@@ -31,6 +32,9 @@ const state = {
   rotateStudentInterval: 30,
   numConnectedStudent: 3,
   CCTDataInterval: 30,
+  groupInfo: {},
+  independentGroup: {},
+  myGroup: 'independent',
 };
 
 const getters = {
@@ -49,6 +53,12 @@ const getters = {
   storedDisplayingStudentList(state) {
     return state.displayingStudentList;
   },
+  groupInfo(state) {
+    return state.groupInfo;
+  },
+  independentGroup(state) {
+    return state.independentGroup;
+  },
 };
 
 const mutations = {
@@ -60,24 +70,6 @@ const mutations = {
     state.classId = payload.classId;
     state.jwt = payload.jwt;
     state.isTeacher = payload.isTeacher;
-  },
-  leaveRoom() {
-    webRTC.sendSignalToServer('leaveSession', {});
-
-    clearInterval(interval);
-    webRTC.leaveClass();
-  },
-
-  finishClass(state) {
-    console.log('finishClass');
-    console.log(state.classId);
-    webRTC.sendSignalToServer('requestDisconnection', {
-      sendTo: state.classId,
-    });
-  },
-
-  sendChat(state, content) {
-    webRTC.sendSignalToServer('sendChat', { content });
   },
 
   settingSetter(state, options) {
@@ -116,12 +108,12 @@ const mutations = {
     state.localVideo = payload.localVideo;
     state.teacherVideo = payload.teacherVideo;
   },
-  buttonSetter1(state, button) {
-    state.tempButton1 = button;
-  },
-  buttonSetter2(state, button) {
-    state.tempButton2 = button;
-  },
+  // buttonSetter1(state, button) {
+  //   state.tempButton1 = button;
+  // },
+  // buttonSetter2(state, button) {
+  //   state.tempButton2 = button;
+  // },
 };
 
 const actions = {
@@ -129,7 +121,7 @@ const actions = {
     commit('setUser', id);
   },
 
-  async EnterRoom({ commit }, payload) {
+  async EnterRoom({ state, commit }, payload) {
     commit('setVariables', payload);
     interval = setInterval(
       () => webRTC.sendSignalToServer('pingSession', {}),
@@ -152,18 +144,31 @@ const actions = {
     analyzeLib.getVideoSrc(state.localVideo);
 
     webRTC.sendSignalToServer('joinSession', {});
+    if (!state.isTeacher) {
+      controlAnalyze();
+    }
   },
 
-  LeaveRoom({ commit }) {
-    commit('leaveRoom');
+  LeaveRoom({ state }) {
+    if (!state.isTeacher) {
+      controlAnalyze();
+    }
+
+    webRTC.sendSignalToServer('leaveSession', {});
+    clearInterval(interval);
+    webRTC.leaveClass();
   },
 
-  FinishClass({ commit }) {
-    commit('finishClass');
+  FinishClass({ state }) {
+    console.log('finishClass');
+    console.log(state.classId);
+    webRTC.sendSignalToServer('requestDisconnection', {
+      sendTo: state.classId,
+    });
   },
 
-  SendChat({ commit }, message) {
-    commit('sendChat', message);
+  SendSignal({ commit }, { type, content }) {
+    webRTC.sendSignalToServer(type, { content });
   },
 
   VideoSetter({ commit }, payload) {
@@ -183,7 +188,6 @@ const actions = {
     } else {
       webRTC.connectWithTheUser(targetUser);
     }
-    console.log(commit);
   },
 
   DisconnectWithTheUser({ commit }, targetUser) {
@@ -200,23 +204,29 @@ const actions = {
   },
 
   // setOnClickTempButton
-  ButtonSetter1({ commit }, button) {
-    commit('buttonSetter1', button);
-    state.tempButton1.addEventListener('click', () => {
-      analyzeStopFlag = !analyzeStopFlag;
-      analyzeLib.startAnalyze(analyzeStopFlag);
-      if (!analyzeStopFlag) console.log('잠시 후 집중력 분석 시작');
-      else if (analyzeStopFlag) console.log('집중력 분석 중단');
-    });
-  },
-  ButtonSetter2({ commit }, button) {
-    commit('buttonSetter2', button);
-    state.tempButton2.addEventListener('click', () => {
-      console.log('button clicked2!');
-    });
-  },
+  // ButtonSetter1({ commit }, button) {
+  //   commit('buttonSetter1', button);
+  //   state.tempButton1.addEventListener('click', () => {
+  //     analyzeStopFlag = !analyzeStopFlag;
+  //     analyzeLib.startAnalyze(analyzeStopFlag);
+  //     if (!analyzeStopFlag) console.log('잠시 후 집중력 분석 시작');
+  //     else if (analyzeStopFlag) console.log('집중력 분석 중단');
+  //   });
+  // },
+  // ButtonSetter2({ commit }, button) {
+  //   commit('buttonSetter2', button);
+  //   state.tempButton2.addEventListener('click', () => {
+  //     console.log('button clicked2!');
+  //   });
+  // },
 };
 
+function controlAnalyze() {
+  analyzeStopFlag = !analyzeStopFlag;
+  analyzeLib.startAnalyze(analyzeStopFlag);
+  if (!analyzeStopFlag) console.log('잠시 후 집중력 분석 시작');
+  else if (analyzeStopFlag) console.log('집중력 분석 중단');
+}
 webRTC.initRTCPART(state);
 
 export default {

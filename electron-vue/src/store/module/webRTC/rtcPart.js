@@ -1,6 +1,7 @@
 /* eslint-disable no-use-before-define */
 /* eslint no-param-reassign: "error" */
 /* eslint-disable no-restricted-syntax */
+/* eslint no-underscore-dangle: 0 */
 import resolutions from './resolution';
 import CCT from './CCT';
 import bus from '../../../../utils/bus';
@@ -84,6 +85,8 @@ function removeLeavingUser(userlist) {
       console.log('leaving user', state.connectedUsers[i].name);
       if (state.connectedUsers[i].isTeacher) {
         console.log('teacher is leaving', teacher);
+        state.teacherVideo.removeChild(state.teacherVideo.childNodes[0]);
+        state.teacherVideo.style.height = '100%';
         teacher = null;
         isAskedToConnectTeacher = false;
       }
@@ -206,15 +209,17 @@ function setOnTrackEvent(user) {
     console.log('비디오가 추가될 때, evnet = ', event);
 
     const stream = event.streams[0];
-    let video;
-    if (user.isTeacher) {
-      video = state.teacherVideo;
-      video.controls = true;
-    } else {
-      video = addVideoElement(user);
-    }
+    // let video;
+    // if (user.isTeacher) {
+    //   video = state.teacherVideo;
+    //   video.controls = true;
+    // } else {
+    //   video = addVideoElement(user);
+    // }
+    const video = addVideoElement(user);
 
     videoSetting(video, user, stream);
+    state.displayingStudentList.push(user);
   });
 }
 
@@ -230,8 +235,14 @@ function addVideoElement(user) {
   const textNode = document.createTextNode(foundUser.name);
   p.appendChild(textNode);
   div.appendChild(p);
-  state.videos.appendChild(div);
 
+  if (user.isTeacher) {
+    state.teacherVideo.appendChild(div);
+    state.teacherVideo.style.height = 'auto';
+    video.controls = true;
+  } else {
+    state.videos.appendChild(div);
+  }
   div.style.display = 'flex';
   p.style.position = 'absolute';
   p.style.color = 'white';
@@ -341,15 +352,17 @@ function shareScreen(track) {
   reLayoutVideoIfNeeded();
   bus.$emit('rtcPart:start-sharing-screen');
 }
-
+function addStudentVideo(targetUser) {
+  const video = addVideoElement(targetUser);
+  videoSetting(video, targetUser, targetUser.recievingTrack);
+  state.displayingStudentList.push(targetUser);
+}
 function connectWithTheStudent(targetUser) {
   sendSignalToServer('sendSignal', {
     sendTo: targetUser.socket,
     content: { type: 'connectWithTeacher' },
   });
-  const video = addVideoElement(targetUser);
-  videoSetting(video, targetUser, targetUser.recievingTrack);
-  state.displayingStudentList.push(targetUser);
+  addStudentVideo(targetUser);
 }
 function disconnectWithTheStudent(targetUser) {
   removeVideo(targetUser.user);
@@ -369,7 +382,6 @@ function connectWithTheUser(targetUser) {
     setRTCPeerConnection(targetUser);
     sendOffer(targetUser);
     addTrackOnPC(targetUser);
-    state.displayingStudentList.push(targetUser);
   }
 }
 function removeFromDisplayingUser(targetUser) {
@@ -446,29 +458,24 @@ function muteAudio() {
   }
   isAudioMuted = !isAudioMuted;
 }
-
-// function signalOfferRequest(user) {
-//   sendSignalToServer('sendSignal', {
-//     sendTo: user.socket,
-//     content: {
-//       type: 'offerRequest',
-//     },
-//   });
-// }
+function disconnectAll() {
+  if (state.displayingStudentList.length >= 0) {
+    const disconnectList = [...state.displayingStudentList];
+    disconnectList.forEach((student) => {
+      console.log('연결했었던 유저', student);
+      disconnectWithTheStudent(student);
+    });
+  }
+  state.displayingStudentList = [];
+}
 
 let currentTime = new Date();
 let nextRotateTime = new Date();
 function rotateStudent(isImmediate = false) {
   if (CCT.timeCompare(currentTime, nextRotateTime) >= 0 || isImmediate) {
     console.log(state.rotateStudentInterval);
-    if (state.displayingStudentList.length >= 0) {
-      const disconnectList = [...state.displayingStudentList];
-      disconnectList.forEach((student) => {
-        console.log('연결했었던 유저', student);
-        disconnectWithTheStudent(student);
-      });
-    }
-    state.displayingStudentList = [];
+    disconnectAll();
+
     let len = Math.min(state.numConnectedStudent, state.connectedUsers.length);
     for (let i = 0; i < len; i += 1) {
       if (state.connectedUsers[i].isTeacher) {
@@ -506,6 +513,11 @@ function resetVariables() {
 socket.on('deliverUserList', (userlist) => {
   updateUserlist(userlist);
 });
+function sendTrackToTeacher() {
+  const tracks = localStream.getTracks();
+  teacher.sendingTrack[0].replaceTrack(tracks[0]);
+  teacher.sendingTrack[1].replaceTrack(tracks[1]);
+}
 
 const funcSignal = {
   offerRequest(sentFrom) {
@@ -536,15 +548,18 @@ const funcSignal = {
     disconnectWithTheUser(sentFrom, true);
   },
   connectWithTeacher(sentFrom) {
-    if (sentFrom.isTeacher) {
-      const tracks = localStream.getTracks();
-      teacher.sendingTrack[0].replaceTrack(tracks[0]);
-      teacher.sendingTrack[1].replaceTrack(tracks[1]);
-    }
+    if (sentFrom.isTeacher) sendTrackToTeacher();
   },
   disconnectWithTeacher(sentFrom) {
     if (sentFrom.isTeacher)
       teacher.sendingTrack.forEach((tracks) => tracks.replaceTrack(null));
+  },
+  connectRequestFromStudent(sentFrom) {
+    addStudentVideo(sentFrom);
+  },
+  disconnectRequestFromStudent(sentFrom) {
+    removeVideo(sentFrom.user);
+    removeFromDisplayingUser(sentFrom);
   },
 };
 
@@ -575,6 +590,115 @@ socket.on('deliverConcenteration', (cctData) => {
   CCT.sortUserListByCCT(state.connectedUsers, state.sortStudentListInterval);
   CCT.addCCTDataOnTotalCCT(state.CCTData, state.CCTDataInterval);
   rotateStudent();
+});
+
+function checkMyGroup(groupInfo, keys) {
+  for (const key of keys) {
+    for (const userInfo of groupInfo[key]) {
+      if (userInfo.id === state.myId) {
+        if (state.myGroup !== key) {
+          state.myGroup = key;
+          console.log('group changed to', key);
+          return true;
+        }
+        return false;
+      }
+    }
+  }
+  return false;
+}
+
+function classifyGroup(groupInfo, keys) {
+  const independentGroup = { name: 'indepedent' };
+  const groups = [];
+  keys.forEach((key) => {
+    if (key === 'independent') {
+      independentGroup.userlist = groupInfo[key];
+    } else {
+      const group = { name: key, userlist: groupInfo[key] };
+      groups.push(group);
+    }
+  });
+  console.log(groups);
+  groups.sort((a, b) => (a.name > b.name ? 1 : -1));
+  console.log(groups);
+  state.groupInfo = groups;
+  state.independentGroup = independentGroup;
+}
+
+function leaveGroup() {
+  if (state.isTeacher) {
+    disconnectAll();
+  } else {
+    disconnectWithGroupStudent();
+  }
+}
+function disconnectWithGroupStudent() {
+  state.displayingStudentList.forEach((userInfo) => {
+    if (userInfo.id !== state.myId) {
+      if (userInfo.isTeacher) {
+        sendSignalToServer('sendSignal', {
+          sendTo: teacher.socket,
+          content: {
+            type: 'disconnectRequestFromStudent',
+          },
+        });
+        teacher.sendingTrack.forEach((tracks) => tracks.replaceTrack(null));
+      } else {
+        const user = findUser(userInfo.user);
+        console.log(user);
+        if (user) {
+          disconnectWithTheUser(user);
+        }
+      }
+    }
+  });
+}
+
+function joinGroup(groupInfo) {
+  groupInfo[state.myGroup].forEach((userInfo) => {
+    if (userInfo.id !== state.myId) {
+      if (userInfo.isTeacher) {
+        console.log(userInfo, 'is teacher');
+        sendSignalToServer('sendSignal', {
+          sendTo: teacher.socket,
+          content: {
+            type: 'connectRequestFromStudent',
+          },
+        });
+        sendTrackToTeacher();
+      } else {
+        const user = findUser(userInfo.id);
+        if (!user) return;
+
+        if (state.isTeacher) {
+          connectWithTheStudent(user);
+        } else {
+          connectWithTheUser(user);
+        }
+      }
+    }
+  });
+}
+
+socket.on('deliverPartyList', (groupInfo) => {
+  console.log(groupInfo);
+  const keys = Object.keys(groupInfo);
+  classifyGroup(groupInfo, keys);
+  if (!keys.filter((key) => key === state.myGroup).length) {
+    leaveGroup();
+    state.myGroup = 'independent';
+    return;
+  }
+
+  const hasMoved = checkMyGroup(groupInfo, keys);
+  console.log('my group is now', state.myGroup, hasMoved);
+  if (hasMoved) {
+    leaveGroup();
+    if (state.myGroup !== 'independent') {
+      joinGroup(groupInfo);
+    }
+  }
 });
 
 bus.$on('class:stop-sharing-screen', () => {

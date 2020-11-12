@@ -60,11 +60,13 @@ body {
 
 .time-line {
   display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .time-line-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
   margin-bottom: 8px;
 
   font-family: 'GmarketSansBold';
@@ -75,10 +77,45 @@ body {
 
 .time-line-divider {
   width: 8px;
+  height: 100%;
   flex: 1;
   background-color: #aeb3ff;
 }
 
+.classroom-class-invite {
+  /* color: white; */
+  position: relative;
+  left: 85px;
+  color: #9097fd;
+  font-weight: 400;
+  font-size: 16px;
+  cursor: pointer;
+  /* background-color: #9097fd; */
+  border: 1px solid #9097fd;
+  border-radius: 1rem;
+  width: 80px;
+  flex: 0 1 auto;
+  height: 25px;
+}
+
+.thisiscode {
+  font-family: 'GmarketSansBold';
+  font-size: 20px;
+  letter-spacing: -1px;
+  color: #9097fd;
+}
+
+.codebody {
+  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
+  font-size: 18px;
+  letter-spacing: -1px;
+  font-weight: normal;
+  color: #333333;
+}
+
+.closeModalBtn {
+  color: #9097fd;
+}
 .class-card-list {
   flex: 1;
   overflow-y: auto;

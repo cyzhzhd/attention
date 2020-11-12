@@ -6,5 +6,6 @@ export default {
   classList: [],
   dropDownStatus: {
     medium: false,
+    small: false,
   },
 };

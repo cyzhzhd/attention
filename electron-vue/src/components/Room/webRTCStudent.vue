@@ -1,8 +1,6 @@
 <template>
   <div class="webRTC">
-    <div class="teacher">
-      <video ref="teacherVideo"></video>
-    </div>
+    <div class="teacher" ref="teacherVideo"></div>
     <div ref="videos" class="videos">
       <div class="localVideo-div">
         <canvas id="fcanvas" width="240" height="180"></canvas>
@@ -47,15 +45,14 @@ export default {
   grid-template-columns: 80% 20%;
   grid-template-areas: 'teacher videos';
 }
-/* .webRTC {
-  height: 100vh;
-  display: grid;
-  grid-template-rows: 75% 25%;
-  grid-template-areas: 'teacher' 'videos';
-} */
 .teacher {
   grid-area: 'teacher';
+  height: 100%;
+  /* display: flex; */
+  /* align-items: center; */
   align-self: center;
+  background-image: url('../../assets/img/Class/temp.png');
+  /* border: 1px solid gray; */
 }
 .teacher video {
   width: 100%;
@@ -82,5 +79,9 @@ export default {
 
 .localVideo-div {
   display: flex;
+}
+.localVideo {
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
 }
 </style>

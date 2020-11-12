@@ -107,12 +107,11 @@ export default {
 
 <style scoped>
 .userlist-vue {
-  /* background-color: #e4f6f1; */
-  min-height: 100%;
+  height: calc(100vh - 10px);
 }
 .userlist {
   position: absolute;
-  height: 100vh;
+  height: calc(100vh - 10px);
   width: 100px;
   margin-top: 10px;
   overflow-y: auto;

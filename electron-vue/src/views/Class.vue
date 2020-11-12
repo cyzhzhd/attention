@@ -61,6 +61,7 @@ export default {
       this.$refs.contatiner.style.gridTemplateColumns = '100px 1fr';
       this.$refs.contatiner.style.gridTemplateRows = '60px 1fr';
       this.$refs.contatiner.style.gridTemplateAreas = "'userlist webRTC'";
+      this.$refs.contatiner.style.overflowY = 'auto';
       this.$refs.closeBtn.style.display = 'none';
       ipcRenderer.send('attention:stop-sharing-screen');
     },
@@ -80,10 +81,12 @@ export default {
       this.$refs.contatiner.style.gridTemplateColumns = '1fr';
       this.$refs.contatiner.style.gridTemplateRows = '25px 1fr';
       this.$refs.contatiner.style.gridTemplateAreas = "'closeBtn' 'webRTC'";
+      this.$refs.contatiner.style.overflowY = 'hidden';
       this.$refs.closeBtn.style.display = 'block';
 
       // 연결된 유저 수 * 비디오 높이 + 버튼 높이 보내기
-      const offset = 196;
+      // const offset = 196;
+      const offset = 140;
       const height = offset + 175 * this.storedDisplayingStudentList.length;
       console.log(height, this.storedDisplayingStudentList.length + 1);
       console.log(this.storedDisplayingStudentList);
