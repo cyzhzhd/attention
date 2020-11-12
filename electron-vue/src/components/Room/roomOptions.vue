@@ -8,7 +8,6 @@
       >
         화면공유
       </div>
-      <div class="class-screen-toolbar-item" ref="temp">임시버튼</div>
       <div
         class="class-screen-toolbar-item"
         @click.prevent="controlModal('showingChatModal')"
@@ -189,9 +188,6 @@ export default {
       'FinishClass',
     ]),
   },
-  mounted() {
-    this.ButtonSetter1(this.$refs.temp);
-  },
 };
 </script>
 
@@ -208,7 +204,7 @@ export default {
 
 .class-screen-toolbar {
   width: 20px;
-  height: 500px;
+  height: 450px;
   z-index: 999;
   position: absolute;
   display: flex;

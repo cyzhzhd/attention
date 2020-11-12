@@ -85,6 +85,8 @@ function removeLeavingUser(userlist) {
       console.log('leaving user', state.connectedUsers[i].name);
       if (state.connectedUsers[i].isTeacher) {
         console.log('teacher is leaving', teacher);
+        state.teacherVideo.removeChild(state.teacherVideo.childNodes[0]);
+        state.teacherVideo.style.height = '100%';
         teacher = null;
         isAskedToConnectTeacher = false;
       }
@@ -207,13 +209,14 @@ function setOnTrackEvent(user) {
     console.log('비디오가 추가될 때, evnet = ', event);
 
     const stream = event.streams[0];
-    let video;
-    if (user.isTeacher) {
-      video = state.teacherVideo;
-      video.controls = true;
-    } else {
-      video = addVideoElement(user);
-    }
+    // let video;
+    // if (user.isTeacher) {
+    //   video = state.teacherVideo;
+    //   video.controls = true;
+    // } else {
+    //   video = addVideoElement(user);
+    // }
+    const video = addVideoElement(user);
 
     videoSetting(video, user, stream);
     state.displayingStudentList.push(user);
@@ -232,8 +235,14 @@ function addVideoElement(user) {
   const textNode = document.createTextNode(foundUser.name);
   p.appendChild(textNode);
   div.appendChild(p);
-  state.videos.appendChild(div);
 
+  if (user.isTeacher) {
+    state.teacherVideo.appendChild(div);
+    state.teacherVideo.style.height = 'auto';
+    video.controls = true;
+  } else {
+    state.videos.appendChild(div);
+  }
   div.style.display = 'flex';
   p.style.position = 'absolute';
   p.style.color = 'white';
@@ -616,7 +625,15 @@ function classifyGroup(groupInfo, keys) {
   state.groupInfo = groups;
   state.independentGroup = independentGroup;
 }
+
 function leaveGroup() {
+  if (state.isTeacher) {
+    disconnectAll();
+  } else {
+    disconnectWithGroupStudent();
+  }
+}
+function disconnectWithGroupStudent() {
   state.displayingStudentList.forEach((userInfo) => {
     if (userInfo.id !== state.myId) {
       if (userInfo.isTeacher) {
@@ -667,6 +684,7 @@ function joinGroup(groupInfo) {
 socket.on('deliverPartyList', (groupInfo) => {
   console.log(groupInfo);
   const keys = Object.keys(groupInfo);
+  classifyGroup(groupInfo, keys);
   if (!keys.filter((key) => key === state.myGroup).length) {
     leaveGroup();
     state.myGroup = 'independent';
@@ -676,16 +694,11 @@ socket.on('deliverPartyList', (groupInfo) => {
   const hasMoved = checkMyGroup(groupInfo, keys);
   console.log('my group is now', state.myGroup, hasMoved);
   if (hasMoved) {
-    if (state.isTeacher) {
-      disconnectAll();
-    } else {
-      leaveGroup();
-    }
+    leaveGroup();
     if (state.myGroup !== 'independent') {
       joinGroup(groupInfo);
     }
   }
-  classifyGroup(groupInfo, keys);
 });
 
 bus.$on('class:stop-sharing-screen', () => {

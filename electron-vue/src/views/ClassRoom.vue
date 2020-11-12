@@ -7,6 +7,7 @@
             교실 목록
           </router-link>
           <router-link
+            v-if="$store.state.user.isTeacher"
             class="router-item"
             :to="{ name: 'Dashboard', params: { classroomId, classId: 'all' } }"
           >
@@ -72,12 +73,14 @@
               <div class="class-card-thumbnail"></div>
             </div>
             <div class="class-card-right">
-              <div
-                v-if="classInfo.endTime"
-                class="class-card-enter-button"
-                @click="enterDashboard(classInfo._id)"
-              >
-                대시보드
+              <div v-if="classInfo.endTime" class="class-card-enter-button">
+                <div
+                  v-if="$store.state.user.isTeacher"
+                  @click="enterDashboard(classInfo._id)"
+                >
+                  대시보드
+                </div>
+                <div v-else>지난수업</div>
               </div>
               <div
                 v-else

@@ -1,8 +1,6 @@
 <template>
   <div class="webRTC">
-    <div class="teacher">
-      <video ref="teacherVideo"></video>
-    </div>
+    <div class="teacher" ref="teacherVideo"></div>
     <div ref="videos" class="videos">
       <div class="localVideo-div">
         <canvas id="fcanvas" width="240" height="180"></canvas>
@@ -49,7 +47,12 @@ export default {
 }
 .teacher {
   grid-area: 'teacher';
+  height: 100%;
+  /* display: flex; */
+  /* align-items: center; */
   align-self: center;
+  background-image: url('../../assets/img/Class/temp.png');
+  /* border: 1px solid gray; */
 }
 .teacher video {
   width: 100%;
