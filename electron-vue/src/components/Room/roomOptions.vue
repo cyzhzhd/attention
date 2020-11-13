@@ -8,14 +8,23 @@
       >
         화면공유
       </div>
-      <div
-        class="class-screen-toolbar-item"
+      <!-- <div
+        class="class-screen-toolbar-item class-screen-chat"
         @click.prevent="callControlModal('showingChatModal')"
       >
-        <div v-if="$store.state.modal.numUnseenMessage">
+        채팅
+      </div> -->
+      <div
+        class="class-screen-toolbar-item class-screen-chat"
+        @click.prevent="callControlModal('showingChatModal')"
+      >
+        <div
+          class="unseen-message"
+          v-if="$store.state.modal.numUnseenMessage !== 0"
+        >
           {{ $store.state.modal.numUnseenMessage }}
         </div>
-        <div>채팅</div>
+        채팅
       </div>
       <div
         class="class-screen-toolbar-item"
@@ -202,6 +211,18 @@ export default {
 .class-screen-toolbar:hover > .quit-class-button-wrapper {
   width: 80px;
 }
+.class-screen-chat {
+  display: flex;
+  flex-direction: column;
+}
+.unseen-message {
+  background-color: red;
+  color: white;
+  border-radius: 1rem;
+
+  width: 20px;
+  font-size: 12px;
+}
 .quit-class-button-wrapper {
   background-color: #9097fd;
   border-radius: 20px;
@@ -223,7 +244,7 @@ export default {
 }
 
 .class-screen-toolbar-item + .class-screen-toolbar-item {
-  margin-top: 24px;
+  margin-top: 20px;
 }
 
 .class-screen-toolbar-icon-wrapper {
@@ -242,23 +263,4 @@ export default {
 .class-screen-toolbar-icon + .class-screen-toolbar-icon {
   margin-top: 16px;
 }
-/* 
-.thisiscode {
-  font-family: 'GmarketSansBold';
-  font-size: 20px;
-  letter-spacing: -1px;
-  color: #9097fd;
-}
-
-.codebody {
-  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
-  font-size: 18px;
-  letter-spacing: -1px;
-  font-weight: normal;
-  color: #333333;
-}
-
-.footer {
-  color: #9097fd;
-} */
 </style>

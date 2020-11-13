@@ -7,8 +7,8 @@ const state = {
     showingScreenSharingModal: false,
     showingCCTModal: false,
     showingGroupModal: false,
-    numUnseenMessage: 0,
   },
+  numUnseenMessage: 0,
 };
 
 const getters = {
@@ -25,7 +25,7 @@ const mutations = {
     state.modalList[modelName] = !state.modalList[modelName];
   },
   setNumUnseenMessage(state, num) {
-    state.setNumUnseenMessage = num;
+    state.numUnseenMessage = num;
   },
   dragModal(state, payload) {
     const { modal, header } = payload;
@@ -73,7 +73,7 @@ const actions = {
     if (option === 0) {
       commit('setNumUnseenMessage', 0);
     } else {
-      const num = state.setNumUnseenMessage;
+      const num = state.numUnseenMessage;
       commit('setNumUnseenMessage', num + option);
     }
   },
