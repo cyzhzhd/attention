@@ -25,6 +25,7 @@ body {
   width: 50%;
   height: 100%;
   background-image: url(../img/login-signup/background-left.svg);
+  background-size: cover;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -143,7 +144,8 @@ body {
   transition: border 100ms ease-in;
 }
 .error-message {
-  color: red;
+  padding: 10px;
+  color: #fd9790;
 }
 .sign-in-button-wrapper {
   display: flex;
@@ -171,7 +173,7 @@ body {
 
 .go-to-signup {
   cursor: pointer;
-  color: #9097fd;
+  color: #9097fd !important;
   font-size: 20px;
   font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
   padding: 30px;

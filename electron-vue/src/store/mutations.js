@@ -37,7 +37,10 @@ export default {
       }
       return false;
     });
-    if (!hasFound) state.classroom.push(classInfo);
+    if (!hasFound) {
+      state.classroom.push(classInfo);
+      state.classroom.sort((a, b) => (a.name > b.name ? 1 : -1));
+    }
   },
   SET_CLASSLIST(state, classList) {
     state.classList = classList;

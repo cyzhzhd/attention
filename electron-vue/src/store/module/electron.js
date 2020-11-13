@@ -46,8 +46,8 @@ function captureScreens() {
         height: 140,
       },
     })
-    .then(sources => {
-      sources.forEach(source => {
+    .then((sources) => {
+      sources.forEach((source) => {
         const div = document.createElement('div');
         const canvas = document.createElement('canvas');
         const img = document.createElement('IMG');
@@ -78,19 +78,20 @@ function getDisplay(div) {
         mandatory: {
           chromeMediaSource: 'desktop',
           chromeMediaSourceId: div.detail.id,
-          minWidth: 1920,
-          maxWidth: 1920,
-          minHeight: 1080,
-          maxHeight: 1080,
+          minWidth: 640,
+          maxWidth: 1280,
+          minHeight: 480,
+          maxHeight: 720,
         },
       },
     })
-    .then(stream => {
-      [screensharingTrack] = [stream.getTracks()[0]];
+    .then((stream) => {
+      [screensharingTrack] = stream.getTracks();
+      screensharingTrack.applyConstraints({ frameRate: { max: 10 } });
       console.log(screensharingTrack);
       webRTC.shareScreen(screensharingTrack);
     })
-    .catch(error => {
+    .catch((error) => {
       console.error(error);
     });
 }

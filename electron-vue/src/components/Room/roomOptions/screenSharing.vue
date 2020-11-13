@@ -1,6 +1,6 @@
 <template>
   <div class="modal-wrapper" v-on:click="closeModal">
-    <largeModal v-if="showingModal" @close="showingModal">
+    <Modal :size="modalSize" v-if="showingModal" @close="showingModal">
       <h3 slot="header" class="header">
         <div class="modal-title">화면 공유</div>
         <div class="closeModalBtn">
@@ -11,25 +11,37 @@
         <div ref="screenNames" id="screenNames"></div>
         <div ref="screenInfo" id="screenInfo"></div>
         <div ref="canvas" class="canvas"></div>
-        <div ref="screenVideos" id="screenVideos"></div>
+        <div
+          class="screen-thumbnail"
+          ref="screenVideos"
+          id="screenVideos"
+        ></div>
       </h4>
       <h4 slot="footer">
         <button class="share-button">공유하기</button>
       </h4>
-    </largeModal>
+    </Modal>
   </div>
 </template>
 
 <script>
 import { mapActions } from 'vuex';
-import largeModal from '../../common/largeModal.vue';
+import Modal from '../../common/Modal.vue';
 import bus from '../../../../utils/bus';
 
 export default {
   name: 'screen-sharing',
   props: ['showingModal'],
+  data() {
+    return {
+      modalSize: {
+        width: '100%',
+        height: '700px',
+      },
+    };
+  },
   components: {
-    largeModal,
+    Modal,
   },
   methods: {
     closeModal() {
@@ -70,6 +82,7 @@ export default {
   gap: 5%;
   height: 560px;
   overflow-y: auto;
+  /* border: 1px solid #333333; */
 }
 
 .canvas div:hover {
@@ -78,7 +91,9 @@ export default {
 }
 
 .body {
-  border: 1px solid #9097fd;
+  background-color: #ffffff;
+  border: 5px solid #eaebff;
+  border-radius: 20px;
   padding: 20px;
   height: 500px;
 }
@@ -86,13 +101,12 @@ export default {
   display: flex;
   cursor: move;
   color: #9097fd;
-  background-color: #F6F7FB;
+  background-color: #ffffff;
   height: 50px;
   padding: 0px 30px;
   font-family: 'GmarketSansBold';
   font-size: 24px;
   letter-spacing: -1px;
-  
 }
 .modal-title {
   flex: 1;

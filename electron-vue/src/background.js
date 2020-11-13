@@ -1,6 +1,7 @@
 import { app, protocol, BrowserWindow, ipcMain } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
+import path from 'path';
 // const isDevelopment = process.env.NODE_ENV !== 'production';
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -12,18 +13,23 @@ let win;
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } },
 ]);
-
+console.log(
+  "path.join(__dirname, 'assets/icons/png/64x64.png')",
+  path.join(__dirname, '../src/assets/icons/png/64x64.png'),
+);
 async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
     width: 800,
     height: 600,
+    icon: path.join(__dirname, '../src/assets/icons/png/64x64.png'),
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
     },
   });
+  win.removeMenu();
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
@@ -32,7 +38,6 @@ async function createWindow() {
     createProtocol('app');
     // Load the index.html when not in development
     win.loadURL('app://./index.html');
-    win.webContents.openDevTools();
   }
 
   win.on('closed', () => {
@@ -75,7 +80,7 @@ app.on('ready', async () => {
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
   if (process.platform === 'win32') {
-    process.on('message', data => {
+    process.on('message', (data) => {
       if (data === 'graceful-exit') {
         app.quit();
       }
@@ -86,22 +91,17 @@ if (isDevelopment) {
     });
   }
 }
-// // 대분류(이벤트명), 중분류(type or topic), 소분류(stringified json)
-// // 프로세스명: 행위
-// ipcMain.on('process:recv', (event, message) => {
-//   // if(event.type == 'display-'){}
-// });
-
 let originalWinLocation;
 ipcMain.on('attention:start-sharing-screen', (event, height) => {
   const width = 250;
   originalWinLocation = win.getBounds();
   win.unmaximize();
   win.setBounds({ width, height });
-  // win.setContentBounds({ width, height });
+
+  win.setAlwaysOnTop(true, 'screen');
 });
 
 ipcMain.on('attention:stop-sharing-screen', () => {
   win.setBounds(originalWinLocation);
-  // win.setContentBounds({ width, height });
+  win.setAlwaysOnTop(false, 'screen');
 });

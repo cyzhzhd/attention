@@ -1,5 +1,5 @@
 <template>
-  <div class="contents-tool-box">
+  <div class="crl-contents-tool-box">
     <drop-down-box v-bind:size="size" v-if="$store.state.user.isTeacher">
       <div slot="header">교실 생성하기</div>
       <div slot="type">
@@ -136,7 +136,7 @@ export default {
 </script>
 
 <style>
-.contents-tool-box {
+.crl-contents-tool-box {
   width: 900px;
   height: 50px;
   margin: 0 auto 30px;

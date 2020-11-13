@@ -7,18 +7,17 @@ const totalCCTContainer = {};
 function CCTSetter(data) {
   data.CCTData = {
     avr: { num: 0, ttl: 0 },
-    CCT: { absence: [], focusPoint: [], sleep: [], turnHead: [], time: [] },
+    CCT: { attend: [], focusPoint: [], sleep: [], time: [] },
   };
 }
 CCTSetter(totalCCTContainer);
 
 function setVal(target, content) {
   currentTime = new Date();
-  const { absence, focusPoint, sleep, turnHead } = content;
-  target.CCT.absence.push(Number(absence * 100));
+  const { attendPer, focusPoint, sleepPer } = content;
+  target.CCT.attend.push(Number(attendPer));
   target.CCT.focusPoint.push(Number(focusPoint));
-  target.CCT.sleep.push(Number(sleep * 100));
-  target.CCT.turnHead.push(Number(turnHead * 100));
+  target.CCT.sleep.push(Number(sleepPer));
   target.CCT.time.push(currentTime.toString().split(' ')[4]);
   target.avr.num += 1;
   target.avr.ttl += Number(focusPoint);
@@ -61,16 +60,14 @@ function addCCTDataOnTotalCCT(CCTData, interval, isImmediate = false) {
   if (timeCompare(currentTime, nextRearrangedTime) >= 0 || isImmediate) {
     const { num, ttl } = totalCCTContainer.CCTData.avr;
     const cct = totalCCTContainer.CCTData.CCT;
-    const absenceTTL = cct.absence.reduce((val, acc) => acc + val, 0);
+    const attendTTL = cct.attend.reduce((val, acc) => acc + val, 0);
     const focusPointTTL = cct.focusPoint.reduce((val, acc) => acc + val, 0);
     const sleepTTL = cct.sleep.reduce((val, acc) => acc + val, 0);
-    const turnHeadTTL = cct.turnHead.reduce((val, acc) => acc + val, 0);
     CCTData.avr.num += 1;
     CCTData.avr.ttl += ttl / num;
-    CCTData.CCT.absence.push(absenceTTL / num);
+    CCTData.CCT.attend.push(attendTTL / num);
     CCTData.CCT.focusPoint.push(focusPointTTL / num);
     CCTData.CCT.sleep.push(sleepTTL / num);
-    CCTData.CCT.turnHead.push(turnHeadTTL / num);
     CCTData.CCT.time.push(currentTime.toString().split(' ')[4]);
 
     nextRearrangedTime = setNextExecuteTime(interval);

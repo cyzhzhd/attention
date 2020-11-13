@@ -12,7 +12,7 @@ const state = {
     attendPer: false,
     sleepPer: false,
   },
-  datacollection: null,
+  datacollection: {},
   timeRange: [],
   data: {},
   hasCalculated: {},
@@ -117,7 +117,7 @@ const mutations = {
       attendPer: false,
       sleepPer: false,
     };
-    state.datacollection = null;
+    state.datacollection = {};
     state.timeRange = [];
     state.data = {};
     state.hasCalculated = {};

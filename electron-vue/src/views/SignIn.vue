@@ -7,7 +7,7 @@
           <div>지금, 시작해보세요.</div>
         </div>
         <div class="tab-contents">
-          <form @submit.prevent="SignUp()">
+          <form @keyup.enter="SignUp()">
             <div class="input-wrapper">
               <label class="input-label">회원 구분</label>
               <div>
