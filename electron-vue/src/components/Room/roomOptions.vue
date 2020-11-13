@@ -1,6 +1,9 @@
 <template>
   <div>
-    <div class="class-screen-toolbar">
+    <div
+      class="class-screen-toolbar"
+      :class="{ 'class-hover': $store.state.modal.numUnseenMessage }"
+    >
       <div
         v-if="$store.state.user.isTeacher"
         class="class-screen-toolbar-item"
@@ -18,10 +21,7 @@
         class="class-screen-toolbar-item class-screen-chat"
         @click.prevent="callControlModal('showingChatModal')"
       >
-        <div
-          class="unseen-message"
-          v-if="$store.state.modal.numUnseenMessage !== 0"
-        >
+        <div class="unseen-message" v-if="$store.state.modal.numUnseenMessage">
           {{ $store.state.modal.numUnseenMessage }}
         </div>
         채팅
@@ -196,7 +196,9 @@ export default {
   font-family: 'GmarketSansBold';
   font-weight: 100;
 }
-
+.class-hover {
+  border: 1px solid red;
+}
 .class-screen-toolbar > * {
   visibility: hidden;
 }
