@@ -1,10 +1,32 @@
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
 /* eslint-disable no-use-before-define */
-const state = {};
+const state = {
+  modalList: {
+    showingSettingModal: false,
+    showingChatModal: false,
+    showingScreenSharingModal: false,
+    showingCCTModal: false,
+    showingGroupModal: false,
+    numUnseenMessage: 0,
+  },
+};
 
-const getters = {};
+const getters = {
+  modalList(state) {
+    return state.modalList;
+  },
+  numUnseenMessage(state) {
+    return state.numUnseenMessage;
+  },
+};
 
 const mutations = {
+  controlModal(state, modelName) {
+    state.modalList[modelName] = !state.modalList[modelName];
+  },
+  setNumUnseenMessage(state, num) {
+    state.setNumUnseenMessage = num;
+  },
   dragModal(state, payload) {
     const { modal, header } = payload;
     let pos1 = 0;
@@ -47,9 +69,21 @@ const mutations = {
 };
 
 const actions = {
+  ChangeNumUnseenMessage({ state, commit }, option = 1) {
+    if (option === 0) {
+      commit('setNumUnseenMessage', 0);
+    } else {
+      const num = state.setNumUnseenMessage;
+      commit('setNumUnseenMessage', num + option);
+    }
+  },
   DragModal({ commit }, payload) {
     console.log(payload);
     commit('dragModal', payload);
+  },
+
+  ControlModal({ commit }, modalName) {
+    commit('controlModal', modalName);
   },
 };
 

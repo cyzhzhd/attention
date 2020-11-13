@@ -1,6 +1,6 @@
 <template>
   <div class="modal-wrapper" v-on:click="closeModal">
-    <Modal :size="modalSize" v-if="showingModal" @close="showingModal">
+    <Modal :size="modalSize" v-if="screenShareModal" @close="screenShareModal">
       <h3 slot="header" class="header">
         <div class="modal-title">화면 공유</div>
         <div class="closeModalBtn">
@@ -27,11 +27,12 @@
 <script>
 import { mapActions } from 'vuex';
 import Modal from '../../common/Modal.vue';
-import bus from '../../../../utils/bus';
 
 export default {
   name: 'screen-sharing',
-  props: ['showingModal'],
+  components: {
+    Modal,
+  },
   data() {
     return {
       modalSize: {
@@ -40,37 +41,33 @@ export default {
       },
     };
   },
-  components: {
-    Modal,
+  computed: {
+    screenShareModal() {
+      return this.$store.state.modal.modalList.showingScreenSharingModal;
+    },
+  },
+  watch: {
+    screenShareModal() {
+      if (this.screenShareModal) {
+        this.$nextTick(() => {
+          const payload = {
+            canvas: this.$refs.canvas,
+            screenNames: this.$refs.screenNames,
+            screenInfo: this.$refs.screenInfo,
+            screenVideos: this.$refs.screenVideos,
+            captureScreens: this.$refs.captureScreens,
+          };
+          this.VariableSetter(payload);
+          this.CaptureScreens();
+        });
+      }
+    },
   },
   methods: {
     closeModal() {
-      this.$emit('closeModal', 'showingScreenSharingModal');
+      this.$store.dispatch('modal/ControlModal', 'showingScreenSharingModal');
     },
     ...mapActions('electron', ['VariableSetter', 'CaptureScreens']),
-  },
-
-  mounted() {
-    bus.$on('screenSharing', () => {
-      this.$nextTick(() => {
-        const payload = {
-          canvas: this.$refs.canvas,
-          screenNames: this.$refs.screenNames,
-          screenInfo: this.$refs.screenInfo,
-          screenVideos: this.$refs.screenVideos,
-          captureScreens: this.$refs.captureScreens,
-        };
-        this.VariableSetter(payload);
-        this.CaptureScreens();
-      });
-    });
-
-    // bus.$on('closeModal', () => this.closeModal());
-  },
-
-  beforeDestroy() {
-    bus.$off('screenSharing');
-    bus.$off('closeModal');
   },
 };
 </script>

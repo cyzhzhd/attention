@@ -1,6 +1,6 @@
 <template>
   <div class="modal-wrapper" v-on:click="closeModal">
-    <Modal :size="modalSize" v-if="showingModal" @close="showingModal">
+    <Modal :size="modalSize" v-if="groupModal" @close="groupModal">
       <h3 slot="header" class="header" ref="header">
         <div class="modal-title">그룹</div>
         <div class="closeModalBtn">
@@ -93,11 +93,13 @@ import Modal from '../../common/Modal.vue';
 
 export default {
   name: 'main-settings',
-  props: ['showingModal'],
   components: {
     Modal,
   },
   computed: {
+    groupModal() {
+      return this.$store.state.modal.modalList.showingGroupModal;
+    },
     ...mapGetters('webRTC', ['groupInfo', 'independentGroup']),
   },
   data() {
@@ -113,7 +115,7 @@ export default {
   },
   methods: {
     closeModal() {
-      this.$emit('closeModal', 'showingGroupModal');
+      this.$store.dispatch('modal/ControlModal', 'showingGroupModal');
     },
     createGroup() {
       if (!this.newGroupName) {
