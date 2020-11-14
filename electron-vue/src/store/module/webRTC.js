@@ -8,8 +8,6 @@ import CCT from './webRTC/CCT';
 
 let interval;
 
-let analyzeStopFlag = true;
-
 // 초기값도 값형식에 맞추어 설정.
 const state = {
   classroomId: '',
@@ -137,12 +135,15 @@ const actions = {
     }
     webRTC.sendSignalToServer('joinSession', {});
 
-    setTimeout(startAnalyzing, 3000);
+    if (!state.isTeacher) {
+      // setTimeout(analyzeLib.getVideoSrc(state.localVideo), 3000);
+      setTimeout(analyzeLib.getVideoSrc.bind(null, state.localVideo), 3000);
+    }
   },
 
   LeaveRoom({ state }) {
     if (!state.isTeacher) {
-      controlAnalyze();
+      analyzeLib.controlAnalyze();
     }
 
     webRTC.sendSignalToServer('leaveSession', {});
@@ -195,16 +196,6 @@ const actions = {
   },
 };
 
-function startAnalyzing() {
-  analyzeLib.getVideoSrc(state.localVideo);
-  controlAnalyze();
-}
-function controlAnalyze() {
-  analyzeStopFlag = !analyzeStopFlag;
-  analyzeLib.startAnalyze(analyzeStopFlag);
-  if (!analyzeStopFlag) console.log('잠시 후 집중력 분석 시작');
-  else if (analyzeStopFlag) console.log('집중력 분석 중단');
-}
 webRTC.initRTCPART(state);
 
 export default {
