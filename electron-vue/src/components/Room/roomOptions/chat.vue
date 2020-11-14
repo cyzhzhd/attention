@@ -22,7 +22,7 @@
             <ul class="msg-container">
               <li
                 v-for="message in messages"
-                v-bind:key="message.message"
+                v-bind:key="message.time"
                 class="msg-history"
               >
                 <div>
@@ -140,7 +140,8 @@ export default {
   mounted() {
     this.messages = [];
     bus.$on('onMessage', (name, message) => {
-      this.messages.push({ name, message });
+      const time = Date.now();
+      this.messages.push({ name, message, time });
       if (!this.$store.state.modal.modalList.showingChatModal) {
         this.$store.dispatch('modal/ChangeNumUnseenMessage', 1);
       }

@@ -184,7 +184,7 @@ function reLayoutVideoIfNeeded() {
     height = '65vh';
   } else {
     columnLayout = '1fr';
-    height = '750px';
+    height = '70vw';
     justifyItems = 'center';
     state.localVideo.style.width = '70vw';
   }

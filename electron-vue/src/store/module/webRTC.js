@@ -108,12 +108,6 @@ const mutations = {
     state.localVideo = payload.localVideo;
     state.teacherVideo = payload.teacherVideo;
   },
-  // buttonSetter1(state, button) {
-  //   state.tempButton1 = button;
-  // },
-  // buttonSetter2(state, button) {
-  //   state.tempButton2 = button;
-  // },
 };
 
 const actions = {
@@ -141,12 +135,9 @@ const actions = {
     } else {
       state.localVideo.style.width = '100%';
     }
-    analyzeLib.getVideoSrc(state.localVideo);
-
     webRTC.sendSignalToServer('joinSession', {});
-    if (!state.isTeacher) {
-      controlAnalyze();
-    }
+
+    setTimeout(startAnalyzing, 3000);
   },
 
   LeaveRoom({ state }) {
@@ -202,25 +193,12 @@ const actions = {
   SettingSetter({ commit }, options) {
     commit('settingSetter', options);
   },
-
-  // setOnClickTempButton
-  // ButtonSetter1({ commit }, button) {
-  //   commit('buttonSetter1', button);
-  //   state.tempButton1.addEventListener('click', () => {
-  //     analyzeStopFlag = !analyzeStopFlag;
-  //     analyzeLib.startAnalyze(analyzeStopFlag);
-  //     if (!analyzeStopFlag) console.log('잠시 후 집중력 분석 시작');
-  //     else if (analyzeStopFlag) console.log('집중력 분석 중단');
-  //   });
-  // },
-  // ButtonSetter2({ commit }, button) {
-  //   commit('buttonSetter2', button);
-  //   state.tempButton2.addEventListener('click', () => {
-  //     console.log('button clicked2!');
-  //   });
-  // },
 };
 
+function startAnalyzing() {
+  analyzeLib.getVideoSrc(state.localVideo);
+  controlAnalyze();
+}
 function controlAnalyze() {
   analyzeStopFlag = !analyzeStopFlag;
   analyzeLib.startAnalyze(analyzeStopFlag);
