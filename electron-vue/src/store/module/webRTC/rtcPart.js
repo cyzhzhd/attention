@@ -634,25 +634,26 @@ function leaveGroup() {
   }
 }
 function disconnectWithGroupStudent() {
-  state.displayingStudentList.forEach((userInfo) => {
-    if (userInfo.id !== state.myId) {
-      if (userInfo.isTeacher) {
-        sendSignalToServer('sendSignal', {
-          sendTo: teacher.socket,
-          content: {
-            type: 'disconnectRequestFromStudent',
-          },
-        });
-        teacher.sendingTrack.forEach((tracks) => tracks.replaceTrack(null));
-      } else {
-        const user = findUser(userInfo.user);
-        console.log(user);
-        if (user) {
-          disconnectWithTheUser(user);
-        }
+  const studentList = [...state.displayingStudentList];
+  studentList.forEach((userInfo) => {
+    console.log('userInfo = ', userInfo);
+    if (userInfo.isTeacher) {
+      sendSignalToServer('sendSignal', {
+        sendTo: teacher.socket,
+        content: {
+          type: 'disconnectRequestFromStudent',
+        },
+      });
+      teacher.sendingTrack.forEach((tracks) => tracks.replaceTrack(null));
+    } else {
+      const user = findUser(userInfo.user);
+      console.log(user);
+      if (user) {
+        disconnectWithTheUser(user);
       }
     }
   });
+  state.displayingStudentList = [];
 }
 
 function joinGroup(groupInfo) {
