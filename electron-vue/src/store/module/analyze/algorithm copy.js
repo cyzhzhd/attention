@@ -100,10 +100,10 @@ function analysis(detection, landmarks, angle, timestamp) {
   const nowTime = new Date();
   if (nowTime.getTime() - timeVar.temp.getTime() > teacherData.period * 1000) {
     if (!judge.attend) judge.focusPoint = 0;
-    else if (judge.sleep) judge.focusPoint = 5;
+    else if (judge.sleep) judge.focusPoint = 10;
     else {
       judge.focusPoint -= (judge.sleepPer / 2.5).toFixed(2);
-      if (judge.focusPoint < 10) judge.focusPoint = 10;
+      if (judge.focusPoint < 20) judge.focusPoint = 20;
     }
     rtcPart.sendSignalToServer('sendConcentration', {
       content: judge,
