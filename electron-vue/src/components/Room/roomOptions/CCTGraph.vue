@@ -64,7 +64,7 @@ export default {
   },
   methods: {
     closeModal() {
-      this.$emit('closeModal', 'showingCCTModal');
+      this.$store.dispatch('modal/ControlModal', 'showingCCTModal');
     },
     ...mapActions('modal', ['DragModal']),
   },

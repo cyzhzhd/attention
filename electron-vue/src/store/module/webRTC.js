@@ -8,7 +8,6 @@ import CCT from './webRTC/CCT';
 
 let interval;
 
-// 초기값도 값형식에 맞추어 설정.
 const state = {
   classroomId: '',
   classId: '',
