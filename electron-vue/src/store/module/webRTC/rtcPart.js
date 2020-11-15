@@ -405,14 +405,14 @@ function disconnectWithTheUser(targetUser, received = false) {
       removeTeacherVideo();
     } else {
       removeVideo(targetUser.user);
-      removeFromDisplayingUser(targetUser);
-      targetUser.rtc.close();
-      if (!received) {
-        sendSignalToServer('sendSignal', {
-          sendTo: targetUser.socket,
-          content: { type: 'disconnectWithThisUser' },
-        });
-      }
+    }
+    removeFromDisplayingUser(targetUser);
+    targetUser.rtc.close();
+    if (!received) {
+      sendSignalToServer('sendSignal', {
+        sendTo: targetUser.socket,
+        content: { type: 'disconnectWithThisUser' },
+      });
     }
   } else {
     removeVideo(targetUser.user);
