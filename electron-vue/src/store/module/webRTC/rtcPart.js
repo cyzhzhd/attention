@@ -78,17 +78,20 @@ function findUser(user, userlist = state.connectedUsers) {
   }
   return false;
 }
+function removeTeacherVideo() {
+  console.log('teacher is leaving', teacher);
+  state.teacherVideo.removeChild(state.teacherVideo.childNodes[0]);
+  state.teacherVideo.style.height = '100%';
+  teacher = null;
+  isAskedToConnectTeacher = false;
+}
 
 function removeLeavingUser(userlist) {
   for (let i = 0; i < state.connectedUsers.length; i += 1) {
     if (!findUser(state.connectedUsers[i].user, userlist)) {
       console.log('leaving user', state.connectedUsers[i].name);
       if (state.connectedUsers[i].isTeacher) {
-        console.log('teacher is leaving', teacher);
-        state.teacherVideo.removeChild(state.teacherVideo.childNodes[0]);
-        state.teacherVideo.style.height = '100%';
-        teacher = null;
-        isAskedToConnectTeacher = false;
+        removeTeacherVideo();
       }
       disconnectWithTheUser(state.connectedUsers[i]);
       state.connectedUsers.splice(i, 1);
@@ -184,7 +187,7 @@ function reLayoutVideoIfNeeded() {
     height = '65vh';
   } else {
     columnLayout = '1fr';
-    height = '750px';
+    height = '70vw';
     justifyItems = 'center';
     state.localVideo.style.width = '70vw';
   }
@@ -398,7 +401,11 @@ function disconnectWithTheUser(targetUser, received = false) {
   if (targetUser.user === state.myId) {
     alert('this is you');
   } else if (targetUser.rtc && targetUser.rtc.connectionState === 'connected') {
-    removeVideo(targetUser.user);
+    if (targetUser.isTeacher) {
+      removeTeacherVideo();
+    } else {
+      removeVideo(targetUser.user);
+    }
     removeFromDisplayingUser(targetUser);
     targetUser.rtc.close();
     if (!received) {
@@ -634,25 +641,26 @@ function leaveGroup() {
   }
 }
 function disconnectWithGroupStudent() {
-  state.displayingStudentList.forEach((userInfo) => {
-    if (userInfo.id !== state.myId) {
-      if (userInfo.isTeacher) {
-        sendSignalToServer('sendSignal', {
-          sendTo: teacher.socket,
-          content: {
-            type: 'disconnectRequestFromStudent',
-          },
-        });
-        teacher.sendingTrack.forEach((tracks) => tracks.replaceTrack(null));
-      } else {
-        const user = findUser(userInfo.user);
-        console.log(user);
-        if (user) {
-          disconnectWithTheUser(user);
-        }
+  const studentList = [...state.displayingStudentList];
+  studentList.forEach((userInfo) => {
+    console.log('userInfo = ', userInfo);
+    if (userInfo.isTeacher) {
+      sendSignalToServer('sendSignal', {
+        sendTo: teacher.socket,
+        content: {
+          type: 'disconnectRequestFromStudent',
+        },
+      });
+      teacher.sendingTrack.forEach((tracks) => tracks.replaceTrack(null));
+    } else {
+      const user = findUser(userInfo.user);
+      console.log(user);
+      if (user) {
+        disconnectWithTheUser(user);
       }
     }
   });
+  state.displayingStudentList = [];
 }
 
 function joinGroup(groupInfo) {

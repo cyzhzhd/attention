@@ -4,8 +4,8 @@
       <movableModal
         :size="modalSize"
         class="modal"
-        v-if="showingModal"
-        @close="showingModal"
+        v-if="cctModal"
+        @close="cctModal"
       >
         <h3 slot="header" class="header" ref="header">
           <div class="modal-title">집중력 그래프</div>
@@ -29,12 +29,10 @@
 <script>
 import { mapActions } from 'vuex';
 import movableModal from '../../common/movableModal.vue';
-import bus from '../../../../utils/bus';
 import ClassChart from './ClassChart/ClassChart.vue';
 
 export default {
   name: 'CCTGraph',
-  props: ['showingModal'],
   components: {
     movableModal,
     ClassChart,
@@ -47,21 +45,28 @@ export default {
       },
     };
   },
+  computed: {
+    cctModal() {
+      return this.$store.state.modal.modalList.showingCCTModal;
+    },
+  },
+  watch: {
+    cctModal() {
+      if (this.cctModal) {
+        this.$nextTick(() => {
+          this.DragModal({
+            modal: this.$refs.modal,
+            header: this.$refs.header,
+          });
+        });
+      }
+    },
+  },
   methods: {
     closeModal() {
-      this.$emit('closeModal', 'showingCCTModal');
+      this.$store.dispatch('modal/ControlModal', 'showingCCTModal');
     },
     ...mapActions('modal', ['DragModal']),
-  },
-  mounted() {
-    bus.$on('openCCTGraph', () => {
-      this.$nextTick(() => {
-        this.DragModal({ modal: this.$refs.modal, header: this.$refs.header });
-      });
-    });
-  },
-  beforeDestroy() {
-    bus.$off('openCCTGraph');
   },
 };
 </script>

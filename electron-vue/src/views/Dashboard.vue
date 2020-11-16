@@ -195,7 +195,7 @@ export default {
       this.DisplayData(this.selectedClassName);
     },
     displayWithTimeInterval(interval) {
-      [1, 5, 10].forEach(num =>
+      [1, 5, 10].forEach((num) =>
         this.$refs[`interval_${num}`].classList.remove('interval-selected'),
       );
       this.$refs[`interval_${interval}`].classList.add('interval-selected');

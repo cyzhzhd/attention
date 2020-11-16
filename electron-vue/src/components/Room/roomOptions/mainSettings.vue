@@ -1,6 +1,6 @@
 <template>
   <div class="modal-wrapper" v-on:click="closeModal">
-    <Modal :size="modalSize" v-if="showingModal" @close="showingModal">
+    <Modal :size="modalSize" v-if="settingModal" @close="settingModal">
       <h3 slot="header" class="header">설정</h3>
       <h4 slot="body">
         <video
@@ -55,11 +55,9 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import Modal from '../../common/Modal.vue';
-import bus from '../../../../utils/bus';
 
 export default {
   name: 'main-settings',
-  props: ['showingModal'],
   components: {
     Modal,
   },
@@ -76,11 +74,24 @@ export default {
     };
   },
   computed: {
+    settingModal() {
+      return this.$store.state.modal.modalList.showingSettingModal;
+    },
     ...mapGetters('webRTC', ['storedLocalVideo']),
+  },
+  watch: {
+    settingModal() {
+      if (this.settingModal) {
+        this.$nextTick(() => {
+          this.$refs.videoSettings.srcObject = this.storedLocalVideo.srcObject;
+          this.ButtonSetter2(this.$refs.temp);
+        });
+      }
+    },
   },
   methods: {
     closeModal() {
-      this.$emit('closeModal', 'showingSettingModal');
+      this.$store.dispatch('modal/ControlModal', 'showingSettingModal');
     },
     applySettings() {
       const options = {
@@ -92,18 +103,6 @@ export default {
       this.SettingSetter(options);
     },
     ...mapActions('webRTC', ['ButtonSetter2', 'SettingSetter']),
-  },
-  mounted() {
-    bus.$on('videoSetting', () => {
-      this.$nextTick(() => {
-        this.$refs.videoSettings.srcObject = this.storedLocalVideo.srcObject;
-        this.ButtonSetter2(this.$refs.temp);
-      });
-    });
-  },
-
-  beforeDestroy() {
-    bus.$off('videoSetting');
   },
 };
 </script>

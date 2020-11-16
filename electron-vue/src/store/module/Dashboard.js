@@ -1,6 +1,7 @@
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
 /* eslint-disable no-use-before-define */
 /* eslint no-param-reassign: "error" */
+/* eslint no-underscore-dangle: 0 */
 import { fetchUserList } from '../../api';
 
 const state = {
@@ -232,11 +233,21 @@ const actions = {
     console.log('drawChart end --------------');
   },
   DrawChartAllClass({ commit }, { classList, CCTData }) {
+    CCTData.forEach((cct) => {
+      [cct.detail] = classList.filter((classInfo) => classInfo._id === cct._id);
+    });
+    CCTData.sort((a, b) =>
+      compareDateinDate(
+        new Date(a.detail.startTime),
+        new Date(b.detail.startTime),
+      ),
+    );
     const labels = [];
-    classList.forEach((classInfo) => {
-      const startDay = classInfo.startTime.slice(5, 10);
-      const classTopic = classInfo.name;
-      labels.push(`${startDay} \n ${classTopic}`);
+    CCTData.forEach((cct) => {
+      const startDay = cct.detail.startTime.slice(5, 10);
+      const classTopic = cct.detail.name;
+      cct.label = `${startDay} \n ${classTopic}`;
+      labels.push(cct.label);
     });
     commit('createLabels', labels);
 
@@ -252,6 +263,28 @@ const actions = {
     });
     commit('distributeCCTDataAllClass', data);
     commit('drawChartAllClass', createDataSet());
+
+    // const labels = [];
+
+    // commit('createLabels', labels);
+
+    // const data = {
+    //   focusPoint: [],
+    //   attendPer: [],
+    //   sleepPer: [],
+    // };
+    // CCTData.forEach((cct) => {
+    //   data.focusPoint.push(cct.avgFocusPoint);
+    //   data.attendPer.push(cct.avgAttendPer);
+    //   data.sleepPer.push(cct.avgSleepPer);
+    // });
+    // commit('distributeCCTDataAllClass', data);
+    // commit('drawChartAllClass', createDataSet());
+
+    // state.datacollection = {
+    //   labels: state.timeRange,
+    //   datasets,
+    // };
   },
   ResetVariables({ commit }) {
     commit('resetVariables');
