@@ -1,36 +1,48 @@
 <template>
   <div>
-    <div class="class-screen-toolbar">
+    <div
+      class="class-screen-toolbar"
+      :class="{ 'class-hover': $store.state.modal.numUnseenMessage }"
+    >
       <div
         v-if="$store.state.user.isTeacher"
         class="class-screen-toolbar-item"
-        @click.prevent="controlModal('showingScreenSharingModal')"
+        @click.prevent="callControlModal('showingScreenSharingModal')"
       >
         화면공유
       </div>
-      <div
-        class="class-screen-toolbar-item"
-        @click.prevent="controlModal('showingChatModal')"
+      <!-- <div
+        class="class-screen-toolbar-item class-screen-chat"
+        @click.prevent="callControlModal('showingChatModal')"
       >
+        채팅
+      </div> -->
+      <div
+        class="class-screen-toolbar-item class-screen-chat"
+        @click.prevent="callControlModal('showingChatModal')"
+      >
+        <div class="unseen-message" v-if="$store.state.modal.numUnseenMessage">
+          {{ $store.state.modal.numUnseenMessage }}
+        </div>
         채팅
       </div>
       <div
         class="class-screen-toolbar-item"
-        @click.prevent="controlModal('showingGroupModal')"
+        @click.prevent="callControlModal('showingGroupModal')"
       >
         그룹
       </div>
       <div
         v-if="$store.state.user.isTeacher"
         class="class-screen-toolbar-item"
-        @click.prevent="controlModal('showingCCTModal')"
+        @click.prevent="callControlModal('showingCCTModal')"
       >
         그래프
       </div>
       <div
         v-if="$store.state.user.isTeacher"
         class="class-screen-toolbar-item"
-        @click.prevent="controlModal('showingSettingModal')"
+        @click.prevent="callControlModal('showingSettingModal')"
       >
         설정
       </div>
@@ -58,26 +70,11 @@
       </div>
     </div>
 
-    <settings
-      v-bind:showingModal="modalList.showingSettingModal"
-      v-on:closeModal="controlModal"
-    ></settings>
-    <chat
-      v-bind:showingModal="modalList.showingChatModal"
-      v-on:closeModal="controlModal"
-    ></chat>
-    <CCTGraph
-      v-bind:showingModal="modalList.showingCCTModal"
-      v-on:closeModal="controlModal"
-    ></CCTGraph>
-    <screen-sharing
-      v-bind:showingModal="modalList.showingScreenSharingModal"
-      v-on:closeModal="controlModal"
-    ></screen-sharing>
-    <group
-      v-bind:showingModal="modalList.showingGroupModal"
-      v-on:closeModal="controlModal"
-    ></group>
+    <settings></settings>
+    <chat></chat>
+    <CCTGraph></CCTGraph>
+    <screen-sharing></screen-sharing>
+    <group></group>
     <vue-context ref="menu">
       <template>
         <li>
@@ -100,7 +97,7 @@ import chat from './roomOptions/chat.vue';
 import screenSharing from './roomOptions/screenSharing.vue';
 import CCTGraph from './roomOptions/CCTGraph.vue';
 import group from './roomOptions/group.vue';
-import bus from '../../../utils/bus';
+// import bus from '../../../utils/bus';
 
 export default {
   name: 'room-options',
@@ -116,14 +113,6 @@ export default {
     return {
       classroomId: this.$route.params.classroomId,
       roomName: this.$route.params.roomName,
-      modalList: {
-        showingSettingModal: false,
-        showingChatModal: false,
-        showingScreenSharingModal: false,
-        showingCCTModal: false,
-        showingGroupModal: false,
-      },
-
       modalSize: {
         width: '300px',
       },
@@ -134,26 +123,11 @@ export default {
 
   computed: {
     ...mapGetters('webRTC', ['storedLocalVideo']),
+    ...mapGetters('modal', ['modalList']),
   },
   methods: {
-    controlModal(modelName) {
-      this.modalList[modelName] = !this.modalList[modelName];
-
-      if (this.modalList[modelName] && modelName === 'showingSettingModal') {
-        bus.$emit('videoSetting');
-      } else if (
-        this.modalList[modelName] &&
-        modelName === 'showingScreenSharingModal'
-      ) {
-        bus.$emit('screenSharing');
-      } else if (
-        this.modalList[modelName] &&
-        modelName === 'showingChatModal'
-      ) {
-        bus.$emit('openChat');
-      } else if (this.modalList[modelName] && modelName === 'showingCCTModal') {
-        bus.$emit('openCCTGraph');
-      }
+    callControlModal(modalName) {
+      this.$store.dispatch('modal/ControlModal', modalName);
     },
 
     muteVideo() {
@@ -222,7 +196,9 @@ export default {
   font-family: 'GmarketSansBold';
   font-weight: 100;
 }
-
+.class-hover {
+  border: 1px solid red;
+}
 .class-screen-toolbar > * {
   visibility: hidden;
 }
@@ -236,6 +212,18 @@ export default {
 }
 .class-screen-toolbar:hover > .quit-class-button-wrapper {
   width: 80px;
+}
+.class-screen-chat {
+  display: flex;
+  flex-direction: column;
+}
+.unseen-message {
+  background-color: red;
+  color: white;
+  border-radius: 1rem;
+
+  width: 20px;
+  font-size: 12px;
 }
 .quit-class-button-wrapper {
   background-color: #9097fd;
@@ -258,7 +246,7 @@ export default {
 }
 
 .class-screen-toolbar-item + .class-screen-toolbar-item {
-  margin-top: 24px;
+  margin-top: 20px;
 }
 
 .class-screen-toolbar-icon-wrapper {
@@ -277,23 +265,4 @@ export default {
 .class-screen-toolbar-icon + .class-screen-toolbar-icon {
   margin-top: 16px;
 }
-/* 
-.thisiscode {
-  font-family: 'GmarketSansBold';
-  font-size: 20px;
-  letter-spacing: -1px;
-  color: #9097fd;
-}
-
-.codebody {
-  font-family: 'Spoqa Han Sans', 'Spoqa Han Sans JP', 'Sans-serif';
-  font-size: 18px;
-  letter-spacing: -1px;
-  font-weight: normal;
-  color: #333333;
-}
-
-.footer {
-  color: #9097fd;
-} */
 </style>

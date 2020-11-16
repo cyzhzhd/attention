@@ -48,7 +48,8 @@
         </div>
       </div>
 
-      <div class="dashboard-contents">
+      <div class="dashboard-background">
+        <div class="dashboard-contents">
         <ul class="user-list-wrapper" v-if="!displayingAllClass">
           <li
             class="user-item"
@@ -112,6 +113,7 @@
         </div>
       </div>
     </div>
+      </div>
   </div>
 </template>
 
@@ -195,7 +197,7 @@ export default {
       this.DisplayData(this.selectedClassName);
     },
     displayWithTimeInterval(interval) {
-      [1, 5, 10].forEach(num =>
+      [1, 5, 10].forEach((num) =>
         this.$refs[`interval_${num}`].classList.remove('interval-selected'),
       );
       this.$refs[`interval_${interval}`].classList.add('interval-selected');

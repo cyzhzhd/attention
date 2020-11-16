@@ -5,48 +5,84 @@
         <li v-for="userInfo in storedConnectedUsers" v-bind:key="userInfo._id">
           <div @click.prevent="$refs.menu.open($event, userInfo)" @click.stop>
             <div class="CCTIcon" v-if="$store.state.user.isTeacher">
-              <figure
-                class="hpBar"
-                v-if="userInfo.CCTData.avr.num > 0"
-                :style="{
-                  backgroundImage:
-                    'url(' + require('../../assets/img/room/energy.png') + ')',
-                }"
-              ></figure>
-              <figure
-                class="backGround"
-                v-if="userInfo.CCTData.avr.num > 0"
-                :style="{
-                  backgroundImage:
-                    'url(' +
-                    require('../../assets/img/room/energy-background.png') +
-                    ')',
-                  width: `${
-                    20 -
+              <div v-if="userInfo.CCTData.avr.num > 0">
+                <div
+                  class="cct-others"
+                  v-if="
                     userInfo.CCTData.CCT.focusPoint[
                       userInfo.CCTData.avr.num - 1
-                    ] /
-                      5
-                  }px`,
-                }"
-              ></figure>
-              <figure
-                class="hpBar"
-                v-if="userInfo.CCTData.avr.num === 0"
-                :style="{
-                  backgroundImage:
-                    'url(' +
-                    require('../../assets/img/room/energyRed.png') +
-                    ')',
-                  width: `${
-                    20 -
-                    userInfo.CCTData.CCT.focusPoint[
-                      userInfo.CCTData.avr.num - 1
-                    ] /
-                      5
-                  }px`,
-                }"
-              ></figure>
+                    ] < 20
+                  "
+                >
+                  <div
+                    v-if="
+                      userInfo.CCTData.CCT.focusPoint[
+                        userInfo.CCTData.avr.num - 1
+                      ] === 0
+                    "
+                  >
+                    <figure
+                      class="hpBar"
+                      :style="{
+                        backgroundImage:
+                          'url(' +
+                          require('../../assets/img/room/running.svg') +
+                          ')',
+                      }"
+                    />
+                  </div>
+                  <div v-else>
+                    <figure
+                      class="hpBar"
+                      :style="{
+                        backgroundImage:
+                          'url(' +
+                          require('../../assets/img/room/zzz.svg') +
+                          ')',
+                      }"
+                    />
+                  </div>
+                </div>
+                <div v-else>
+                  <figure
+                    class="hpBar"
+                    :style="{
+                      backgroundImage:
+                        'url(' +
+                        require('../../assets/img/room/energy.png') +
+                        ')',
+                    }"
+                  />
+                  <figure
+                    class="backGround"
+                    :style="{
+                      backgroundImage:
+                        'url(' +
+                        require('../../assets/img/room/energy-background.png') +
+                        ')',
+                      width: `${
+                        20 -
+                        userInfo.CCTData.CCT.focusPoint[
+                          userInfo.CCTData.avr.num - 1
+                        ] /
+                          5
+                      }px`,
+                    }"
+                  />
+                </div>
+              </div>
+              <div v-else>
+                <figure
+                  class="hpBar"
+                  v-if="userInfo.CCTData.avr.num === 0"
+                  :style="{
+                    backgroundImage:
+                      'url(' +
+                      require('../../assets/img/room/energyRed.png') +
+                      ')',
+                  }"
+                />
+              </div>
             </div>
             <figure
               class="userlist-profile"
@@ -137,7 +173,6 @@ export default {
 .backGround {
   z-index: 101;
   margin-top: -20px;
-  /* width: 10px; */
 }
 .CCTIcon {
   position: absolute;
@@ -149,6 +184,9 @@ export default {
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
+}
+.cct-others {
+  transform: rotate(-90deg);
 }
 .button {
   background-color: #c9caca;

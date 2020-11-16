@@ -51,7 +51,7 @@ export default {
   /* display: flex; */
   /* align-items: center; */
   align-self: center;
-  background-image: url('../../assets/img/Class/temp.png');
+  background-image: url('../../assets/img/room/temp.png');
   /* border: 1px solid gray; */
 }
 .teacher video {

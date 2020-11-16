@@ -8,9 +8,6 @@ import CCT from './webRTC/CCT';
 
 let interval;
 
-let analyzeStopFlag = true;
-
-// 초기값도 값형식에 맞추어 설정.
 const state = {
   classroomId: '',
   classId: '',
@@ -108,12 +105,6 @@ const mutations = {
     state.localVideo = payload.localVideo;
     state.teacherVideo = payload.teacherVideo;
   },
-  // buttonSetter1(state, button) {
-  //   state.tempButton1 = button;
-  // },
-  // buttonSetter2(state, button) {
-  //   state.tempButton2 = button;
-  // },
 };
 
 const actions = {
@@ -141,17 +132,17 @@ const actions = {
     } else {
       state.localVideo.style.width = '100%';
     }
-    analyzeLib.getVideoSrc(state.localVideo);
-
     webRTC.sendSignalToServer('joinSession', {});
+
     if (!state.isTeacher) {
-      controlAnalyze();
+      // setTimeout(analyzeLib.getVideoSrc(state.localVideo), 3000);
+      setTimeout(analyzeLib.getVideoSrc.bind(null, state.localVideo), 3000);
     }
   },
 
   LeaveRoom({ state }) {
     if (!state.isTeacher) {
-      controlAnalyze();
+      analyzeLib.controlAnalyze();
     }
 
     webRTC.sendSignalToServer('leaveSession', {});
@@ -202,31 +193,8 @@ const actions = {
   SettingSetter({ commit }, options) {
     commit('settingSetter', options);
   },
-
-  // setOnClickTempButton
-  // ButtonSetter1({ commit }, button) {
-  //   commit('buttonSetter1', button);
-  //   state.tempButton1.addEventListener('click', () => {
-  //     analyzeStopFlag = !analyzeStopFlag;
-  //     analyzeLib.startAnalyze(analyzeStopFlag);
-  //     if (!analyzeStopFlag) console.log('잠시 후 집중력 분석 시작');
-  //     else if (analyzeStopFlag) console.log('집중력 분석 중단');
-  //   });
-  // },
-  // ButtonSetter2({ commit }, button) {
-  //   commit('buttonSetter2', button);
-  //   state.tempButton2.addEventListener('click', () => {
-  //     console.log('button clicked2!');
-  //   });
-  // },
 };
 
-function controlAnalyze() {
-  analyzeStopFlag = !analyzeStopFlag;
-  analyzeLib.startAnalyze(analyzeStopFlag);
-  if (!analyzeStopFlag) console.log('잠시 후 집중력 분석 시작');
-  else if (analyzeStopFlag) console.log('집중력 분석 중단');
-}
 webRTC.initRTCPART(state);
 
 export default {

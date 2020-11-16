@@ -13,6 +13,14 @@ import al from './algorithm copy';
 
 let video;
 let stopFlag = true;
+let analyzeStopFlag = true;
+
+function controlAnalyze() {
+  analyzeStopFlag = !analyzeStopFlag;
+  startAnalyze(analyzeStopFlag);
+  if (!analyzeStopFlag) console.log('잠시 후 집중력 분석 시작');
+  else if (analyzeStopFlag) console.log('집중력 분석 중단');
+}
 
 async function getVideoSrc(videoSrc) {
   video = videoSrc;
@@ -22,6 +30,8 @@ async function getVideoSrc(videoSrc) {
   await landmarkModel.loadFromUri(
     'https://be.swm183.com:3000/download/landmark/model.json',
   );
+
+  controlAnalyze();
 }
 
 function startAnalyze(stopFlagInput) {
@@ -45,8 +55,8 @@ function startAnalyze(stopFlagInput) {
 }
 
 function drawLandmark(bbox, conf, landmark, point) {
-  const canvas = document.getElementById("fcanvas");
-  const ctx = canvas.getContext("2d");
+  const canvas = document.getElementById('fcanvas');
+  const ctx = canvas.getContext('2d');
   drawAll(canvas, ctx, bbox, conf, landmark, point);
 }
 
@@ -55,12 +65,10 @@ function drawAll(canvas, ctx, bbox, conf, landmarkObj, point) {
   if (point < 45) {
     ctx.fillStyle = '#FF0000';
     ctx.strokeStyle = '#FF0000';
-  }
-  else if (point < 75) {
+  } else if (point < 75) {
     ctx.fillStyle = '#0000FF';
     ctx.strokeStyle = '#0000FF';
-  }
-  else {
+  } else {
     ctx.fillStyle = '#00FF00';
     ctx.strokeStyle = '#00FF00';
   }
@@ -83,4 +91,5 @@ function drawAll(canvas, ctx, bbox, conf, landmarkObj, point) {
 export default {
   getVideoSrc,
   startAnalyze,
+  controlAnalyze,
 };

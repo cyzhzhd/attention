@@ -4,8 +4,8 @@
       <movableModal
         :size="modalSize"
         class="modal"
-        v-if="showingModal"
-        @close="showingModal"
+        v-if="chatModal"
+        @close="chatModal"
       >
         <h3 slot="header" class="header" ref="header">
           <div class="modal-title">채팅</div>
@@ -22,19 +22,13 @@
             <ul class="msg-container">
               <li
                 v-for="message in messages"
-                v-bind:key="message.message"
+                v-bind:key="message.time"
                 class="msg-history"
               >
-                <div class="bot-msg" v-if="message.name === 'bot'">
-                  <!-- <p>{{ message.sentAt }}</p> -->
-                  <p>{{ message.message }}</p>
-                </div>
-                <div v-else>
+                <div>
                   <div v-if="message.name === name">
                     <div class="sent-msg">
-                      <div class="sent-msg-info">
-                        <!-- <p>{{ message.sentAt }}</p> -->
-                      </div>
+                      <div class="sent-msg-info"></div>
                       <div class="sent-msg-text">
                         <p>{{ message.message }}</p>
                       </div>
@@ -43,13 +37,7 @@
                   <div v-else>
                     <div class="received-msg">
                       <div class="received-msg-info">
-                        <img
-                          class="received-msg-img"
-                          src="https://ptetutorials.com/images/user-profile.png"
-                          alt="sunil"
-                        />
                         <p class="sender">{{ message.name }}</p>
-                        <!-- <p class="received-msg-sentAt">{{ message.sentAt }}</p> -->
                       </div>
                       <div class="received-msg-text">
                         <p>{{ message.message }}</p>
@@ -86,7 +74,6 @@ import bus from '../../../../utils/bus';
 
 export default {
   name: 'chat',
-  props: ['showingModal'],
   components: {
     movableModal,
   },
@@ -100,7 +87,27 @@ export default {
         width: '350px',
         height: '500px',
       },
+      numUnseenMessage: 0,
     };
+  },
+  computed: {
+    chatModal() {
+      return this.$store.state.modal.modalList.showingChatModal;
+    },
+  },
+  watch: {
+    chatModal() {
+      if (this.chatModal) {
+        this.$store.dispatch('modal/ChangeNumUnseenMessage', 0);
+        this.$nextTick(() => {
+          console.log(this.$refs.modal, this.$refs.header);
+          this.DragModal({
+            modal: this.$refs.modal,
+            header: this.$refs.header,
+          });
+        });
+      }
+    },
   },
   methods: {
     callSendSignal() {
@@ -123,7 +130,7 @@ export default {
     },
 
     closeModal() {
-      this.$emit('closeModal', 'showingChatModal');
+      this.$store.dispatch('modal/ControlModal', 'showingChatModal');
     },
 
     ...mapActions('webRTC', ['SendSignal']),
@@ -131,21 +138,13 @@ export default {
   },
 
   mounted() {
-    this.messages = [
-      {
-        name: 'bot',
-        message: `${this.$store.state.user.name}이 로그인했습니다.`,
-      },
-    ];
+    this.messages = [];
     bus.$on('onMessage', (name, message) => {
-      this.messages.push({ name, message });
-    });
-
-    bus.$on('openChat', () => {
-      this.$nextTick(() => {
-        console.log(this.$refs.modal, this.$refs.header);
-        this.DragModal({ modal: this.$refs.modal, header: this.$refs.header });
-      });
+      const time = Date.now();
+      this.messages.push({ name, message, time });
+      if (!this.$store.state.modal.modalList.showingChatModal) {
+        this.$store.dispatch('modal/ChangeNumUnseenMessage', 1);
+      }
     });
   },
   updated() {
@@ -154,7 +153,6 @@ export default {
 
   beforeDestroy() {
     bus.$off('onMessage');
-    bus.$off('openChat');
   },
 };
 </script>
@@ -233,7 +231,8 @@ img {
 
 .received-msg {
   display: flex;
-  align-items: left;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .received-msg-img {
@@ -243,7 +242,6 @@ img {
 .received-msg-text {
   display: flex;
   justify-content: flex-start;
-  /* flex: 0 1 40px; */
 
   background-color: #eaebff;
   border-radius: 0.5rem;

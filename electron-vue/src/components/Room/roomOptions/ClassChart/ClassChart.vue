@@ -13,11 +13,7 @@
     <div class="dropdown">
       <select name="dropdown" v-model="user" @click="displaySelectedUser">
         <option value="all" selected>전체</option>
-        <option
-          v-for="user in storedConnectedUsers"
-          :key="user.user"
-          :value="user"
-        >
+        <option v-for="user in studentList" :key="user.user" :value="user">
           {{ user.name }}
         </option>
       </select>
@@ -32,6 +28,7 @@
 </template>
 
 <script>
+/* eslint no-underscore-dangle: 0 */
 import { mapGetters } from 'vuex';
 import LineChart from './ClassLineChart.vue';
 
@@ -43,11 +40,21 @@ export default {
   computed: {
     ...mapGetters('webRTC', ['storedConnectedUsers', 'storedCCTData']),
   },
+  watch: {
+    storedConnectedUsers() {
+      console.log(this.storedConnectedUsers);
+      this.studentList = this.storedConnectedUsers.filter(
+        (user) => !user.isTeacher,
+      );
+      console.log(this.studentList);
+    },
+  },
   data() {
     return {
       totalPoint: '0',
       currentPoint: '0',
       datacollection: null,
+      studentList: [],
       user: 'all',
       interval: '',
       type: {
