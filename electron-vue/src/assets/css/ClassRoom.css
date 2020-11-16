@@ -47,11 +47,19 @@ body {
   display: flex;
   overflow: hidden;
   flex-direction: column;
+  align-items: center;
 
-  /* background-size: cover;
+  /* background-size: contain;
   background-image: url(../img/ClassRoom/classroom-background.svg); */
 }
 
+.classroom-background {
+  background-size: cover;
+  background-image: url(../img/ClassRoom/classroom-background.svg);
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-attachment: fixed;
+}
 .class-list {
   display: flex;
   overflow: hidden;
